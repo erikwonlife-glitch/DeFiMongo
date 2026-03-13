@@ -1950,8 +1950,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
       <span class="ftr-text" data-mn="Үнэгүй Сургалт" data-en="Free Training">Үнэгүй Сургалт</span>
       <span class="ftr-badge">FREE</span>
     </button>
-    <button class="abtn al" onclick="openAuth('login')" data-mn="Нэвтрэх" data-en="Sign In">Нэвтрэх</button>
-    <button class="abtn aj" onclick="openAuth('register')" data-mn="Бүртгүүлэх" data-en="Join Free">Бүртгүүлэх</button>
+    <button class="abtn aj" onclick="openAuth('register')" id="authEntryBtn" data-mn="Нэвтрэх / Бүртгүүлэх" data-en="Sign In / Join">Нэвтрэх / Бүртгүүлэх</button>
   </div>
 </header>
 
@@ -4059,7 +4058,7 @@ function showAuthSuccess(name, sub, wallet){
       <div class="auth-success-icon">✅</div>
       <div class="auth-success-title">Welcome, ${name}!</div>
       <div class="auth-success-sub">${wallet?'Wallet connected: '+sub:'Signed in as '+sub}<br/>Your portfolio is ready.</div>
-      <button class="asub" style="max-width:240px;margin:18px auto 0;display:block" onclick="closeAuth();updateTopbarLoggedIn()">Go to Dashboard →</button>
+      <button class="asub" style="max-width:240px;margin:18px auto 0;display:block" onclick="closeAuth();openDashboard()">Go to Dashboard →</button>
     </div>`;
   updateTopbarLoggedIn();
   setTimeout(()=>{ closeAuth(); }, 2800);
@@ -4087,34 +4086,40 @@ function updateTopbarLoggedIn(){
   const tbr=document.getElementById('tbr');
   if(!tbr)return;
   const initials=CR_USER.displayName?CR_USER.displayName.slice(0,2).toUpperCase():'CR';
+  const subInfo = getSubInfo();
+  const subBadge = subInfo.active
+    ? `<span style="background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.25);color:var(--accent);font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:3px;letter-spacing:1px">● PRO</span>`
+    : `<span style="background:rgba(244,197,66,.1);border:1px solid rgba(244,197,66,.25);color:var(--gold);font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:3px;letter-spacing:1px;cursor:pointer" onclick="openDashboard()">GET PRO</span>`;
   tbr.innerHTML=`
     <div class="clk" id="clk">--:--:-- UTC</div>
-    <div class="uav" onclick="openPortfolio()">
+    <div style="display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0">
+      <button id="main-lang-mn" onclick="setSiteLang('mn')" style="padding:5px 10px;background:#00e87a;color:#000;border:none;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s">МН</button>
+      <button id="main-lang-en" onclick="setSiteLang('en')" style="padding:5px 10px;background:transparent;color:var(--muted);border:none;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s">EN</button>
+    </div>
+    ${subBadge}
+    <div class="uav" onclick="openDashboard()">
       <div class="uico">${initials}</div>
       <span class="unm">${CR_USER.displayName}</span>
       <span style="font-size:10px;color:var(--muted)">▾</span>
     </div>
     <button class="abtn al" onclick="doLogout()" style="font-size:10px">Sign Out</button>`;
+  // Re-sync language
+  try{const lang=localStorage.getItem('cr_lang')||'mn';setSiteLang(lang);}catch(e){}
+  // Check subscription expiry reminder
+  checkSubExpiry();
 }
 
 function doLogout(){
   CR_USER=null; DB.clear();
   const tbr=document.getElementById('tbr');
-  if(tbr) tbr.innerHTML=`<div class="clk" id="clk">--:--:-- UTC</div><button class="abtn al" onclick="openAuth('login')">Sign In</button><button class="abtn aj" onclick="openAuth('register')">Join Free</button>`;
+  if(tbr) tbr.innerHTML=`<div class="clk" id="clk">--:--:-- UTC</div><button class="abtn aj" onclick="openAuth('register')" id="authEntryBtn">Нэвтрэх / Бүртгүүлэх</button>`;
   toast('Signed out','#4d6475');
 }
 
-// ── PORTFOLIO PANEL ───────────────────────────────────────────────────────────
+// ── PORTFOLIO PANEL (legacy redirect → new Dashboard) ────────────────────────────────────────────
 function openPortfolio(){
   if(!CR_USER){ openAuth('register'); return; }
-  // Show portfolio in a modal
-  const ov=document.getElementById('authOv');
-  const mbd=document.getElementById('mbd');
-  const tabs=document.getElementById('authTabs');
-  document.getElementById('mtitle').textContent='My Portfolio';
-  tabs.style.display='none';
-  ov.classList.add('on');
-  renderPortfolio(mbd);
+  openDashboard();
 }
 
 function renderPortfolio(container){
@@ -5834,6 +5839,1049 @@ window.handleVaultDeploy = handleVaultDeploy;
 window.openVaultDeposit = openVaultDeposit;
 window.openYieldDeposit = openYieldDeposit;
 window.openYieldDocs = openYieldDocs;
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CHAINROOT PROFESSIONAL DASHBOARD OVERLAY
+     Full-screen user dashboard: wallet info, portfolio, subscription
+═══════════════════════════════════════════════════════════════ -->
+<style>
+/* ── DASHBOARD OVERLAY ──────────────────────────────────────── */
+.dash-overlay{
+  display:none;position:fixed;inset:0;z-index:900;
+  background:var(--bg);flex-direction:column;overflow:hidden;
+}
+.dash-overlay.on{display:flex;}
+
+/* Topbar */
+.dash-tb{
+  height:56px;flex-shrink:0;
+  background:rgba(7,9,11,.97);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 28px;gap:16px;
+}
+.dash-tb-logo{display:flex;align-items:center;gap:8px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#fff}
+.dash-tb-logo .root{color:var(--accent)}
+.dash-tb-title{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-left:4px}
+.dash-close-btn{
+  margin-left:auto;display:flex;align-items:center;gap:6px;
+  padding:7px 16px;background:transparent;border:1px solid var(--border);
+  border-radius:4px;font-family:'Space Mono',monospace;font-size:11px;
+  color:var(--muted);cursor:pointer;transition:all .2s;
+}
+.dash-close-btn:hover{border-color:var(--border2);color:var(--text)}
+
+/* Layout: sidebar + main */
+.dash-shell{display:flex;flex:1;overflow:hidden;}
+.dash-nav{
+  width:200px;flex-shrink:0;background:var(--bg1);
+  border-right:1px solid var(--border);padding:16px 0;
+  display:flex;flex-direction:column;gap:2px;
+}
+.dash-nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 18px;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
+  color:var(--text);cursor:pointer;border-left:2px solid transparent;
+  transition:all .15s;
+}
+.dash-nav-item:hover{color:var(--accent);background:rgba(0,232,122,.04);border-left-color:rgba(0,232,122,.25)}
+.dash-nav-item.on{color:var(--accent);background:rgba(0,232,122,.07);border-left-color:var(--accent)}
+.dash-nav-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+
+/* Main scroll area */
+.dash-main{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--bg);}
+.dash-main::-webkit-scrollbar{width:4px}
+.dash-main::-webkit-scrollbar-thumb{background:var(--border)}
+
+/* Panels */
+.dash-panel{display:none;padding:36px 40px 60px;}
+.dash-panel.on{display:block;animation:pin .2s ease}
+
+/* ── OVERVIEW PANEL ── */
+.dash-welcome{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden;
+}
+.dash-welcome::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,232,122,.08),transparent 70%);
+  pointer-events:none;
+}
+.dash-welcome-left{}
+.dash-welcome-name{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:800;color:#fff;letter-spacing:-.02em}
+.dash-welcome-sub{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-top:5px}
+.dash-welcome-wallet{
+  display:flex;align-items:center;gap:8px;margin-top:12px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:6px;
+  padding:8px 14px;width:fit-content;
+}
+.dash-welcome-wallet-icon{font-size:14px}
+.dash-welcome-wallet-addr{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent)}
+.dash-welcome-wallet-type{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-left:4px}
+.dash-welcome-right{text-align:right;flex-shrink:0}
+.dash-net-worth-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.dash-net-worth{font-family:'Space Mono',monospace;font-size:38px;font-weight:700;color:#fff;line-height:1}
+.dash-net-chg{font-family:'Space Mono',monospace;font-size:12px;margin-top:6px}
+
+/* Stat grid */
+.dash-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.dash-stat-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  padding:18px 20px;transition:border-color .2s;
+}
+.dash-stat-card:hover{border-color:var(--border2)}
+.dash-stat-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.dash-stat-value{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:#fff}
+.dash-stat-sub{font-family:'Space Mono',monospace;font-size:10px;margin-top:4px}
+
+/* ── SECTION HEADER ── */
+.dash-section-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+.dash-section-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);letter-spacing:.02em}
+.dash-section-badge{font-family:'Space Mono',monospace;font-size:8px;padding:3px 8px;border-radius:3px;letter-spacing:1px}
+
+/* ── WALLET DETAIL CARD ── */
+.dash-wallet-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:24px;margin-bottom:24px;
+}
+.dash-wallet-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.dash-wallet-chain-badge{
+  display:flex;align-items:center;gap:6px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:6px 12px;
+  font-family:'Space Mono',monospace;font-size:10px;color:var(--text);
+}
+.dash-wallet-chain-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse-dot 1.5s infinite}
+.dash-wallet-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.dash-wallet-field{background:var(--bg3);border-radius:6px;padding:14px 16px}
+.dash-wallet-field-label{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.dash-wallet-field-value{font-family:'Space Mono',monospace;font-size:12px;color:var(--text);word-break:break-all}
+
+/* ── PORTFOLIO TABLE ── */
+.dash-portfolio-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px}
+.dash-portfolio-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border);
+}
+.dash-portfolio-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text)}
+.dash-add-btn{
+  display:flex;align-items:center;gap:6px;padding:7px 14px;
+  background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.25);
+  border-radius:5px;font-family:'Space Mono',monospace;font-size:10px;
+  color:var(--accent);cursor:pointer;transition:all .15s;
+}
+.dash-add-btn:hover{background:rgba(0,232,122,.15)}
+.dash-asset-table{width:100%;border-collapse:collapse}
+.dash-asset-table th{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;
+  color:var(--muted);text-transform:uppercase;padding:9px 16px;
+  border-bottom:1px solid var(--border);text-align:right;
+}
+.dash-asset-table th:first-child{text-align:left}
+.dash-asset-table td{
+  padding:12px 16px;border-bottom:1px solid rgba(28,45,56,.35);
+  font-family:'Space Mono',monospace;font-size:12px;text-align:right;
+  vertical-align:middle;
+}
+.dash-asset-table tr:last-child td{border-bottom:none}
+.dash-asset-table tr:hover td{background:rgba(0,232,122,.022)}
+.dash-asset-table td:first-child{text-align:left}
+.dash-asset-icon{
+  width:30px;height:30px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;
+}
+.dash-asset-name-cell{display:flex;align-items:center;gap:10px}
+.dash-asset-nm{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#fff}
+.dash-asset-sym{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)}
+.dash-alloc-bar{display:flex;align-items:center;gap:8px}
+.dash-alloc-track{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.dash-alloc-fill{height:100%;border-radius:2px;background:var(--accent)}
+
+/* ── VAULT SECTION ── */
+.dash-vault-teaser{
+  background:linear-gradient(135deg,rgba(153,69,255,.06),rgba(20,241,149,.04));
+  border:1px solid rgba(153,69,255,.25);border-radius:10px;
+  padding:28px;margin-bottom:24px;position:relative;overflow:hidden;
+}
+.dash-vault-teaser::before{
+  content:'COMING SOON';
+  position:absolute;top:16px;right:16px;
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;
+  color:#9945FF;background:rgba(153,69,255,.1);border:1px solid rgba(153,69,255,.3);
+  padding:3px 10px;border-radius:3px;
+}
+.dash-vault-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.dash-vault-stat{
+  background:rgba(7,9,11,.6);border:1px solid rgba(28,45,56,.8);
+  border-radius:6px;padding:16px;text-align:center;
+}
+.dash-vault-stat-val{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#14F195}
+.dash-vault-stat-lbl{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:1.5px;text-transform:uppercase}
+
+/* ── SUBSCRIPTION PANEL ── */
+.dash-sub-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:28px;margin-bottom:20px;
+}
+.dash-sub-active{
+  border-color:rgba(0,232,122,.3);
+  background:linear-gradient(135deg,rgba(0,232,122,.04),var(--bg2));
+}
+.dash-sub-expiring{
+  border-color:rgba(244,197,66,.4);
+  background:linear-gradient(135deg,rgba(244,197,66,.04),var(--bg2));
+}
+.dash-sub-inactive{border-color:var(--border)}
+.dash-sub-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.dash-sub-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:1.5px;padding:5px 14px;border-radius:4px;
+}
+.dash-sub-badge.active{background:rgba(0,232,122,.12);color:var(--accent);border:1px solid rgba(0,232,122,.25)}
+.dash-sub-badge.expiring{background:rgba(244,197,66,.12);color:var(--gold);border:1px solid rgba(244,197,66,.3)}
+.dash-sub-badge.inactive{background:rgba(77,100,117,.1);color:var(--muted);border:1px solid var(--border)}
+.dash-sub-info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px}
+.dash-sub-info-item{background:var(--bg3);border-radius:6px;padding:14px 16px}
+.dash-sub-info-label{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.dash-sub-info-value{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#fff}
+.dash-sub-info-sub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:3px}
+.dash-expiry-alert{
+  display:flex;align-items:flex-start;gap:12px;
+  background:rgba(244,197,66,.06);border:1px solid rgba(244,197,66,.25);
+  border-radius:6px;padding:14px 16px;margin-bottom:18px;
+}
+.dash-expiry-alert-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.dash-expiry-alert-text{font-family:'Space Mono',monospace;font-size:11px;color:var(--gold);line-height:1.7}
+.dash-expiry-alert-text strong{color:var(--gold)}
+.dash-sub-plans{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.dash-plan{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:20px}
+.dash-plan.featured{border-color:rgba(0,232,122,.3);background:linear-gradient(135deg,rgba(0,232,122,.04),var(--bg3))}
+.dash-plan-badge{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;margin-bottom:8px}
+.dash-plan-name{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:6px}
+.dash-plan-price{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:#fff}
+.dash-plan-price span{font-size:13px;color:var(--muted);font-weight:400}
+.dash-plan-period{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:14px}
+.dash-plan-features{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.dash-plan-features li{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.dash-plan-features li::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0}
+.dash-sub-btn{
+  width:100%;padding:11px;border-radius:5px;
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;
+  background:var(--accent);border:1px solid var(--accent);color:#000;
+}
+.dash-sub-btn:hover{background:var(--ad)}
+.dash-sub-btn.secondary{background:transparent;color:var(--accent);border-color:rgba(0,232,122,.3)}
+.dash-sub-btn.secondary:hover{background:rgba(0,232,122,.08)}
+
+/* Indicator features list */
+.dash-indicator-features{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;
+}
+.dash-indicator-feature{
+  display:flex;align-items:flex-start;gap:10px;
+  background:var(--bg3);border-radius:6px;padding:12px 14px;
+}
+.dash-indicator-feature-icon{font-size:16px;flex-shrink:0}
+.dash-indicator-feature-text{font-family:'Inter',sans-serif;font-size:12px;color:var(--text);line-height:1.5}
+.dash-indicator-feature-text strong{color:#fff;display:block;margin-bottom:2px;font-size:13px}
+
+/* Empty state */
+.dash-empty{
+  text-align:center;padding:48px 24px;
+  font-family:'Space Mono',monospace;
+}
+.dash-empty-icon{font-size:40px;margin-bottom:12px}
+.dash-empty-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px}
+.dash-empty-sub{font-size:11px;color:var(--muted);line-height:1.7}
+
+/* Responsive */
+@media(max-width:860px){
+  .dash-nav{display:none}
+  .dash-stat-grid{grid-template-columns:1fr 1fr}
+  .dash-wallet-grid{grid-template-columns:1fr 1fr}
+  .dash-sub-info-grid{grid-template-columns:1fr 1fr}
+  .dash-vault-grid{grid-template-columns:1fr}
+  .dash-panel{padding:20px 16px 48px}
+}
+@media(max-width:540px){
+  .dash-stat-grid{grid-template-columns:1fr}
+  .dash-sub-plans{grid-template-columns:1fr}
+  .dash-indicator-features{grid-template-columns:1fr}
+  .dash-welcome{flex-direction:column;gap:16px}
+  .dash-welcome-right{text-align:left}
+}
+</style>
+
+<!-- Dashboard HTML -->
+<div class="dash-overlay" id="dashOverlay">
+  <!-- Topbar -->
+  <div class="dash-tb">
+    <div class="dash-tb-logo">
+      <svg width="22" height="22" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="14" stroke="#1c2d38" stroke-width="1.5"/><rect x="4" y="11.5" width="10" height="7" rx="3.5" stroke="#00e87a" stroke-width="2" fill="none"/><rect x="16" y="11.5" width="10" height="7" rx="3.5" stroke="#00b4d8" stroke-width="2" fill="none"/><circle cx="15" cy="15" r="2.2" fill="#00e87a"/></svg>
+      <span><span style="font-weight:600">Chain</span><span class="root">Root</span></span>
+    </div>
+    <span class="dash-tb-title">Dashboard</span>
+    <button class="dash-close-btn" onclick="closeDashboard()">
+      <svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Close
+    </button>
+  </div>
+
+  <div class="dash-shell">
+    <!-- Sidebar Nav -->
+    <nav class="dash-nav">
+      <div class="dash-nav-item on" onclick="dashNav('overview',this)"><span class="dash-nav-icon">◈</span> Overview</div>
+      <div class="dash-nav-item" onclick="dashNav('wallet',this)"><span class="dash-nav-icon">🔗</span> Wallet</div>
+      <div class="dash-nav-item" onclick="dashNav('portfolio',this)"><span class="dash-nav-icon">📊</span> Portfolio</div>
+      <div class="dash-nav-item" onclick="dashNav('vault',this)"><span class="dash-nav-icon">⬡</span> Vault</div>
+      <div class="dash-nav-item" onclick="dashNav('subscription',this)"><span class="dash-nav-icon">⚡</span> Subscription</div>
+    </nav>
+
+    <!-- Main content -->
+    <div class="dash-main" id="dashMain">
+
+      <!-- ── OVERVIEW PANEL ── -->
+      <div class="dash-panel on" id="dp-overview">
+        <!-- Welcome card -->
+        <div class="dash-welcome" id="dash-welcome-card">
+          <div class="dash-welcome-left">
+            <div class="dash-welcome-name" id="dash-welcome-name">Welcome back!</div>
+            <div class="dash-welcome-sub" id="dash-welcome-sub">ChainRoot member</div>
+            <div class="dash-welcome-wallet" id="dash-welcome-wallet" style="display:none">
+              <span class="dash-welcome-wallet-icon">🔗</span>
+              <span class="dash-welcome-wallet-addr" id="dash-welcome-addr">—</span>
+              <span class="dash-welcome-wallet-type" id="dash-welcome-wtype">—</span>
+            </div>
+          </div>
+          <div class="dash-welcome-right">
+            <div class="dash-net-worth-label">Portfolio Value</div>
+            <div class="dash-net-worth" id="dash-net-worth">$0.00</div>
+            <div class="dash-net-chg" id="dash-net-chg" style="color:var(--muted)">No assets tracked</div>
+          </div>
+        </div>
+
+        <!-- Quick stats -->
+        <div class="dash-stat-grid">
+          <div class="dash-stat-card">
+            <div class="dash-stat-label">Assets Tracked</div>
+            <div class="dash-stat-value" id="dash-asset-count">0</div>
+            <div class="dash-stat-sub" style="color:var(--muted)">in portfolio</div>
+          </div>
+          <div class="dash-stat-card">
+            <div class="dash-stat-label">Subscription</div>
+            <div class="dash-stat-value" id="dash-sub-status" style="font-size:14px;padding-top:4px">—</div>
+            <div class="dash-stat-sub" id="dash-sub-expiry" style="color:var(--muted)">—</div>
+          </div>
+          <div class="dash-stat-card">
+            <div class="dash-stat-label">ChainRoot Vault</div>
+            <div class="dash-stat-value" style="font-size:14px;padding-top:4px;color:#9945FF">Coming Soon</div>
+            <div class="dash-stat-sub" style="color:var(--muted)">Solana DeFi</div>
+          </div>
+          <div class="dash-stat-card">
+            <div class="dash-stat-label">Member Since</div>
+            <div class="dash-stat-value" id="dash-joined" style="font-size:14px;padding-top:4px">—</div>
+            <div class="dash-stat-sub" style="color:var(--muted)">registration date</div>
+          </div>
+        </div>
+
+        <!-- Top holdings preview -->
+        <div class="dash-portfolio-wrap">
+          <div class="dash-portfolio-hdr">
+            <div class="dash-portfolio-title">Portfolio Holdings</div>
+            <button class="dash-add-btn" onclick="dashNav('portfolio',null);dashAddAsset()">+ Add Asset</button>
+          </div>
+          <div id="dash-holdings-preview"></div>
+        </div>
+
+        <!-- Subscription quick view -->
+        <div id="dash-sub-quick"></div>
+      </div>
+
+      <!-- ── WALLET PANEL ── -->
+      <div class="dash-panel" id="dp-wallet">
+        <div style="margin-bottom:24px">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px">Web3 Wallet</div>
+          <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)">Connected wallet details & on-chain information</div>
+        </div>
+
+        <div class="dash-wallet-card" id="dash-wallet-detail">
+          <!-- injected by JS -->
+        </div>
+
+        <!-- Network info -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:24px">
+          <div class="dash-section-hdr" style="margin-bottom:18px">
+            <div class="dash-section-title">Supported Networks</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:14px;text-align:center">
+              <div style="font-size:22px;margin-bottom:6px">⟠</div>
+              <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text);font-weight:700">Ethereum</div>
+              <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--accent);margin-top:3px">● LIVE</div>
+            </div>
+            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:14px;text-align:center">
+              <div style="font-size:22px;margin-bottom:6px">◎</div>
+              <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text);font-weight:700">Solana</div>
+              <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--accent);margin-top:3px">● LIVE</div>
+            </div>
+            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:14px;text-align:center">
+              <div style="font-size:22px;margin-bottom:6px">⬡</div>
+              <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text);font-weight:700">BNB Chain</div>
+              <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--accent);margin-top:3px">● LIVE</div>
+            </div>
+            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:14px;text-align:center">
+              <div style="font-size:22px;margin-bottom:6px">🔷</div>
+              <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text);font-weight:700">Base</div>
+              <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--gold);margin-top:3px">◎ SOON</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connect prompt if no wallet -->
+        <div id="dash-wallet-connect-prompt"></div>
+      </div>
+
+      <!-- ── PORTFOLIO PANEL ── -->
+      <div class="dash-panel" id="dp-portfolio">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+          <div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px">Portfolio</div>
+            <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)">Track your crypto holdings with live prices</div>
+          </div>
+          <button class="dash-add-btn" style="padding:10px 18px" onclick="dashAddAsset()">+ Add Asset</button>
+        </div>
+
+        <!-- Portfolio value header -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div>
+              <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Total Value</div>
+              <div style="font-family:'Space Mono',monospace;font-size:40px;font-weight:700;color:#fff;line-height:1" id="port-total-val">$0.00</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px">Assets</div>
+              <div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--text)" id="port-asset-cnt">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-portfolio-wrap">
+          <div class="dash-portfolio-hdr">
+            <div class="dash-portfolio-title">Holdings</div>
+          </div>
+          <div id="dash-full-portfolio"></div>
+        </div>
+      </div>
+
+      <!-- ── VAULT PANEL ── -->
+      <div class="dash-panel" id="dp-vault">
+        <div style="margin-bottom:24px">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px">ChainRoot Vault <span style="font-size:14px;background:rgba(153,69,255,.12);color:#9945FF;border:1px solid rgba(153,69,255,.3);padding:3px 10px;border-radius:3px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;vertical-align:middle">COMING SOON</span></div>
+          <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)">High-yield DeFi vault on Solana — deploying soon</div>
+        </div>
+
+        <div class="dash-vault-teaser" style="position:relative">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:#fff;margin-bottom:8px">
+            ChainRoot <span style="background:linear-gradient(135deg,#9945FF,#14F195);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">SOL/USDC</span> Vault
+          </div>
+          <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);line-height:1.7;max-width:520px;margin-bottom:20px">
+            Earn high yields on your stablecoin holdings through ChainRoot's automated Solana DeFi strategy. 
+            Deployed assets will appear here once the vault goes live.
+          </div>
+          <div class="dash-vault-grid">
+            <div class="dash-vault-stat">
+              <div class="dash-vault-stat-val">—</div>
+              <div class="dash-vault-stat-lbl">Your Deposited</div>
+            </div>
+            <div class="dash-vault-stat">
+              <div class="dash-vault-stat-val" style="color:var(--gold)">—</div>
+              <div class="dash-vault-stat-lbl">Earned to Date</div>
+            </div>
+            <div class="dash-vault-stat">
+              <div class="dash-vault-stat-val">—%</div>
+              <div class="dash-vault-stat-lbl">Current APY</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:24px">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:14px">How it will work</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="background:var(--bg3);border-radius:6px;padding:16px">
+              <div style="font-size:20px;margin-bottom:8px">🔗</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Connect Wallet</div>
+              <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);line-height:1.6">Link your Phantom or other Solana wallet to ChainRoot</div>
+            </div>
+            <div style="background:var(--bg3);border-radius:6px;padding:16px">
+              <div style="font-size:20px;margin-bottom:8px">💰</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Deposit Assets</div>
+              <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);line-height:1.6">Deposit USDC or SOL into the vault with one click</div>
+            </div>
+            <div style="background:var(--bg3);border-radius:6px;padding:16px">
+              <div style="font-size:20px;margin-bottom:8px">⚙️</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Auto-Strategy</div>
+              <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);line-height:1.6">ChainRoot's strategy optimizes yield across Solana DeFi protocols</div>
+            </div>
+            <div style="background:var(--bg3);border-radius:6px;padding:16px">
+              <div style="font-size:20px;margin-bottom:8px">📈</div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Earn & Withdraw</div>
+              <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);line-height:1.6">Track earnings in real-time and withdraw anytime</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SUBSCRIPTION PANEL ── -->
+      <div class="dash-panel" id="dp-subscription">
+        <div style="margin-bottom:24px">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px">ChainRoot Indicator</div>
+          <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)">Manage your TradingView indicator subscription</div>
+        </div>
+
+        <!-- Sub status card -->
+        <div class="dash-sub-card" id="dash-sub-main-card">
+          <!-- injected by JS -->
+        </div>
+
+        <!-- Indicator features -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:16px">What's Included</div>
+          <div class="dash-indicator-features">
+            <div class="dash-indicator-feature">
+              <div class="dash-indicator-feature-icon">📊</div>
+              <div class="dash-indicator-feature-text"><strong>Live BUY / SELL Signals</strong>Real-time buy & sell signal overlay on any TradingView chart</div>
+            </div>
+            <div class="dash-indicator-feature">
+              <div class="dash-indicator-feature-icon">🔔</div>
+              <div class="dash-indicator-feature-text"><strong>Custom Alerts</strong>Get instantly notified when your signal triggers</div>
+            </div>
+            <div class="dash-indicator-feature">
+              <div class="dash-indicator-feature-icon">💎</div>
+              <div class="dash-indicator-feature-text"><strong>Multi-Asset Support</strong>Works on BTC, ETH, SOL and all major stocks & pairs</div>
+            </div>
+            <div class="dash-indicator-feature">
+              <div class="dash-indicator-feature-icon">🇲🇳</div>
+              <div class="dash-indicator-feature-text"><strong>Mongolian Support</strong>Full Mongolian-language guide & onboarding</div>
+            </div>
+            <div class="dash-indicator-feature">
+              <div class="dash-indicator-feature-icon">🔄</div>
+              <div class="dash-indicator-feature-text"><strong>Free Updates</strong>All future indicator versions included</div>
+            </div>
+            <div class="dash-indicator-feature">
+              <div class="dash-indicator-feature-icon">❌</div>
+              <div class="dash-indicator-feature-text"><strong>Cancel Anytime</strong>No lock-in — cancel your subscription anytime</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plans -->
+        <div id="dash-sub-plans-section"></div>
+      </div>
+
+    </div><!-- /dash-main -->
+  </div><!-- /dash-shell -->
+</div><!-- /dash-overlay -->
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   CHAINROOT DASHBOARD LOGIC
+═══════════════════════════════════════════════════════ */
+
+// ── SUBSCRIPTION STORAGE ──────────────────────────────
+const SubDB = {
+  get(){
+    try{
+      const r = localStorage.getItem('cr_sub');
+      return r ? JSON.parse(r) : null;
+    }catch(e){return null;}
+  },
+  set(data){
+    try{localStorage.setItem('cr_sub', JSON.stringify(data));}catch(e){}
+  },
+  // For demo: simulate a subscription
+  demo(plan){
+    const now = Date.now();
+    const days = plan === 'annual' ? 365 : 30;
+    const expiry = now + days * 86400000;
+    const sub = {plan, startedAt: now, expiresAt: expiry, active: true};
+    this.set(sub);
+    return sub;
+  }
+};
+
+function getSubInfo(){
+  const sub = SubDB.get();
+  if(!sub) return {active:false, plan:null, expiresAt:null, daysLeft:null};
+  const now = Date.now();
+  const daysLeft = Math.ceil((sub.expiresAt - now) / 86400000);
+  if(daysLeft <= 0) return {active:false, expired:true, plan:sub.plan, expiresAt:sub.expiresAt, daysLeft:0};
+  return {active:true, plan:sub.plan, expiresAt:sub.expiresAt, daysLeft, expiring: daysLeft <= 10};
+}
+
+function checkSubExpiry(){
+  const sub = getSubInfo();
+  if(sub.active && sub.expiring){
+    const existing = document.getElementById('sub-expiry-toast');
+    if(existing) return;
+    const t = document.createElement('div');
+    t.id = 'sub-expiry-toast';
+    t.style.cssText = `position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+      background:#162028;border:1px solid rgba(244,197,66,.4);color:var(--gold);
+      padding:12px 22px;border-radius:8px;font-family:'Space Mono',monospace;font-size:11px;
+      z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.5);display:flex;align-items:center;gap:10px;
+      white-space:nowrap;cursor:pointer;`;
+    t.innerHTML = `⚠️ <span>Your ChainRoot indicator subscription expires in <strong>${sub.daysLeft} day${sub.daysLeft===1?'':'s'}</strong> — </span><span style="color:#fff;text-decoration:underline">Renew now</span>`;
+    t.onclick = () => { openDashboard(); setTimeout(()=>dashNav('subscription',null), 200); t.remove(); };
+    document.body.appendChild(t);
+    setTimeout(() => { if(t.parentNode) t.remove(); }, 8000);
+  }
+}
+
+// ── DASHBOARD OPEN / CLOSE ────────────────────────────
+function openDashboard(){
+  if(!CR_USER){ openAuth('register'); return; }
+  const ov = document.getElementById('dashOverlay');
+  if(ov){ ov.classList.add('on'); document.body.style.overflow='hidden'; }
+  dashNav('overview', document.querySelector('.dash-nav-item'));
+  renderDashboard();
+}
+
+function closeDashboard(){
+  const ov = document.getElementById('dashOverlay');
+  if(ov){ ov.classList.remove('on'); document.body.style.overflow=''; }
+}
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    const dash = document.getElementById('dashOverlay');
+    if(dash && dash.classList.contains('on')) closeDashboard();
+  }
+});
+
+// ── NAV ───────────────────────────────────────────────
+function dashNav(id, el){
+  document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('on'));
+  const panel = document.getElementById('dp-'+id);
+  if(panel){panel.classList.add('on'); document.getElementById('dashMain').scrollTop=0;}
+  document.querySelectorAll('.dash-nav-item').forEach(i=>i.classList.remove('on'));
+  if(el) el.classList.add('on');
+  else {
+    document.querySelectorAll('.dash-nav-item').forEach(i=>{
+      if(i.getAttribute('onclick')&&i.getAttribute('onclick').includes("'"+id+"'")) i.classList.add('on');
+    });
+  }
+  // Lazy render each panel
+  if(id==='wallet') renderWalletPanel();
+  if(id==='portfolio') renderPortfolioPanel();
+  if(id==='subscription') renderSubscriptionPanel();
+  if(id==='overview') renderDashboard();
+}
+
+// ── MAIN RENDER ───────────────────────────────────────
+function renderDashboard(){
+  if(!CR_USER) return;
+  const sub = getSubInfo();
+
+  // Welcome
+  document.getElementById('dash-welcome-name').textContent = 'Welcome, ' + CR_USER.displayName + '!';
+  document.getElementById('dash-welcome-sub').textContent = 
+    (CR_USER.type==='wallet' ? (CR_USER.walletType||'Wallet')+' user' : 'Email account')
+    + ' · ' + new Date(CR_USER.joinedAt).toLocaleDateString('en', {year:'numeric',month:'short',day:'numeric'});
+
+  // Wallet badge
+  const walletDiv = document.getElementById('dash-welcome-wallet');
+  if(CR_USER.walletAddress){
+    walletDiv.style.display = 'flex';
+    document.getElementById('dash-welcome-addr').textContent = CR_USER.walletAddress.slice(0,8)+'…'+CR_USER.walletAddress.slice(-6);
+    document.getElementById('dash-welcome-wtype').textContent = CR_USER.walletType || 'Wallet';
+  } else {
+    walletDiv.style.display = 'none';
+  }
+
+  // Portfolio value
+  const portfolio = CR_USER.portfolio || [];
+  let totalVal = 0;
+  portfolio.forEach(item=>{
+    const coin = ALL_COINS.find(c=>c.id===item.id||c.symbol.toLowerCase()===(item.symbol||'').toLowerCase());
+    if(coin) totalVal += coin.current_price * (item.amount||0);
+  });
+  document.getElementById('dash-net-worth').textContent = fmt(totalVal);
+  document.getElementById('dash-net-chg').textContent = portfolio.length ? portfolio.length + ' asset' + (portfolio.length===1?'':'s') + ' tracked' : 'No assets tracked';
+  document.getElementById('dash-net-chg').style.color = portfolio.length ? 'var(--accent)' : 'var(--muted)';
+
+  // Stat cards
+  document.getElementById('dash-asset-count').textContent = portfolio.length;
+  document.getElementById('dash-joined').textContent = new Date(CR_USER.joinedAt).toLocaleDateString('en',{month:'short',year:'numeric'});
+
+  // Sub status card
+  const subStatusEl = document.getElementById('dash-sub-status');
+  const subExpEl = document.getElementById('dash-sub-expiry');
+  if(sub.active){
+    subStatusEl.textContent = sub.plan === 'annual' ? 'Annual Pro' : 'Monthly Pro';
+    subStatusEl.style.color = sub.expiring ? 'var(--gold)' : 'var(--accent)';
+    subExpEl.textContent = sub.expiring ? '⚠ Expires in '+sub.daysLeft+'d' : 'Expires in '+sub.daysLeft+' days';
+    subExpEl.style.color = sub.expiring ? 'var(--gold)' : 'var(--muted)';
+  } else {
+    subStatusEl.textContent = sub.expired ? 'Expired' : 'Inactive';
+    subStatusEl.style.color = 'var(--muted)';
+    subExpEl.textContent = 'Subscribe to get access';
+    subExpEl.style.color = 'var(--muted)';
+  }
+
+  // Holdings preview (top 5)
+  renderHoldingsTable(document.getElementById('dash-holdings-preview'), portfolio, 5);
+
+  // Sub quick view
+  renderSubQuick(document.getElementById('dash-sub-quick'), sub);
+}
+
+function renderHoldingsTable(container, portfolio, limit){
+  if(!container) return;
+  if(!portfolio.length){
+    container.innerHTML = `<div class="dash-empty"><div class="dash-empty-icon">📊</div><div class="dash-empty-title">No assets yet</div><div class="dash-empty-sub">Add your crypto holdings to track their value in real-time.</div></div>`;
+    return;
+  }
+  const rows = portfolio.slice(0, limit||999).map(item=>{
+    const coin = ALL_COINS.find(c=>c.id===item.id||c.symbol.toLowerCase()===(item.symbol||'').toLowerCase());
+    const val = coin ? coin.current_price*(item.amount||0) : 0;
+    const chg = coin?.price_change_percentage_24h||0;
+    return {item, coin, val, chg};
+  }).sort((a,b)=>b.val-a.val);
+  const total = rows.reduce((s,r)=>s+r.val,0);
+
+  container.innerHTML = `
+    <table class="dash-asset-table">
+      <thead><tr>
+        <th>Asset</th>
+        <th>Price</th>
+        <th>Holdings</th>
+        <th>Value</th>
+        <th>24h</th>
+        <th>Allocation</th>
+        <th></th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(({item,coin,val,chg})=>{
+          const sym = (item.symbol||item.id||'?').toUpperCase();
+          const col = stringToColor(item.id||sym);
+          const allocPct = total>0 ? (val/total*100).toFixed(1) : 0;
+          return `<tr>
+            <td>
+              <div class="dash-asset-name-cell">
+                <div class="dash-asset-icon" style="background:${col}22;color:${col}">${sym[0]}</div>
+                <div><div class="dash-asset-nm">${coin?.name||sym}</div><div class="dash-asset-sym">${sym}</div></div>
+              </div>
+            </td>
+            <td>${coin?fmt(coin.current_price):'—'}</td>
+            <td>${item.amount} ${sym}</td>
+            <td style="color:#fff;font-weight:700">${fmt(val)}</td>
+            <td style="color:${chg>=0?'var(--accent)':'var(--red)'}">${fmtPct(chg)}</td>
+            <td>
+              <div class="dash-alloc-bar">
+                <div class="dash-alloc-track">
+                  <div class="dash-alloc-fill" style="width:${allocPct}%;background:${col}"></div>
+                </div>
+                <span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);width:32px">${allocPct}%</span>
+              </div>
+            </td>
+            <td><button onclick="dashRemoveAsset('${item.id||item.symbol}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px 8px;transition:color .15s" title="Remove" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted)'">✕</button></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function stringToColor(str){
+  let hash=0;for(let c of str)hash=((hash<<5)-hash)+c.charCodeAt(0);
+  const h=Math.abs(hash)%360, s=60, l=55;
+  return `hsl(${h},${s}%,${l}%)`;
+}
+
+function renderSubQuick(container, sub){
+  if(!container) return;
+  if(sub.active){
+    const cls = sub.expiring ? 'dash-sub-expiring' : 'dash-sub-active';
+    const badgeCls = sub.expiring ? 'expiring' : 'active';
+    const badgeTxt = sub.expiring ? '⚠ EXPIRING SOON' : '✓ ACTIVE';
+    container.innerHTML = `
+      <div class="dash-sub-card ${cls}">
+        <div class="dash-sub-header">
+          <div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:4px">ChainRoot Indicator · ${sub.plan==='annual'?'Annual':'Monthly'} Plan</div>
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">TradingView BUY / SELL Signal Indicator</div>
+          </div>
+          <span class="dash-sub-badge ${badgeCls}">${badgeTxt}</span>
+        </div>
+        ${sub.expiring ? `<div class="dash-expiry-alert"><div class="dash-expiry-alert-icon">⏰</div><div class="dash-expiry-alert-text">Your subscription expires in <strong>${sub.daysLeft} day${sub.daysLeft===1?'':'s'}</strong>. Renew now to avoid losing access to your signals and alerts.</div></div>` : ''}
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)">
+            Expires: <span style="color:${sub.expiring?'var(--gold)':'var(--text)'}">${new Date(sub.expiresAt).toLocaleDateString('en',{year:'numeric',month:'long',day:'numeric'})}</span>
+          </div>
+          <button class="dash-sub-btn secondary" style="width:auto;padding:8px 18px" onclick="dashNav('subscription',null)">
+            ${sub.expiring ? 'Renew Subscription →' : 'Manage Subscription →'}
+          </button>
+        </div>
+      </div>`;
+  } else {
+    container.innerHTML = `
+      <div class="dash-sub-card dash-sub-inactive">
+        <div class="dash-sub-header">
+          <div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:4px">ChainRoot Indicator</div>
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">Get BUY / SELL signals on TradingView</div>
+          </div>
+          <span class="dash-sub-badge inactive">NOT SUBSCRIBED</span>
+        </div>
+        <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px">
+          Subscribe to ChainRoot Indicator and get professional trading signals directly on TradingView. 
+          Works on all crypto and stock pairs.
+        </div>
+        <button class="dash-sub-btn" style="width:auto;padding:10px 24px" onclick="dashNav('subscription',null)">Subscribe Now →</button>
+      </div>`;
+  }
+}
+
+// ── WALLET PANEL ──────────────────────────────────────
+function renderWalletPanel(){
+  const container = document.getElementById('dash-wallet-detail');
+  const prompt = document.getElementById('dash-wallet-connect-prompt');
+  if(!container) return;
+  if(!CR_USER?.walletAddress){
+    container.innerHTML = `
+      <div class="dash-empty">
+        <div class="dash-empty-icon">🔗</div>
+        <div class="dash-empty-title">No wallet connected</div>
+        <div class="dash-empty-sub">Connect a Web3 wallet to see your on-chain assets and portfolio automatically.<br/>Your keys stay with you — we never store private keys.</div>
+        <button class="dash-add-btn" style="margin:16px auto 0;padding:12px 24px" onclick="closeDashboard();openAuth('register')">Connect Wallet →</button>
+      </div>`;
+    if(prompt) prompt.innerHTML='';
+    return;
+  }
+  const addr = CR_USER.walletAddress;
+  const wtype = CR_USER.walletType || 'Wallet';
+  const isEVM = wtype==='metamask'||wtype==='coinbase'||wtype==='walletconnect';
+  const isSol = wtype==='phantom';
+  container.innerHTML = `
+    <div class="dash-wallet-header">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff">Connected Wallet</div>
+      <div class="dash-wallet-chain-badge">
+        <div class="dash-wallet-chain-dot"></div>
+        <span>${isSol?'Solana':'Ethereum'} Network</span>
+      </div>
+    </div>
+    <div class="dash-wallet-grid">
+      <div class="dash-wallet-field" style="grid-column:1/-1">
+        <div class="dash-wallet-field-label">Wallet Address</div>
+        <div class="dash-wallet-field-value" style="color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:8px" onclick="copyToClipboard('${addr}',this)">
+          <span>${addr}</span>
+          <span style="font-size:11px;flex-shrink:0;opacity:.7">📋</span>
+        </div>
+      </div>
+      <div class="dash-wallet-field">
+        <div class="dash-wallet-field-label">Wallet Type</div>
+        <div class="dash-wallet-field-value" style="text-transform:capitalize">${wtype}</div>
+      </div>
+      <div class="dash-wallet-field">
+        <div class="dash-wallet-field-label">Network</div>
+        <div class="dash-wallet-field-value">${isSol?'Solana (SOL)':isEVM?'Ethereum (EVM)':'Multi-chain'}</div>
+      </div>
+      <div class="dash-wallet-field">
+        <div class="dash-wallet-field-label">Short Address</div>
+        <div class="dash-wallet-field-value">${addr.slice(0,6)}…${addr.slice(-4)}</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="dash-add-btn" onclick="copyToClipboard('${addr}',this)">📋 Copy Address</button>
+      <a href="${isSol?'https://solscan.io/account/'+addr:'https://etherscan.io/address/'+addr}" target="_blank" style="display:flex;align-items:center;gap:6px;padding:7px 14px;background:rgba(0,180,216,.08);border:1px solid rgba(0,180,216,.25);border-radius:5px;font-family:'Space Mono',monospace;font-size:10px;color:var(--blue);text-decoration:none;transition:all .15s">🔍 View on Explorer</a>
+    </div>`;
+  if(prompt) prompt.innerHTML='';
+}
+
+function copyToClipboard(text, btn){
+  navigator.clipboard?.writeText(text).then(()=>{
+    const orig = btn.innerHTML;
+    btn.style.color='var(--accent)';
+    if(btn.tagName==='BUTTON') btn.textContent='✓ Copied!';
+    setTimeout(()=>{ btn.innerHTML=orig; btn.style.color=''; },2000);
+  }).catch(()=>toast('Copy failed','var(--red)'));
+}
+
+// ── PORTFOLIO PANEL ───────────────────────────────────
+function renderPortfolioPanel(){
+  const portfolio = CR_USER?.portfolio || [];
+  let totalVal = 0;
+  portfolio.forEach(item=>{
+    const coin = ALL_COINS.find(c=>c.id===item.id||c.symbol.toLowerCase()===(item.symbol||'').toLowerCase());
+    if(coin) totalVal += coin.current_price*(item.amount||0);
+  });
+  const totalEl = document.getElementById('port-total-val');
+  const cntEl = document.getElementById('port-asset-cnt');
+  if(totalEl) totalEl.textContent = fmt(totalVal);
+  if(cntEl) cntEl.textContent = portfolio.length;
+  renderHoldingsTable(document.getElementById('dash-full-portfolio'), portfolio);
+}
+
+function dashAddAsset(){
+  const sym = prompt('Enter coin symbol (e.g. BTC, ETH, SOL):');
+  if(!sym) return;
+  const amt = parseFloat(prompt('Enter amount you hold:'));
+  if(!amt||isNaN(amt)) return;
+  const coin = ALL_COINS.find(c=>c.symbol.toLowerCase()===sym.toLowerCase());
+  const entry = {id:coin?.id||sym.toLowerCase(), symbol:sym.toUpperCase(), amount:amt};
+  if(!CR_USER.portfolio) CR_USER.portfolio=[];
+  CR_USER.portfolio.push(entry);
+  DB.save(CR_USER);
+  const users=DB.getUsers();
+  const key=CR_USER.email||'wallet_'+CR_USER.walletAddress;
+  if(users[key]) users[key].portfolio=CR_USER.portfolio;
+  try{localStorage.setItem('cr_users',JSON.stringify(users));}catch(e){}
+  renderPortfolioPanel();
+  renderDashboard();
+  toast('Asset added!','#00e87a');
+}
+
+function dashRemoveAsset(idOrSym){
+  if(!CR_USER?.portfolio) return;
+  CR_USER.portfolio = CR_USER.portfolio.filter(a=>a.id!==idOrSym&&a.symbol!==idOrSym);
+  DB.save(CR_USER);
+  renderPortfolioPanel();
+  renderDashboard();
+  toast('Asset removed','#4d6475');
+}
+
+// ── SUBSCRIPTION PANEL ────────────────────────────────
+function renderSubscriptionPanel(){
+  const sub = getSubInfo();
+  const card = document.getElementById('dash-sub-main-card');
+  const plansSection = document.getElementById('dash-sub-plans-section');
+
+  if(sub.active){
+    const cls = sub.expiring ? 'dash-sub-expiring' : 'dash-sub-active';
+    card.className = 'dash-sub-card ' + cls;
+    card.innerHTML = `
+      <div class="dash-sub-header">
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:4px">
+            ChainRoot Indicator — ${sub.plan==='annual'?'Annual':'Monthly'} Plan
+          </div>
+          <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">TradingView BUY/SELL Signal Indicator</div>
+        </div>
+        <span class="dash-sub-badge ${sub.expiring?'expiring':'active'}">${sub.expiring?'⚠ EXPIRING SOON':'✓ ACTIVE'}</span>
+      </div>
+      ${sub.expiring ? `
+      <div class="dash-expiry-alert">
+        <div class="dash-expiry-alert-icon">⏰</div>
+        <div class="dash-expiry-alert-text">
+          <strong>Action required:</strong> Your subscription expires in <strong>${sub.daysLeft} day${sub.daysLeft===1?'':'s'}</strong> 
+          on ${new Date(sub.expiresAt).toLocaleDateString('en',{year:'numeric',month:'long',day:'numeric'})}.
+          Renew now to keep uninterrupted access to your signals and alerts.
+        </div>
+      </div>` : ''}
+      <div class="dash-sub-info-grid">
+        <div class="dash-sub-info-item">
+          <div class="dash-sub-info-label">Plan</div>
+          <div class="dash-sub-info-value">${sub.plan==='annual'?'Annual':'Monthly'}</div>
+          <div class="dash-sub-info-sub">${sub.plan==='annual'?'$69/year · 36% off':'$9/month'}</div>
+        </div>
+        <div class="dash-sub-info-item">
+          <div class="dash-sub-info-label">Status</div>
+          <div class="dash-sub-info-value" style="color:${sub.expiring?'var(--gold)':'var(--accent)'}">${sub.expiring?'Expiring Soon':'Active'}</div>
+          <div class="dash-sub-info-sub">${sub.daysLeft} day${sub.daysLeft===1?'':'s'} remaining</div>
+        </div>
+        <div class="dash-sub-info-item">
+          <div class="dash-sub-info-label">Expiry Date</div>
+          <div class="dash-sub-info-value" style="font-size:11px">${new Date(sub.expiresAt).toLocaleDateString('en',{month:'short',day:'numeric',year:'numeric'})}</div>
+          <div class="dash-sub-info-sub">Auto-renews on expiry</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="dash-sub-btn" style="width:auto;padding:10px 22px" onclick="dashSubscribe(${sub.plan==="annual"?"'annual'":"'monthly'"})">
+          ${sub.expiring ? '↻ Renew Subscription →' : '↑ Upgrade to Annual →'}
+        </button>
+        <button class="dash-sub-btn secondary" style="width:auto;padding:10px 22px" onclick="toast('Support contact coming soon','#4d6475')">Contact Support</button>
+      </div>`;
+  } else {
+    card.className = 'dash-sub-card dash-sub-inactive';
+    card.innerHTML = `
+      <div class="dash-sub-header">
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:4px">
+            ${sub.expired ? 'Subscription Expired' : 'No Active Subscription'}
+          </div>
+          <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">Subscribe to get your indicator access</div>
+        </div>
+        <span class="dash-sub-badge inactive">${sub.expired?'EXPIRED':'INACTIVE'}</span>
+      </div>
+      <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:0">
+        ${sub.expired 
+          ? 'Your previous subscription has expired. Renew below to restore access to your ChainRoot indicator signals and alerts.'
+          : 'Choose a plan below to get access to ChainRoot\'s professional TradingView indicator with real-time BUY / SELL signals.'
+        }
+      </div>`;
+  }
+
+  // Plans section
+  if(!sub.active || sub.expiring){
+    plansSection.innerHTML = `
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:14px">
+        ${sub.expiring ? 'Renew Your Subscription' : 'Choose a Plan'}
+      </div>
+      <div class="dash-sub-plans">
+        <div class="dash-plan">
+          <div class="dash-plan-badge">Monthly</div>
+          <div class="dash-plan-name">Monthly Plan</div>
+          <div class="dash-plan-price">$9<span>/month</span></div>
+          <div class="dash-plan-period">Billed monthly · cancel anytime</div>
+          <ul class="dash-plan-features">
+            <li>TradingView indicator access</li>
+            <li>BUY / SELL signals</li>
+            <li>Custom alert setup</li>
+            <li>Mongolian support</li>
+          </ul>
+          <button class="dash-sub-btn secondary" onclick="dashSubscribe('monthly')">Subscribe Monthly →</button>
+        </div>
+        <div class="dash-plan featured">
+          <div class="dash-plan-badge">✦ Best Value · Save 36%</div>
+          <div class="dash-plan-name">Annual Plan</div>
+          <div class="dash-plan-price">$69<span>/year</span></div>
+          <div class="dash-plan-period" style="color:var(--accent)">Save $39 vs monthly</div>
+          <ul class="dash-plan-features">
+            <li>Everything in Monthly</li>
+            <li>Free indicator updates</li>
+            <li>Priority support</li>
+            <li>Lock in the low price</li>
+          </ul>
+          <button class="dash-sub-btn" onclick="dashSubscribe('annual')">Subscribe Annual →</button>
+        </div>
+      </div>`;
+  } else {
+    plansSection.innerHTML = '';
+  }
+}
+
+function dashSubscribe(plan){
+  // Simulate subscription purchase (wire to real payment in production)
+  const sub = SubDB.demo(plan);
+  toast(plan==='annual' ? '✓ Annual plan activated!' : '✓ Monthly plan activated!', '#00e87a');
+  renderSubscriptionPanel();
+  renderDashboard();
+  updateTopbarLoggedIn();
+}
+
+window.openDashboard = openDashboard;
+window.closeDashboard = closeDashboard;
+window.dashNav = dashNav;
+window.dashAddAsset = dashAddAsset;
+window.dashRemoveAsset = dashRemoveAsset;
+window.dashSubscribe = dashSubscribe;
+window.getSubInfo = getSubInfo;
+window.checkSubExpiry = checkSubExpiry;
 </script>
 </body>
 </html>
