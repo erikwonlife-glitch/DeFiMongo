@@ -1165,14 +1165,19 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
   <div class="ticker-wrap"><div class="ticker" id="ticker"></div></div>
   <div class="tb-right" id="tbr">
     <div class="clk" id="clk">--:--:-- UTC</div>
+    <!-- Language Toggle -->
+    <div style="display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0">
+      <button id="main-lang-mn" onclick="setSiteLang('mn')" style="padding:5px 10px;background:#00e87a;color:#000;border:none;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s">МН</button>
+      <button id="main-lang-en" onclick="setSiteLang('en')" style="padding:5px 10px;background:transparent;color:var(--muted);border:none;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s">EN</button>
+    </div>
     <!-- ★ FREE TRAINING BUTTON ★ -->
     <button class="free-training-btn" onclick="openTrainingPage()">
       <span class="ftr-icon">▶</span>
-      <span class="ftr-text">Free Training</span>
+      <span class="ftr-text" data-mn="Үнэгүй Сургалт" data-en="Free Training">Үнэгүй Сургалт</span>
       <span class="ftr-badge">FREE</span>
     </button>
-    <button class="abtn al" onclick="openAuth('login')">Sign In</button>
-    <button class="abtn aj" onclick="openAuth('register')">Join Free</button>
+    <button class="abtn al" onclick="openAuth('login')" data-mn="Нэвтрэх" data-en="Sign In">Нэвтрэх</button>
+    <button class="abtn aj" onclick="openAuth('register')" data-mn="Бүртгүүлэх" data-en="Join Free">Бүртгүүлэх</button>
   </div>
 </header>
 
@@ -1185,59 +1190,59 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
   <nav class="sb">
 
     <div class="ng" id="g1">
-      <div class="ngh" onclick="tog('g1')">Market Overview <span class="arr">∨</span></div>
+      <div class="ngh" onclick="tog('g1')"><span data-mn="Зах зээлийн тойм" data-en="Market Overview">Зах зээлийн тойм</span> <span class="arr">∨</span></div>
       <div class="nbody">
-        <div class="nl" onclick="go('crypto-bubbles',this)"><div class="nd d"></div>Crypto Bubbles<span class="nt d">DeFi</span></div>
-        <div class="nl on" onclick="go('crypto-prices',this)"><div class="nd d"></div>Crypto Prices<span class="nt d">DeFi</span></div>
-        <div class="nl" onclick="go('global-assets',this)"><div class="nd c"></div>Global Asset Ranking<span class="nt c">CeFi</span></div>
-        <div class="nl" onclick="go('fear-greed',this)"><div class="nd c"></div>Fear &amp; Greed Index<span class="nt c">CeFi</span></div>
-        <div class="nl" onclick="go('news',this)"><div class="nd c"></div>Crypto &amp; TradFi News<span class="nt c">CeFi</span></div>
-        <div class="nl" onclick="go('bitcoin-mas',this)"><div class="nd d"></div>Bitcoin MAs<span class="nt d">DeFi</span></div>
+        <div class="nl" onclick="go('crypto-bubbles',this)"><div class="nd d"></div><span data-mn="Крипто Бааль" data-en="Crypto Bubbles">Крипто Бааль</span><span class="nt d">DeFi</span></div>
+        <div class="nl on" onclick="go('crypto-prices',this)"><div class="nd d"></div><span data-mn="Крипто Үнэ" data-en="Crypto Prices">Крипто Үнэ</span><span class="nt d">DeFi</span></div>
+        <div class="nl" onclick="go('global-assets',this)"><div class="nd c"></div><span data-mn="Дэлхийн Хөрөнгийн Жагсаалт" data-en="Global Asset Ranking">Дэлхийн Хөрөнгийн Жагсаалт</span><span class="nt c">CeFi</span></div>
+        <div class="nl" onclick="go('fear-greed',this)"><div class="nd c"></div><span data-mn="Айдас &amp;탐욕 Индекс" data-en="Fear &amp; Greed Index">Айдас &amp; Шунал Индекс</span><span class="nt c">CeFi</span></div>
+        <div class="nl" onclick="go('news',this)"><div class="nd c"></div><span data-mn="Крипто &amp; Зах зээлийн мэдээ" data-en="Crypto &amp; TradFi News">Крипто &amp; Зах зээлийн мэдээ</span><span class="nt c">CeFi</span></div>
+        <div class="nl" onclick="go('bitcoin-mas',this)"><div class="nd d"></div><span data-mn="Биткоин MA" data-en="Bitcoin MAs">Биткоин MA</span><span class="nt d">DeFi</span></div>
       </div>
     </div>
 
     <div class="ng" id="g2">
-      <div class="ngh" onclick="tog('g2')">Cycles <span class="arr">∨</span></div>
+      <div class="ngh" onclick="tog('g2')"><span data-mn="Мөчлөг" data-en="Cycles">Мөчлөг</span> <span class="arr">∨</span></div>
       <div class="nbody">
-        <div class="nl" onclick="go('perf-year',this)"><div class="nd d"></div>Performance by Year<span class="nt d">DeFi</span></div>
-        <div class="nl" onclick="go('halving',this)"><div class="nd d"></div>Halving Cycles<span class="nt d">DeFi</span></div>
-        <div class="nl" onclick="go('low-cycles',this)"><div class="nd d"></div>Low to Low Cycles<span class="nt d">DeFi</span></div>
+        <div class="nl" onclick="go('perf-year',this)"><div class="nd d"></div><span data-mn="Жилийн Гүйцэтгэл" data-en="Performance by Year">Жилийн Гүйцэтгэл</span><span class="nt d">DeFi</span></div>
+        <div class="nl" onclick="go('halving',this)"><div class="nd d"></div><span data-mn="Халвинг Мөчлөг" data-en="Halving Cycles">Халвинг Мөчлөг</span><span class="nt d">DeFi</span></div>
+        <div class="nl" onclick="go('low-cycles',this)"><div class="nd d"></div><span data-mn="Доод Мөчлөг" data-en="Low to Low Cycles">Доод Мөчлөг</span><span class="nt d">DeFi</span></div>
       </div>
     </div>
 
     <div class="ng" id="g3">
-      <div class="ngh" onclick="tog('g3')">Macro / TradFi <span class="arr">∨</span></div>
+      <div class="ngh" onclick="tog('g3')"><span data-mn="Макро / TradFi" data-en="Macro / TradFi">Макро / TradFi</span> <span class="arr">∨</span></div>
       <div class="nbody">
-        <div class="nl" onclick="go('ism',this)"><div class="nd c"></div>ISM Chart<span class="nt c">CeFi</span></div>
-        <div class="nl" onclick="go('fed',this)"><div class="nd c"></div>Fed Balance Sheet<span class="nt c">CeFi</span></div>
-        <div class="nl" onclick="go('dxy',this)"><div class="nd c"></div>Dollar Index vs BTC<span class="nt c">CeFi</span></div>
-        <div class="nl" onclick="go('liquidity',this)"><div class="nd c"></div>Global Liquidity<span class="nt c">CeFi</span></div>
-        <div class="nl" onclick="go('etf',this)"><div class="nd c"></div>ETF Daily Flows<span class="nt c">CeFi</span></div>
+        <div class="nl" onclick="go('ism',this)"><div class="nd c"></div><span data-mn="ISM График" data-en="ISM Chart">ISM График</span><span class="nt c">CeFi</span></div>
+        <div class="nl" onclick="go('fed',this)"><div class="nd c"></div><span data-mn="Федийн Балансын Хуудас" data-en="Fed Balance Sheet">Федийн Балансын Хуудас</span><span class="nt c">CeFi</span></div>
+        <div class="nl" onclick="go('dxy',this)"><div class="nd c"></div><span data-mn="Долларын Индекс vs BTC" data-en="Dollar Index vs BTC">Долларын Индекс vs BTC</span><span class="nt c">CeFi</span></div>
+        <div class="nl" onclick="go('liquidity',this)"><div class="nd c"></div><span data-mn="Дэлхийн Хөрвөх Чадвар" data-en="Global Liquidity">Дэлхийн Хөрвөх Чадвар</span><span class="nt c">CeFi</span></div>
+        <div class="nl" onclick="go('etf',this)"><div class="nd c"></div><span data-mn="ETF Өдрийн Урсгал" data-en="ETF Daily Flows">ETF Өдрийн Урсгал</span><span class="nt c">CeFi</span></div>
       </div>
     </div>
 
     <div class="ng" id="g4">
-      <div class="ngh" onclick="tog('g4')">On-Chain &amp; Social <span class="arr">∨</span></div>
+      <div class="ngh" onclick="tog('g4')"><span data-mn="Он-Чэйн &amp; Нийгмийн" data-en="On-Chain &amp; Social">Он-Чэйн &amp; Нийгмийн</span> <span class="arr">∨</span></div>
       <div class="nbody">
-        <div class="nl" onclick="go('social-risk',this)"><div class="nd d"></div>Social Risk<span class="nt d">DeFi</span></div>
-        <div class="nl" onclick="go('hyperliquid',this)"><div class="nd d"></div>Hyperliquid Wallets<span class="nt d">DeFi</span></div>
-        <div class="nl" onclick="go('onchain',this)"><div class="nd d"></div>On-Chain Stats<span class="nt d">DeFi</span></div>
+        <div class="nl" onclick="go('social-risk',this)"><div class="nd d"></div><span data-mn="Нийгмийн Эрсдэл" data-en="Social Risk">Нийгмийн Эрсдэл</span><span class="nt d">DeFi</span></div>
+        <div class="nl" onclick="go('hyperliquid',this)"><div class="nd d"></div><span data-mn="Hyperliquid Хэтэвч" data-en="Hyperliquid Wallets">Hyperliquid Хэтэвч</span><span class="nt d">DeFi</span></div>
+        <div class="nl" onclick="go('onchain',this)"><div class="nd d"></div><span data-mn="Он-Чэйн Статистик" data-en="On-Chain Stats">Он-Чэйн Статистик</span><span class="nt d">DeFi</span></div>
       </div>
     </div>
 
     <div class="ng" id="g5">
-      <div class="ngh" onclick="tog('g5')">Trenches <span class="arr">∨</span></div>
+      <div class="ngh" onclick="tog('g5')"><span data-mn="Trenches" data-en="Trenches">Trenches</span> <span class="arr">∨</span></div>
       <div class="nbody">
-        <div class="nl" onclick="go('pumpfun',this)"><div class="nd d"></div>Pump Fun Stats<span class="nt d">DeFi</span></div>
-        <div class="nl" onclick="go('dex',this)"><div class="nd d"></div>DEX Volume<span class="nt d">DeFi</span></div>
+        <div class="nl" onclick="go('pumpfun',this)"><div class="nd d"></div><span data-mn="Pump Fun Статистик" data-en="Pump Fun Stats">Pump Fun Статистик</span><span class="nt d">DeFi</span></div>
+        <div class="nl" onclick="go('dex',this)"><div class="nd d"></div><span data-mn="DEX Эргэлт" data-en="DEX Volume">DEX Эргэлт</span><span class="nt d">DeFi</span></div>
       </div>
     </div>
 
     <div class="ng" id="g6">
-      <div class="ngh" onclick="tog('g6')">Technical <span class="arr">∨</span></div>
+      <div class="ngh" onclick="tog('g6')"><span data-mn="Техник Шинжилгээ" data-en="Technical">Техник Шинжилгээ</span> <span class="arr">∨</span></div>
       <div class="nbody">
-        <div class="nl" onclick="go('sma200',this)"><div class="nd c"></div>Weekly 200 SMA<span class="nt c">CeFi</span></div>
-        <div class="nl" onclick="go('rsi',this)"><div class="nd c"></div>RSI Dashboard<span class="nt c">CeFi</span></div>
+        <div class="nl" onclick="go('sma200',this)"><div class="nd c"></div><span data-mn="200 Долоо хоногийн SMA" data-en="Weekly 200 SMA">200 Долоо хоногийн SMA</span><span class="nt c">CeFi</span></div>
+        <div class="nl" onclick="go('rsi',this)"><div class="nd c"></div><span data-mn="RSI Самбар" data-en="RSI Dashboard">RSI Самбар</span><span class="nt c">CeFi</span></div>
       </div>
     </div>
 
@@ -1308,12 +1313,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
     <div class="pnl on" id="P-crypto-prices">
       <div class="ph">
         <div>
-          <div class="pht">Crypto Prices <span class="pbg d">DeFi</span></div>
-          <div class="phs">Top cryptocurrencies by market cap · live prices · 30s refresh</div>
+          <div class="pht"><span data-mn="Крипто Үнэ" data-en="Crypto Prices">Крипто Үнэ</span> <span class="pbg d">DeFi</span></div>
+          <div class="phs"><span data-mn="Зах зээлийн капиталаар эрэмбэлэгдсэн крипто · шууд үнэ · 30с шинэчлэл" data-en="Top cryptocurrencies by market cap · live prices · 30s refresh">Зах зээлийн капиталаар эрэмбэлэгдсэн крипто · шууд үнэ · 30с шинэчлэл</span></div>
         </div>
         <div class="phst">
-          <div><div class="phsv">$2.46T</div><div class="phsl">Market Cap</div><div class="phsc dn">↓ 0.8% 24h</div></div>
-          <div><div class="phsv">$123.2B</div><div class="phsl">24h Volume</div></div>
+          <div><div class="phsv">$2.46T</div><div class="phsl"><span data-mn="Зах зээлийн Кап" data-en="Market Cap">Зах зээлийн Кап</span></div><div class="phsc dn">↓ 0.8% 24h</div></div>
+          <div><div class="phsv">$123.2B</div><div class="phsl"><span data-mn="24ц Эргэлт" data-en="24h Volume">24ц Эргэлт</span></div></div>
         </div>
       </div>
       <div class="pc">
@@ -1348,7 +1353,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
     <!-- CRYPTO BUBBLES -->
     <div class="pnl" id="P-crypto-bubbles">
       <div class="ph">
-        <div><div class="pht">Crypto Bubbles <span class="pbg d">DeFi</span></div><div class="phs">24h performance — bubble size = market cap · live from CoinGecko</div></div>
+        <div><div class="pht"><span data-mn="Крипто Бааль" data-en="Crypto Bubbles">Крипто Бааль</span> <span class="pbg d">DeFi</span></div><div class="phs"><span data-mn="24ц гүйцэтгэл — бааль хэмжээ = зах зээлийн кап · CoinGecko шууд" data-en="24h performance — bubble size = market cap · live from CoinGecko">24ц гүйцэтгэл — бааль хэмжээ = зах зээлийн кап · CoinGecko шууд</span></div></div>
         <div class="phst">
           <div style="display:flex;gap:18px;font-family:'Space Mono',monospace;font-size:10px;align-items:center">
             <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#00e87a;display:inline-block"></span>Gaining</span>
@@ -1365,7 +1370,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- GLOBAL ASSETS -->
     <div class="pnl" id="P-global-assets">
-      <div class="ph"><div><div class="pht">Global Asset Ranking <span class="pbg c">CeFi</span></div><div class="phs">All asset classes ranked by market cap — crypto figures live from CoinGecko</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Дэлхийн Хөрөнгийн Жагсаалт" data-en="Global Asset Ranking">Дэлхийн Хөрөнгийн Жагсаалт</span> <span class="pbg c">CeFi</span></div><div class="phs"><span data-mn="Бүх хөрөнгийн ангилал зах зээлийн капиталаар эрэмбэлэгдсэн" data-en="All asset classes ranked by market cap — crypto figures live from CoinGecko">Бүх хөрөнгийн ангилал зах зээлийн капиталаар эрэмбэлэгдсэн</span></div></div></div>
       <div class="pc">
         <div class="mg" id="globalAssetGrid">
           <div class="mc2"><div class="mcl">US Equities</div><div class="mcv">$48.2T</div><div class="mcs dn">↓ −0.21%</div><div class="mcb"><div class="mcf" style="width:100%;background:var(--blue)"></div></div></div>
@@ -1378,7 +1383,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
           <div class="mc2"><div class="mcl">Solana</div><div class="mcv" id="gaSOL">$—</div><div class="mcs" id="gaSOLChg">loading…</div><div class="mcb"><div class="mcf" style="width:100%;background:#9945FF"></div></div></div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px;margin-top:14px">
-          <div class="st" style="margin-bottom:16px">Market Cap Comparison</div>
+          <div class="st" style="margin-bottom:16px"><span data-mn="Зах зээлийн Кап Харьцуулалт" data-en="Market Cap Comparison">Зах зээлийн Кап Харьцуулалт</span></div>
           <canvas id="globalAssetsChart" height="90"></canvas>
         </div>
       </div>
@@ -1386,7 +1391,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- FEAR GREED -->
     <div class="pnl" id="P-fear-greed">
-      <div class="ph"><div><div class="pht">Fear &amp; Greed Index <span class="pbg c">CeFi</span></div><div class="phs">Crypto market sentiment — updated daily at midnight UTC</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Айдас &amp; Шунал Индекс" data-en="Fear &amp; Greed Index">Айдас &amp; Шунал Индекс</span> <span class="pbg c">CeFi</span></div><div class="phs"><span data-mn="Крипто зах зээлийн сэтгэл — UTC хагас шөнө өдөр бүр шинэчлэгдэнэ" data-en="Crypto market sentiment — updated daily at midnight UTC">Крипто зах зээлийн сэтгэл — UTC хагас шөнө өдөр бүр шинэчлэгдэнэ</span></div></div></div>
       <div class="pc">
         <div class="fg">
           <div class="fgc">
@@ -1418,7 +1423,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
           </div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px;margin-top:14px">
-          <div class="st" style="margin-bottom:16px">30-Day Fear &amp; Greed History</div>
+          <div class="st" style="margin-bottom:16px"><span data-mn="30 хоногийн Айдас &amp; Шунал Түүх" data-en="30-Day Fear &amp; Greed History">30 хоногийн Айдас &amp; Шунал Түүх</span></div>
           <canvas id="fngChart" height="80"></canvas>
         </div>
       </div>
@@ -1426,13 +1431,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- NEWS -->
     <div class="pnl" id="P-news">
-      <div class="ph"><div><div class="pht">Crypto &amp; TradFi News <span class="pbg c">CeFi</span></div><div class="phs">Aggregated market intelligence — refreshed hourly</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Крипто &amp; Зах зээлийн мэдээ" data-en="Crypto &amp; TradFi News">Крипто &amp; Зах зээлийн мэдээ</span> <span class="pbg c">CeFi</span></div><div class="phs"><span data-mn="Зах зээлийн цуглуулсан мэдээлэл — цаг тутам шинэчлэгдэнэ" data-en="Aggregated market intelligence — refreshed hourly">Зах зээлийн цуглуулсан мэдээлэл — цаг тутам шинэчлэгдэнэ</span></div></div></div>
       <div class="pc" id="newsFeed"></div>
     </div>
 
     <!-- BITCOIN MAs -->
     <div class="pnl" id="P-bitcoin-mas">
-      <div class="ph"><div><div class="pht">Bitcoin Moving Averages <span class="pbg d">DeFi</span></div><div class="phs">Key BTC technical averages — calculated live from 365 days of price data</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Биткоин Дундаж Утга" data-en="Bitcoin Moving Averages">Биткоин Дундаж Утга</span> <span class="pbg d">DeFi</span></div><div class="phs"><span data-mn="BTC-ийн гол техник дундаж утга — 365 өдрийн үнийн мэдээллээс шууд тооцоолно" data-en="Key BTC technical averages — calculated live from 365 days of price data">BTC-ийн гол техник дундаж утга — 365 өдрийн үнийн мэдээллээс шууд тооцоолно</span></div></div></div>
       <div class="pc">
         <div class="og" style="margin-bottom:26px" id="maStatCards">
           <div class="oc"><div class="ov" id="ma20val" style="color:#00b4d8">$—</div><div class="ol">20-Day MA</div><div class="och" id="ma20pos" style="color:var(--muted)">loading…</div></div>
@@ -1441,7 +1446,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
           <div class="oc"><div class="ov" id="ma200val" style="color:#ff4560">$—</div><div class="ol">200-Day MA</div><div class="och" id="ma200pos" style="color:var(--muted)">loading…</div></div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px;margin-bottom:14px">
-          <div class="st" style="margin-bottom:16px">BTC Price + Moving Averages — 1 Year Live</div>
+          <div class="st" style="margin-bottom:16px"><span data-mn="BTC Үнэ + Дундаж Утга — 1 Жил Шууд" data-en="BTC Price + Moving Averages — 1 Year Live">BTC Үнэ + Дундаж Утга — 1 Жил Шууд</span></div>
           <canvas id="maLiveChart" height="130"></canvas>
         </div>
         <div class="sg" id="maCharts"></div>
@@ -1450,13 +1455,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- PERF YEAR -->
     <div class="pnl" id="P-perf-year">
-      <div class="ph"><div><div class="pht">Performance by Year <span class="pbg d">DeFi</span></div><div class="phs">Bitcoin annual returns</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Жилийн Гүйцэтгэл" data-en="Performance by Year">Жилийн Гүйцэтгэл</span> <span class="pbg d">DeFi</span></div><div class="phs"><span data-mn="Биткоины жилийн өгөөж" data-en="Bitcoin annual returns">Биткоины жилийн өгөөж</span></div></div></div>
       <div class="pc" id="yearPerf"></div>
     </div>
 
     <!-- HALVING -->
     <div class="pnl" id="P-halving">
-      <div class="ph"><div><div class="pht">Halving Cycles <span class="pbg d">DeFi</span></div><div class="phs">Bitcoin block reward history and post-halving price performance</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Халвинг Мөчлөг" data-en="Halving Cycles">Халвинг Мөчлөг</span> <span class="pbg d">DeFi</span></div><div class="phs"><span data-mn="Биткоины блокийн урамшууллын түүх ба халвингийн дараах үнийн гүйцэтгэл" data-en="Bitcoin block reward history and post-halving price performance">Биткоины блокийн урамшууллын түүх ба халвингийн дараах үнийн гүйцэтгэл</span></div></div></div>
       <div class="pc">
         <div class="mg" style="margin-bottom:26px">
           <div class="mc2"><div class="mcl">Next Halving</div><div class="mcv">Apr 2028</div><div class="mcs" style="color:var(--muted)">~760 days away</div></div>
@@ -1465,11 +1470,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">Post-Halving BTC Returns</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="Халвингийн дараах BTC Өгөөж" data-en="Post-Halving BTC Returns">Халвингийн дараах BTC Өгөөж</span></div>
             <canvas id="halvingReturnChart" height="170"></canvas>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">Block Reward History</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="Блокийн Урамшууллын Түүх" data-en="Block Reward History">Блокийн Урамшууллын Түүх</span></div>
             <canvas id="halvingRewardChart" height="170"></canvas>
           </div>
         </div>
@@ -1478,7 +1483,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- LOW CYCLES -->
     <div class="pnl" id="P-low-cycles">
-      <div class="ph"><div><div class="pht">Low to Low Cycles <span class="pbg d">DeFi</span></div><div class="phs">Bear market bottom-to-bottom analysis — days between cycle lows</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Доод Мөчлөг" data-en="Low to Low Cycles">Доод Мөчлөг</span> <span class="pbg d">DeFi</span></div><div class="phs"><span data-mn="Баавгайн зах зээлийн доод цэгийн шинжилгээ — мөчлөгийн доод хоорондох өдрүүд" data-en="Bear market bottom-to-bottom analysis — days between cycle lows">Баавгайн зах зээлийн доод цэгийн шинжилгээ</span></div></div></div>
       <div class="pc">
         <div class="cards" style="margin-bottom:26px">
           <div class="card"><div class="cv up">1,290</div><div class="cl">2018→2022 days</div><div class="cc" style="color:var(--muted)">Nov 2018 → Nov 2022</div></div>
@@ -1493,7 +1498,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- ISM -->
     <div class="pnl" id="P-ism">
-      <div class="ph"><div><div class="pht">ISM Chart <span class="pbg c">CeFi</span></div><div class="phs">Institute for Supply Management indicators — 50 = expansion/contraction threshold</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="ISM График" data-en="ISM Chart">ISM График</span> <span class="pbg c">CeFi</span></div><div class="phs"><span data-mn="Нийлүүлэлтийн удирдлагын хүрээлэнгийн үзүүлэлт — 50 = өргөжилт/агшилтын босго" data-en="Institute for Supply Management indicators — 50 = expansion/contraction threshold">ISM үзүүлэлт — 50 = өргөжилт/агшилтын босго</span></div></div></div>
       <div class="pc">
         <div class="mg" style="margin-bottom:26px">
           <div class="mc2"><div class="mcl">ISM Manufacturing</div><div class="mcv">50.3</div><div class="mcs up">↑ Expansion</div><div class="mcb"><div class="mcf" style="width:50%;background:var(--accent)"></div></div></div>
@@ -1505,11 +1510,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">ISM Manufacturing — 12mo History</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="ISM Үйлдвэрлэл — 12 сарын Түүх" data-en="ISM Manufacturing — 12mo History">ISM Үйлдвэрлэл — 12 сарын Түүх</span></div>
             <canvas id="ismMfgChart" height="150"></canvas>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">ISM Components Radar</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="ISM Бүрэлдэхүүн Радар" data-en="ISM Components Radar">ISM Бүрэлдэхүүн Радар</span></div>
             <canvas id="ismRadarChart" height="150"></canvas>
           </div>
         </div>
@@ -1518,7 +1523,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- FED -->
     <div class="pnl" id="P-fed">
-      <div class="ph"><div><div class="pht">Fed Balance Sheet <span class="pbg c">CeFi</span></div><div class="phs">Federal Reserve total assets — QT in progress</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Федийн Балансын Хуудас" data-en="Fed Balance Sheet">Федийн Балансын Хуудас</span> <span class="pbg c">CeFi</span></div><div class="phs"><span data-mn="Холбооны Нөөцийн нийт хөрөнгө — QT явагдаж байна" data-en="Federal Reserve total assets — QT in progress">Холбооны Нөөцийн нийт хөрөнгө — QT явагдаж байна</span></div></div></div>
       <div class="pc">
         <div class="cards">
           <div class="card"><div class="cv">$7.08T</div><div class="cl">Total Assets</div><div class="cc dn">↓ QT ongoing −$22B/mo</div></div>
@@ -1527,7 +1532,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
           <div class="card"><div class="cv">$4.71T</div><div class="cl">Treasury Holdings</div><div class="cc dn">↓ Running off</div></div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-          <div class="st" style="margin-bottom:16px">Balance Sheet vs BTC Price</div>
+          <div class="st" style="margin-bottom:16px"><span data-mn="Балансын Хуудас vs BTC Үнэ" data-en="Balance Sheet vs BTC Price">Балансын Хуудас vs BTC Үнэ</span></div>
           <canvas id="fedChart" height="110"></canvas>
         </div>
       </div>
@@ -1535,7 +1540,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- DXY -->
     <div class="pnl" id="P-dxy">
-      <div class="ph"><div><div class="pht">Dollar Index vs BTC <span class="pbg c">CeFi</span></div><div class="phs">DXY inverse correlation with Bitcoin price</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Долларын Индекс vs BTC" data-en="Dollar Index vs BTC">Долларын Индекс vs BTC</span> <span class="pbg c">CeFi</span></div><div class="phs"><span data-mn="DXY ба Биткоины үнийн урвуу хамаарал" data-en="DXY inverse correlation with Bitcoin price">DXY ба Биткоины үнийн урвуу хамаарал</span></div></div></div>
       <div class="pc">
         <div class="cards">
           <div class="card"><div class="cv" id="dxyVal">104.23</div><div class="cl">DXY Index</div><div class="cc dn">↓ −0.38% today</div></div>
@@ -1544,7 +1549,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
           <div class="card"><div class="cv">4.31%</div><div class="cl">10Y Treasury</div><div class="cc up">↑ +0.06 bps</div></div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-          <div class="st" style="margin-bottom:16px">DXY vs BTC — 12-Month Trend</div>
+          <div class="st" style="margin-bottom:16px"><span data-mn="DXY vs BTC — 12 сарын Чиг хандлага" data-en="DXY vs BTC — 12-Month Trend">DXY vs BTC — 12 сарын Чиг хандлага</span></div>
           <canvas id="dxyChart" height="110"></canvas>
         </div>
       </div>
@@ -1552,15 +1557,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- LIQUIDITY -->
     <div class="pnl" id="P-liquidity">
-      <div class="ph"><div><div class="pht">Global Liquidity <span class="pbg c">CeFi</span></div><div class="phs">M2 money supply across major central banks</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Дэлхийн Хөрвөх Чадвар" data-en="Global Liquidity">Дэлхийн Хөрвөх Чадвар</span> <span class="pbg c">CeFi</span></div><div class="phs"><span data-mn="Томоохон төв банкуудын M2 мөнгөний нийлүүлэлт" data-en="M2 money supply across major central banks">Томоохон төв банкуудын M2 мөнгөний нийлүүлэлт</span></div></div></div>
       <div class="pc">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:26px">
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">M2 Supply by Region</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="Бүс нутгаар M2 Нийлүүлэлт" data-en="M2 Supply by Region">Бүс нутгаар M2 Нийлүүлэлт</span></div>
             <canvas id="liquidityBar" height="160"></canvas>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">Global M2 vs BTC — 12mo</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="Дэлхийн M2 vs BTC — 12 сар" data-en="Global M2 vs BTC — 12mo">Дэлхийн M2 vs BTC — 12 сар</span></div>
             <canvas id="liquidityLine" height="160"></canvas>
           </div>
         </div>
@@ -1576,13 +1581,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
     <div class="pnl" id="P-etf">
       <div class="ph">
         <div>
-          <div class="pht">ETF Daily Flows <span class="pbg c">CeFi</span></div>
-          <div class="phs">Spot Bitcoin ETF inflows &amp; outflows — fund-by-fund breakdown with cumulative trend</div>
+          <div class="pht"><span data-mn="ETF Өдрийн Урсгал" data-en="ETF Daily Flows">ETF Өдрийн Урсгал</span> <span class="pbg c">CeFi</span></div>
+          <div class="phs"><span data-mn="Спот Биткоин ETF-ийн орох &amp; гарах урсгал — сангийн задаргаа" data-en="Spot Bitcoin ETF inflows &amp; outflows — fund-by-fund breakdown with cumulative trend">Спот Биткоин ETF-ийн орох &amp; гарах урсгал — сангийн задаргаа</span></div>
         </div>
         <div class="phst">
-          <div><div class="phsv up" id="etfNetToday">+$533M</div><div class="phsl">Net Today</div></div>
-          <div><div class="phsv" id="etfNet7d">+$2.14B</div><div class="phsl">7-Day Net</div></div>
-          <div><div class="phsv" id="etfAUM">$94.8B</div><div class="phsl">Total AUM</div></div>
+          <div><div class="phsv up" id="etfNetToday">+$533M</div><div class="phsl"><span data-mn="Өнөөдрийн Цэвэр" data-en="Net Today">Өнөөдрийн Цэвэр</span></div></div>
+          <div><div class="phsv" id="etfNet7d">+$2.14B</div><div class="phsl"><span data-mn="7 Хоногийн Цэвэр" data-en="7-Day Net">7 Хоногийн Цэвэр</span></div></div>
+          <div><div class="phsv" id="etfAUM">$94.8B</div><div class="phsl"><span data-mn="Нийт AUM" data-en="Total AUM">Нийт AUM</span></div></div>
         </div>
       </div>
       <div class="pc">
@@ -1598,24 +1603,24 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
         <!-- Charts row: daily bars + cumulative line -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">Today's Fund-by-Fund Flows</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="Өнөөдрийн Сангийн Урсгал" data-en="Today's Fund-by-Fund Flows">Өнөөдрийн Сангийн Урсгал</span></div>
             <canvas id="etfBarChart" height="200"></canvas>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">30-Day Cumulative Net Flows</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="30 хоногийн Хуримтлагдсан Цэвэр Урсгал" data-en="30-Day Cumulative Net Flows">30 хоногийн Хуримтлагдсан Цэвэр Урсгал</span></div>
             <canvas id="etfCumChart" height="200"></canvas>
           </div>
         </div>
 
         <!-- 30-day daily net flow chart -->
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px;margin-bottom:14px">
-          <div class="st" style="margin-bottom:16px">Daily Net Inflow / Outflow — 30 Days</div>
+          <div class="st" style="margin-bottom:16px"><span data-mn="Өдрийн Цэвэр Орох/Гарах Урсгал — 30 Өдөр" data-en="Daily Net Inflow / Outflow — 30 Days">Өдрийн Цэвэр Орох/Гарах Урсгал — 30 Өдөр</span></div>
           <canvas id="etfDailyChart" height="110"></canvas>
         </div>
 
         <!-- Fund detail table -->
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-          <div class="st" style="margin-bottom:16px">Fund Detail — Today</div>
+          <div class="st" style="margin-bottom:16px"><span data-mn="Сангийн Дэлгэрэнгүй — Өнөөдөр" data-en="Fund Detail — Today">Сангийн Дэлгэрэнгүй — Өнөөдөр</span></div>
           <table style="width:100%;border-collapse:collapse" id="etfDetailTable">
             <thead>
               <tr style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">
@@ -1637,7 +1642,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- SOCIAL RISK -->
     <div class="pnl" id="P-social-risk">
-      <div class="ph"><div><div class="pht">Social Risk <span class="pbg d">DeFi</span></div><div class="phs">On-chain social sentiment and crowd risk indicators</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Нийгмийн Эрсдэл" data-en="Social Risk">Нийгмийн Эрсдэл</span> <span class="pbg d">DeFi</span></div><div class="phs"><span data-mn="Он-чэйн нийгмийн сэтгэл ба олны эрсдэлийн үзүүлэлт" data-en="On-chain social sentiment and crowd risk indicators">Он-чэйн нийгмийн сэтгэл ба олны эрсдэлийн үзүүлэлт</span></div></div></div>
       <div class="pc">
         <div class="og" style="margin-bottom:26px">
           <div class="oc"><div class="ov" style="color:var(--gold)">Medium</div><div class="ol">Overall Risk</div><div class="och" style="color:var(--gold)">Caution zone</div></div>
@@ -1647,11 +1652,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">Social Volume — 30 Days</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="Нийгмийн Эзлэхүүн — 30 Өдөр" data-en="Social Volume — 30 Days">Нийгмийн Эзлэхүүн — 30 Өдөр</span></div>
             <canvas id="socialVolumeChart" height="140"></canvas>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">Sentiment Breakdown</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="Сэтгэл Задаргаа" data-en="Sentiment Breakdown">Сэтгэл Задаргаа</span></div>
             <canvas id="sentimentDoughnut" height="140"></canvas>
           </div>
         </div>
@@ -1660,7 +1665,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- HYPERLIQUID -->
     <div class="pnl" id="P-hyperliquid">
-      <div class="ph"><div><div class="pht">Hyperliquid Whale Positions <span class="pbg d">DeFi</span></div><div class="phs">Top open positions on Hyperliquid perpetual DEX</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Hyperliquid Халим Позиц" data-en="Hyperliquid Whale Positions">Hyperliquid Халим Позиц</span> <span class="pbg d">DeFi</span></div><div class="phs"><span data-mn="Hyperliquid мөнхийн DEX дээрх шилдэг нээлттэй позиц" data-en="Top open positions on Hyperliquid perpetual DEX">Hyperliquid мөнхийн DEX дээрх шилдэг нээлттэй позиц</span></div></div></div>
       <div class="pc">
         <div class="og" style="margin-bottom:26px">
           <div class="oc"><div class="ov up">$2.14B</div><div class="ol">Open Interest</div><div class="och up">↑ +8.2%</div></div>
@@ -1670,7 +1675,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:14px">Top Whale Positions</div>
+            <div class="st" style="margin-bottom:14px"><span data-mn="Шилдэг Халим Позиц" data-en="Top Whale Positions">Шилдэг Халим Позиц</span></div>
             <table style="width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:11px">
               <thead><tr style="color:var(--muted);font-size:9px;letter-spacing:1.5px;text-transform:uppercase">
                 <th style="text-align:left;padding:5px 8px">Asset</th>
@@ -1688,7 +1693,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
             </table>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">Open Interest — 7 Days</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="Нээлттэй Хүү — 7 Өдөр" data-en="Open Interest — 7 Days">Нээлттэй Хүү — 7 Өдөр</span></div>
             <canvas id="hlOIChart" height="160"></canvas>
           </div>
         </div>
@@ -1697,7 +1702,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- ON-CHAIN -->
     <div class="pnl" id="P-onchain">
-      <div class="ph"><div><div class="pht">On-Chain Stats <span class="pbg d">DeFi</span></div><div class="phs">Bitcoin &amp; Ethereum on-chain intelligence</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Он-Чэйн Статистик" data-en="On-Chain Stats">Он-Чэйн Статистик</span> <span class="pbg d">DeFi</span></div><div class="phs"><span data-mn="Биткоин &amp; Этерийн он-чэйн тагнуул" data-en="Bitcoin &amp; Ethereum on-chain intelligence">Биткоин &amp; Этерийн он-чэйн тагнуул</span></div></div></div>
       <div class="pc">
         <div class="og" style="margin-bottom:26px">
           <div class="oc"><div class="ov up">$94.2B</div><div class="ol">Total DeFi TVL</div><div class="och up">↑ +2.4% 24h</div></div>
@@ -1707,15 +1712,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:26px">
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">DeFi TVL — Top Protocols</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="DeFi TVL — Шилдэг Протокол" data-en="DeFi TVL — Top Protocols">DeFi TVL — Шилдэг Протокол</span></div>
             <canvas id="tvlChart" height="160"></canvas>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">BTC Exchange Balance — 30 Days</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="BTC Биржийн Баланс — 30 Өдөр" data-en="BTC Exchange Balance — 30 Days">BTC Биржийн Баланс — 30 Өдөр</span></div>
             <canvas id="exchangeChart" height="160"></canvas>
           </div>
         </div>
-        <div class="st">Members Only <span style="color:var(--gold)">♛</span></div>
+        <div class="st"><span data-mn="Гишүүдэд зориулсан" data-en="Members Only">Гишүүдэд зориулсан</span> <span style="color:var(--gold)">♛</span></div>
         <div class="og">
           <div class="oc"><div class="ov"><span class="lock" onclick="openAuth('register')">🔒 Unlock</span></div><div class="ol">SOPR Ratio</div></div>
           <div class="oc"><div class="ov"><span class="lock" onclick="openAuth('register')">🔒 Unlock</span></div><div class="ol">LTH Supply %</div></div>
@@ -1727,7 +1732,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- PUMP FUN -->
     <div class="pnl" id="P-pumpfun">
-      <div class="ph"><div><div class="pht">Pump Fun Stats <span class="pbg d">DeFi</span></div><div class="phs">Solana memecoin launchpad — real-time launch &amp; graduation stats</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Pump Fun Статистик" data-en="Pump Fun Stats">Pump Fun Статистик</span> <span class="pbg d">DeFi</span></div><div class="phs"><span data-mn="Солана мемекоин платформ — шуурхай эхлэл &amp; төгсөлтийн статистик" data-en="Solana memecoin launchpad — real-time launch &amp; graduation stats">Солана мемекоин платформ — шуурхай статистик</span></div></div></div>
       <div class="pc">
         <div class="og" style="margin-bottom:26px">
           <div class="oc"><div class="ov up">1,284</div><div class="ol">Launched Today</div><div class="och up">↑ +18% vs 7d avg</div></div>
@@ -1737,11 +1742,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">Daily Launches — 14 Days</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="Өдрийн Эхлэл — 14 Өдөр" data-en="Daily Launches — 14 Days">Өдрийн Эхлэл — 14 Өдөр</span></div>
             <canvas id="pumpLaunchChart" height="160"></canvas>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">Volume vs Graduation Rate</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="Эргэлт vs Төгсөлтийн Хувь" data-en="Volume vs Graduation Rate">Эргэлт vs Төгсөлтийн Хувь</span></div>
             <canvas id="pumpGradChart" height="160"></canvas>
           </div>
         </div>
@@ -1750,7 +1755,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- DEX -->
     <div class="pnl" id="P-dex">
-      <div class="ph"><div><div class="pht">DEX Volume <span class="pbg d">DeFi</span></div><div class="phs">Decentralized exchange 24h trading volume</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="DEX Эргэлт" data-en="DEX Volume">DEX Эргэлт</span> <span class="pbg d">DeFi</span></div><div class="phs"><span data-mn="Төвлөрөлгүй биржийн 24ц арилжааны эргэлт" data-en="Decentralized exchange 24h trading volume">Төвлөрөлгүй биржийн 24ц арилжааны эргэлт</span></div></div></div>
       <div class="pc">
         <div class="og" style="margin-bottom:26px">
           <div class="oc"><div class="ov up">$8.4B</div><div class="ol">Total DEX 24h</div><div class="och up">↑ +14%</div></div>
@@ -1760,11 +1765,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">Volume Share</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="Эргэлтийн Хувь" data-en="Volume Share">Эргэлтийн Хувь</span></div>
             <canvas id="dexShareChart" height="180"></canvas>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">DEX Volume — 14 Days</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="DEX Эргэлт — 14 Өдөр" data-en="DEX Volume — 14 Days">DEX Эргэлт — 14 Өдөр</span></div>
             <canvas id="dexVolumeChart" height="180"></canvas>
           </div>
         </div>
@@ -1773,7 +1778,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- 200 SMA -->
     <div class="pnl" id="P-sma200">
-      <div class="ph"><div><div class="pht">Weekly 200 SMA <span class="pbg c">CeFi</span></div><div class="phs">Bitcoin weekly 200-period SMA — key macro support level</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="200 Долоо хоногийн SMA" data-en="Weekly 200 SMA">200 Долоо хоногийн SMA</span> <span class="pbg c">CeFi</span></div><div class="phs"><span data-mn="Биткоины долоо хоногийн 200-SMA — гол макро дэмжлэгийн түвшин" data-en="Bitcoin weekly 200-period SMA — key macro support level">Биткоины долоо хоногийн 200-SMA — гол макро дэмжлэгийн түвшин</span></div></div></div>
       <div class="pc">
         <div class="cards" style="margin-bottom:26px">
           <div class="card"><div class="cv">$38,400</div><div class="cl">200W SMA</div><div class="cc up">Long-term support</div></div>
@@ -1782,7 +1787,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
           <div class="card"><div class="cv up">$112,000</div><div class="cl">ATH</div><div class="cc" style="color:var(--muted)">Jan 2025</div></div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-          <div class="st" style="margin-bottom:16px">BTC Price vs 200W SMA — Historical</div>
+          <div class="st" style="margin-bottom:16px"><span data-mn="BTC Үнэ vs 200W SMA — Түүхэн" data-en="BTC Price vs 200W SMA — Historical">BTC Үнэ vs 200W SMA — Түүхэн</span></div>
           <canvas id="smaChart" height="120"></canvas>
         </div>
       </div>
@@ -1792,8 +1797,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
     <div class="pnl" id="P-rsi">
       <div class="ph">
         <div>
-          <div class="pht">RSI Dashboard <span class="pbg c">CeFi</span></div>
-          <div class="phs">Relative Strength Index — live calculated from OHLC · 14-period across assets &amp; timeframes</div>
+          <div class="pht"><span data-mn="RSI Самбар" data-en="RSI Dashboard">RSI Самбар</span> <span class="pbg c">CeFi</span></div>
+          <div class="phs"><span data-mn="Харьцангуй хүч индекс — OHLC-ээс шууд тооцоолсон · 14 үе · олон хөрөнгө" data-en="Relative Strength Index — live calculated from OHLC · 14-period across assets &amp; timeframes">Харьцангуй хүч индекс — шууд тооцоолсон · 14 үе</span></div>
         </div>
         <div class="phst">
           <div style="display:flex;gap:16px;font-family:'Space Mono',monospace;font-size:10px;align-items:center">
@@ -1819,24 +1824,24 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
         <!-- Main charts row: gauge + BTC 30d line -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">RSI Snapshot — All Assets (14D)</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="RSI Агшин — Бүх Хөрөнгө (14D)" data-en="RSI Snapshot — All Assets (14D)">RSI Агшин — Бүх Хөрөнгө (14D)</span></div>
             <canvas id="rsiGaugeChart" height="200"></canvas>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-            <div class="st" style="margin-bottom:16px">BTC RSI History — 30 Days</div>
+            <div class="st" style="margin-bottom:16px"><span data-mn="BTC RSI Түүх — 30 Өдөр" data-en="BTC RSI History — 30 Days">BTC RSI Түүх — 30 Өдөр</span></div>
             <canvas id="rsiLineChart" height="200"></canvas>
           </div>
         </div>
 
         <!-- Multi-coin RSI line chart -->
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px;margin-bottom:14px">
-          <div class="st" style="margin-bottom:16px">Multi-Asset RSI Comparison — 30 Days</div>
+          <div class="st" style="margin-bottom:16px"><span data-mn="Олон Хөрөнгийн RSI Харьцуулалт — 30 Өдөр" data-en="Multi-Asset RSI Comparison — 30 Days">Олон Хөрөнгийн RSI Харьцуулалт — 30 Өдөр</span></div>
           <canvas id="rsiMultiChart" height="130"></canvas>
         </div>
 
         <!-- RSI heatmap table -->
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px">
-          <div class="st" style="margin-bottom:16px">RSI Signal Table — Multi-Timeframe</div>
+          <div class="st" style="margin-bottom:16px"><span data-mn="RSI Дохионы Хүснэгт — Олон Хугацаа" data-en="RSI Signal Table — Multi-Timeframe">RSI Дохионы Хүснэгт — Олон Хугацаа</span></div>
           <table style="width:100%;border-collapse:collapse">
             <thead>
               <tr style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">
@@ -1858,10 +1863,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- ═══ FX PANELS ════════════════════════════════════════════════════ -->
     <div class="pnl" id="P-fx-overview">
-      <div class="ph"><div><div class="pht">Forex Overview <span class="pbg fx">FX</span></div><div class="phs">5 major currency pairs · Finnhub live data · RSI-14 + MA20/50/200</div></div></div>
+      <div class="ph"><div><div class="pht"><span data-mn="Форекс Тойм" data-en="Forex Overview">Форекс Тойм</span> <span class="pbg fx">FX</span></div><div class="phs">5 major currency pairs · Finnhub live data · RSI-14 + MA20/50/200</div></div></div>
       <div class="pc">
         <div class="mkt-cards" id="fx-ov-cards"><div class="mkt-loading"><div class="mkt-spinner"></div>Loading FX data…</div></div>
-        <div class="st">Signal Summary</div><div class="sig-bar" id="fx-ov-sigs"></div>
+        <div class="st"><span data-mn="Дохионы Хураангуй" data-en="Signal Summary">Дохионы Хураангуй</span></div><div class="sig-bar" id="fx-ov-sigs"></div>
         <div class="mkt-detail">
           <div class="mkt-box"><div class="mkt-box-title">RSI-14 Overview</div><div id="fx-ov-rsi"></div></div>
           <div class="mkt-box"><div class="mkt-box-title">Moving Average Signals</div>
@@ -4386,6 +4391,70 @@ window.go=function(id,el){
 wsConnect(); // connect WS immediately so equity subs are instant
 
 })(); // end IIFE
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   CHAINROOT SITE-WIDE LANGUAGE SWITCHER
+   Default: Mongolian (mn)
+   All translatable elements use data-mn / data-en attributes.
+   setSiteLang('en') switches everything to English instantly.
+   setSiteLang('mn') switches back to Mongolian.
+═══════════════════════════════════════════════════════════ */
+let SITE_LANG = 'mn'; // Mongolian default
+
+function setSiteLang(lang) {
+  SITE_LANG = lang;
+
+  // Swap all elements that have data-mn / data-en attributes
+  document.querySelectorAll('[data-mn]').forEach(function(el) {
+    const txt = el.getAttribute('data-' + lang);
+    if (txt !== null) el.innerHTML = txt;
+  });
+
+  // Update topbar toggle button styles
+  const mnBtn = document.getElementById('main-lang-mn');
+  const enBtn = document.getElementById('main-lang-en');
+  if (mnBtn && enBtn) {
+    if (lang === 'mn') {
+      mnBtn.style.background = '#00e87a';
+      mnBtn.style.color = '#000';
+      enBtn.style.background = 'transparent';
+      enBtn.style.color = 'var(--muted)';
+    } else {
+      enBtn.style.background = '#00e87a';
+      enBtn.style.color = '#000';
+      mnBtn.style.background = 'transparent';
+      mnBtn.style.color = 'var(--muted)';
+    }
+  }
+
+  // Also sync the training page language toggle if it's open
+  const trMn = document.getElementById('lang-mn');
+  const trEn = document.getElementById('lang-en');
+  if (trMn && trEn) {
+    if (lang === 'mn') {
+      trMn.style.background = '#f4c542'; trMn.style.color = '#000';
+      trEn.style.background = 'transparent'; trEn.style.color = 'var(--muted)';
+    } else {
+      trEn.style.background = '#f4c542'; trEn.style.color = '#000';
+      trMn.style.background = 'transparent'; trMn.style.color = 'var(--muted)';
+    }
+  }
+
+  // Save preference so it persists across page refreshes
+  try { localStorage.setItem('cr_lang', lang); } catch(e) {}
+}
+
+// On page load: apply saved preference or default to Mongolian
+(function() {
+  let saved = 'mn';
+  try { saved = localStorage.getItem('cr_lang') || 'mn'; } catch(e) {}
+  // Small delay so DOM is fully rendered before swapping
+  setTimeout(function() { setSiteLang(saved); }, 50);
+})();
+
+// Expose globally
+window.setSiteLang = setSiteLang;
 </script>
 </body>
 </html>
