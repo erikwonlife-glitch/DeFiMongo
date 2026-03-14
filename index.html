@@ -3362,5 +3362,699 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 <script src="js/news.js?v=2"></script>
 <script src="js/yield.js?v=2"></script>
 
+<div class="training-overlay" id="trainingOverlay">
+
+  <!-- Training topbar -->
+  <div class="tr-topbar">
+    <div class="tr-logo">
+      <div class="tr-logo-dot"></div>
+      <span data-mn="ChainRoot — Үнэгүй Сургалт" data-en="ChainRoot — Free Training">ChainRoot — Үнэгүй Сургалт</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <!-- Language toggle -->
+      <div style="display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden">
+        <button id="lang-mn" onclick="setLang('mn')" style="padding:5px 12px;background:#f4c542;color:#000;border:none;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;cursor:pointer">МН</button>
+        <button id="lang-en" onclick="setLang('en')" style="padding:5px 12px;background:transparent;color:var(--muted);border:none;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;cursor:pointer">EN</button>
+      </div>
+      <button class="tr-close-btn" onclick="closeTrainingPage()">
+        ✕ &nbsp;<span data-mn="Хаах" data-en="Close">Хаах</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="tr-body">
+
+    <!-- Hero -->
+    <div class="tr-hero">
+      <div class="tr-hero-badge">
+        <span class="tr-hero-badge-dot"></span>
+        <span data-mn="100% Үнэгүй · Бүгдэд нээлттэй" data-en="100% Free · Open to Everyone">100% Үнэгүй · Бүгдэд нээлттэй</span>
+      </div>
+      <h1 class="tr-hero-title">
+        <span data-mn='Зах зээлийг <span class="accent">ойлго</span>.<br>Индикаторыг <span class="accent">ашигла</span>.' data-en='Understand the <span class="accent">market</span>.<br>Master the <span class="accent">indicator</span>.'>Зах зээлийг <span class="accent">ойлго</span>.<br>Индикаторыг <span class="accent">ашигла</span>.</span>
+      </h1>
+      <p class="tr-hero-sub">
+        <span data-mn="<strong>30 минутын үнэгүй сургалтын видео</strong> үзэж, ChainRoot TradingView индикаторыг хэрхэн ашиглан крипто болон хувьцааны дохионуудыг уншихыг сурна уу." data-en="Watch our <strong>free 30-minute training video</strong> and learn exactly how to read crypto &amp; stock signals using the ChainRoot TradingView indicator."><strong>30 минутын үнэгүй сургалтын видео</strong> үзэж, ChainRoot TradingView индикаторыг хэрхэн ашиглан крипто болон хувьцааны дохионуудыг уншихыг сурна уу.</span>
+      </p>
+    </div>
+
+    <!-- ═══ VIDEO SECTION ═══════════════════════════════════════════════ -->
+    <!-- 
+      HOW TO ADD YOUR VIDEO:
+      Option A — YouTube:
+        1. Upload video to YouTube (can be unlisted)
+        2. Copy the video ID from the URL: youtube.com/watch?v=XXXXXXXXXXXX
+        3. Replace YOUR_YOUTUBE_VIDEO_ID below with that ID
+        4. Delete the placeholder div and uncomment the iframe
+
+      Option B — Vimeo:
+        Replace with: <iframe src="https://player.vimeo.com/video/YOUR_VIMEO_ID?color=00e87a&title=0&byline=0" ...>
+    -->
+    <div class="tr-video-wrap" id="trVideoWrap">
+
+      <!-- ▼ UNCOMMENT THIS AND FILL IN YOUR VIDEO ID WHEN READY ▼ -->
+      <!--
+      <iframe
+        src="https://www.youtube.com/embed/YOUR_YOUTUBE_VIDEO_ID?rel=0&modestbranding=1&color=white"
+        title="ChainRoot Сургалт"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
+      -->
+
+      <!-- ▼ DELETE THIS PLACEHOLDER BLOCK WHEN YOU ADD YOUR VIDEO ▼ -->
+      <div class="tr-video-placeholder" id="trVideoPlaceholder">
+        <div class="play-ring" onclick="showVideoInstructions()">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+            <polygon points="8,4 22,13 8,22" fill="#000"/>
+          </svg>
+        </div>
+        <p data-mn="Видео удахгүй байршина — бэлтгэж байна" data-en="Video coming soon — being prepared">Видео удахгүй байршина — бэлтгэж байна</p>
+      </div>
+
+    </div>
+    <div class="tr-video-meta">
+      <span class="tr-video-tag" data-mn="⏱ 30 минут · Монгол хэл" data-en="⏱ 30 minutes · Mongolian + English">⏱ 30 минут · Монгол хэл</span>
+      <span class="tr-free-tag">FREE</span>
+    </div>
+
+    <hr class="tr-divider">
+
+    <!-- What you learn -->
+    <div class="tr-section-label">// <span data-mn="Сургалтын агуулга" data-en="Course Contents">Сургалтын агуулга</span></div>
+    <h2 class="tr-section-title" data-mn="Та юу сурах вэ" data-en="What You'll Learn">Та юу сурах вэ</h2>
+    <div class="tr-lessons">
+      <div class="tr-lesson">
+        <div class="tr-lesson-num">ХИЧЭЭЛ 01</div>
+        <div class="tr-lesson-title" data-mn="Техник шинжилгээний үндэс" data-en="Technical Analysis Basics">Техник шинжилгээний үндэс</div>
+        <div class="tr-lesson-desc" data-mn="Дэмжлэг, эсэргүүцэл, трендийн шугам — зах зээлийн дохионыг хэрхэн уншихыг сурна." data-en="Support, resistance, trendlines — learn how to read market signals correctly.">Дэмжлэг, эсэргүүцэл, трендийн шугам — зах зээлийн дохионыг хэрхэн уншихыг сурна.</div>
+      </div>
+      <div class="tr-lesson">
+        <div class="tr-lesson-num">ХИЧЭЭЛ 02</div>
+        <div class="tr-lesson-title" data-mn="TradingView тохируулах" data-en="Setting Up TradingView">TradingView тохируулах</div>
+        <div class="tr-lesson-desc" data-mn="ChainRoot индикаторыг TradingView дээр хэрхэн нэмж тохируулахыг алхам алхмаар үзүүлнэ." data-en="Step-by-step guide to adding and configuring the ChainRoot indicator on TradingView.">ChainRoot индикаторыг TradingView дээр хэрхэн нэмж тохируулахыг алхам алхмаар үзүүлнэ.</div>
+      </div>
+      <div class="tr-lesson">
+        <div class="tr-lesson-num">ХИЧЭЭЛ 03</div>
+        <div class="tr-lesson-title" data-mn="BUY / SELL дохио уншлага" data-en="Reading BUY / SELL Signals">BUY / SELL дохио уншлага</div>
+        <div class="tr-lesson-desc" data-mn="Индикаторын BUY ба SELL дохионуудыг хэрхэн зөв тайлбарлаж, орж гарах цэгийг тодорхойлохыг үзнэ." data-en="How to correctly interpret BUY and SELL signals and identify precise entry and exit points.">Индикаторын BUY ба SELL дохионуудыг хэрхэн зөв тайлбарлаж, орж гарах цэгийг тодорхойлохыг үзнэ.</div>
+      </div>
+      <div class="tr-lesson">
+        <div class="tr-lesson-num">ХИЧЭЭЛ 04</div>
+        <div class="tr-lesson-title" data-mn="Эрсдэл хамгаалах" data-en="Risk Management">Эрсдэл хамгаалах</div>
+        <div class="tr-lesson-desc" data-mn="Stop-loss, take-profit тохируулж хөрөнгөө хамгаалах стратегийг ойлгоно." data-en="Understand how to set stop-loss and take-profit levels to protect your capital.">Stop-loss, take-profit тохируулж хөрөнгөө хамгаалах стратегийг ойлгоно.</div>
+      </div>
+    </div>
+
+    <hr class="tr-divider">
+
+    <!-- Indicator demo -->
+    <div class="tr-section-label">// TradingView Indicator</div>
+    <h2 class="tr-section-title" data-mn="ChainRoot Индикатор — Шууд Жишээ" data-en="ChainRoot Indicator — Live Demo">ChainRoot Индикатор — Шууд Жишээ</h2>
+
+    <div class="tr-indicator-wrap">
+      <div class="tr-indicator-info">
+        <p style="font-family:'Inter',sans-serif;font-size:15px;color:#4d6475;line-height:1.75;margin-bottom:6px;">
+          <span data-mn="Манай <strong style='color:#ccd8df'>TradingView индикатор</strong> нь крипто болон хувьцаан дээр автоматаар BUY &amp; SELL дохио өгдөг — таны чартан дээр шууд харагдана." data-en="Our custom <strong style='color:#ccd8df'>TradingView indicator</strong> gives you automatic BUY &amp; SELL signals on both crypto and stocks — directly on your chart.">Манай <strong style="color:#ccd8df">TradingView индикатор</strong> нь крипто болон хувьцаан дээр автоматаар BUY &amp; SELL дохио өгдөг — таны чартан дээр шууд харагдана.</span>
+        </p>
+        <ul class="tr-features">
+          <li data-mn="Аливаа чарт дээр шууд BUY / SELL дохио" data-en="Real-time BUY / SELL signal overlay on any chart">Аливаа чарт дээр шууд BUY / SELL дохио</li>
+          <li data-mn="Крипто (BTC, ETH, SOL...) болон хувьцаанд ажилладаг" data-en="Works on crypto (BTC, ETH, SOL...) and stocks">Крипто (BTC, ETH, SOL...) болон хувьцаанд ажилладаг</li>
+          <li data-mn="Мэдэгдлийн систем — шууд мэдэгдэл авна" data-en="Custom alert system — get notified instantly">Мэдэгдлийн систем — шууд мэдэгдэл авна</li>
+          <li data-mn="Монгол хэлний дэмжлэг &amp; заавар" data-en="Mongolian-language support &amp; onboarding">Монгол хэлний дэмжлэг &amp; заавар</li>
+          <li data-mn="Сар эсвэл жилийн захиалга — хэдийд ч цуцлах боломжтой" data-en="Monthly or Annual subscription — cancel anytime">Сар эсвэл жилийн захиалга — хэдийд ч цуцлах боломжтой</li>
+        </ul>
+      </div>
+
+      <!-- Fake indicator preview -->
+      <div class="tr-indicator-preview">
+        <div class="tr-indicator-preview-label">
+          <span>BTC/USDT · 4H · ChainRoot v2</span>
+          <span class="tr-live-dot">LIVE</span>
+        </div>
+        <div class="tr-fake-chart">
+          <div class="tr-candle" style="height:45%;background:#ff4560;"></div>
+          <div class="tr-candle" style="height:60%;background:#00e87a;"></div>
+          <div class="tr-candle" style="height:40%;background:#00e87a;"></div>
+          <div class="tr-candle" style="height:72%;background:#ff4560;"></div>
+          <div class="tr-candle" style="height:55%;background:#00e87a;position:relative;">
+            <div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:#00e87a;color:#000;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;white-space:nowrap;">▲ BUY</div>
+          </div>
+          <div class="tr-candle" style="height:80%;background:#00e87a;"></div>
+          <div class="tr-candle" style="height:90%;background:#00e87a;"></div>
+          <div class="tr-candle" style="height:78%;background:#ff4560;"></div>
+          <div class="tr-candle" style="height:60%;background:#ff4560;"></div>
+          <div class="tr-candle" style="height:42%;background:#ff4560;position:relative;">
+            <div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:#ff4560;color:#fff;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;white-space:nowrap;">▼ SELL</div>
+          </div>
+          <div class="tr-candle" style="height:50%;background:#ff4560;"></div>
+          <div class="tr-candle" style="height:65%;background:#00e87a;"></div>
+          <div class="tr-candle" style="height:85%;background:#00e87a;position:relative;">
+            <div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:#00e87a;color:#000;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;white-space:nowrap;">▲ BUY</div>
+          </div>
+        </div>
+        <div class="tr-signal-rows">
+          <div class="tr-signal-row buy">
+            <span>BTC/USDT 4H</span>
+            <span class="tr-signal-tag buy">▲ BUY SIGNAL</span>
+            <span class="tr-signal-time" data-mn="2 цагийн өмнө" data-en="2h ago">2 цагийн өмнө</span>
+          </div>
+          <div class="tr-signal-row sell">
+            <span>ETH/USDT 1H</span>
+            <span class="tr-signal-tag sell">▼ SELL SIGNAL</span>
+            <span class="tr-signal-time" data-mn="5 цагийн өмнө" data-en="5h ago">5 цагийн өмнө</span>
+          </div>
+          <div class="tr-signal-row buy">
+            <span>AAPL 1D</span>
+            <span class="tr-signal-tag buy">▲ BUY SIGNAL</span>
+            <span class="tr-signal-time" data-mn="1 өдрийн өмнө" data-en="1d ago">1 өдрийн өмнө</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="tr-divider">
+
+    <!-- Pricing CTA -->
+    <div class="tr-pricing">
+      <div class="tr-pricing-title" data-mn="Индикаторт захиалга хийх" data-en="Subscribe to the Indicator">Индикаторт захиалга хийх</div>
+      <p class="tr-pricing-sub" data-mn="ChainRoot индикаторт бүрэн хандалт авна уу. Хэдийд ч цуцлах боломжтой." data-en="Get full access to ChainRoot indicator on TradingView. Cancel anytime.">ChainRoot индикаторт бүрэн хандалт авна уу. Хэдийд ч цуцлах боломжтой.</p>
+      <div class="tr-plans">
+        <div class="tr-plan">
+          <div class="tr-plan-name" data-mn="Сарын захиалга" data-en="Monthly">Сарын захиалга</div>
+          <div class="tr-plan-price">$9<span>/сар</span></div>
+          <div class="tr-plan-period" data-mn="Сар бүр төлбөр" data-en="Billed monthly">Сар бүр төлбөр</div>
+          <ul class="tr-plan-features">
+            <li data-mn="TradingView индикатор хандалт" data-en="TradingView indicator access">TradingView индикатор хандалт</li>
+            <li data-mn="BUY / SELL дохио" data-en="BUY / SELL signals">BUY / SELL дохио</li>
+            <li data-mn="Мэдэгдэл тохируулга" data-en="Alert setup">Мэдэгдэл тохируулга</li>
+            <li data-mn="Монгол хэлний дэмжлэг" data-en="Mongolian support">Монгол хэлний дэмжлэг</li>
+          </ul>
+          <button class="tr-plan-btn" onclick="alert('Захиалгын холбоос удахгүй!')">
+            <span data-mn="Захиалах →" data-en="Subscribe →">Захиалах →</span>
+          </button>
+        </div>
+        <div class="tr-plan featured">
+          <div class="tr-plan-badge" data-mn="ХАМГИЙН АШИГТАЙ" data-en="BEST VALUE">ХАМГИЙН АШИГТАЙ</div>
+          <div class="tr-plan-name" data-mn="Жилийн захиалга" data-en="Annual">Жилийн захиалга</div>
+          <div class="tr-plan-price">$69<span>/жил</span></div>
+          <div class="tr-plan-period save" data-mn="$39 хэмнэлт · 36% хямдрал" data-en="Save $39 · 36% off">$39 хэмнэлт · 36% хямдрал</div>
+          <ul class="tr-plan-features">
+            <li data-mn="TradingView индикатор хандалт" data-en="TradingView indicator access">TradingView индикатор хандалт</li>
+            <li data-mn="BUY / SELL дохио" data-en="BUY / SELL signals">BUY / SELL дохио</li>
+            <li data-mn="Мэдэгдэл тохируулга" data-en="Alert setup">Мэдэгдэл тохируулга</li>
+            <li data-mn="Монгол хэлний дэмжлэг" data-en="Mongolian support">Монгол хэлний дэмжлэг</li>
+            <li data-mn="Үнэгүй шинэчлэлт" data-en="Free indicator updates">Үнэгүй шинэчлэлт</li>
+          </ul>
+          <button class="tr-plan-btn" onclick="alert('Захиалгын холбоос удахгүй!')">
+            <span data-mn="Захиалах →" data-en="Subscribe →">Захиалах →</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tr-body -->
+</div><!-- /training-overlay -->
+
+<!-- ═══════════════════════════════════════════════════════
+     CHAINROOT YIELD / DEFI EARN — CHAINROOT VAULT INFRASTRUCTURE
+     Opens as full-screen overlay (no new tab)
+═══════════════════════════════════════════════════════ -->
+<div class="yield-overlay" id="yieldOverlay">
+
+  <!-- Top bar -->
+  <div class="yl-topbar">
+    <div class="yl-logo">
+      <svg width="22" height="22" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="14" stroke="#1c2d38" stroke-width="1.5"/><rect x="4" y="11.5" width="10" height="7" rx="3.5" stroke="#9945FF" stroke-width="2" fill="none"/><rect x="16" y="11.5" width="10" height="7" rx="3.5" stroke="#14F195" stroke-width="2" fill="none"/><circle cx="15" cy="15" r="2.2" fill="#14F195"/></svg>
+      <span>ChainRoot <span style="color:#9945FF">Yield</span></span>
+      <span class="yl-logo-badge">Solana DeFi</span>
+    </div>
+    <div class="yl-topbar-right">
+      <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4d6475;display:flex;align-items:center;gap:6px">
+        <span style="width:6px;height:6px;border-radius:50%;background:#14F195;display:inline-block;animation:yieldGlow 1.5s infinite"></span>
+        Powered by ChainRoot Protocol
+      </span>
+      <button class="yl-close-btn" onclick="closeYieldPage()">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Close
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="yl-body">
+
+    <!-- HERO -->
+    <div class="yl-hero">
+      <div class="yl-hero-badge">
+        <span class="yl-hero-badge-dot"></span>
+        <span data-mn="Нийгэмлэгийн Өгөөж" data-en="Community Yield Platform">Community Yield Platform</span>
+      </div>
+      <h1 class="yl-hero-title">
+        <span data-mn="Солана сүлжээн дэх" data-en="Earn Real Yield on">Earn Real Yield on</span><br>
+        <span class="sol" data-mn="жинхэнэ өгөөж олоорой" data-en="Solana DeFi — Together">Solana DeFi — Together</span>
+      </h1>
+      <p class="yl-hero-sub" data-mn="ChainRoot нийгэмлэгийн гишүүд ChainRoot-ийн аюулгүй, аудитлагдсан Vault системийг ашиглан нийтийн өгөөжид нэгдэнэ." data-en="ChainRoot community members earn together through our secure, audited Vault infrastructure — transparent, non-custodial, and optimized on Solana's fastest liquidity layer.">
+        ChainRoot community members earn together through our <strong>secure, audited Vault infrastructure</strong> — transparent, non-custodial, and optimized on Solana's fastest liquidity layer.
+      </p>
+
+      <!-- Live stats bar -->
+      <div class="yl-stats-bar">
+        <div class="yl-stat">
+          <div class="yl-stat-val" style="color:#14F195">24.7%</div>
+          <div class="yl-stat-lbl">Top Vault APY</div>
+          <div class="yl-stat-sub" style="color:#14F195">↑ SOL/USDC</div>
+        </div>
+        <div class="yl-stat">
+          <div class="yl-stat-val" style="color:#9945FF">$1.24M</div>
+          <div class="yl-stat-lbl">Community TVL</div>
+          <div class="yl-stat-sub" style="color:var(--muted)">across 4 vaults</div>
+        </div>
+        <div class="yl-stat">
+          <div class="yl-stat-val" style="color:#f4c542">12.5%</div>
+          <div class="yl-stat-lbl">Avg. 30d APY</div>
+          <div class="yl-stat-sub" style="color:var(--muted)">blended rate</div>
+        </div>
+        <div class="yl-stat">
+          <div class="yl-stat-val" style="color:#00b4d8">$0</div>
+          <div class="yl-stat-lbl">Custody Risk</div>
+          <div class="yl-stat-sub" style="color:#00b4d8">Non-custodial</div>
+        </div>
+        <div class="yl-stat">
+          <div class="yl-stat-val" style="color:#ccd8df">10–20%</div>
+          <div class="yl-stat-lbl">Performance Fee</div>
+          <div class="yl-stat-sub" style="color:var(--muted)">to ChainRoot</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="yl-divider">
+
+    <!-- COMMUNITY VAULTS -->
+    <div>
+      <div class="yl-section-label" data-mn="Одоогийн Vault-ууд" data-en="Active Vaults">Active Vaults</div>
+      <h2 class="yl-section-title" data-mn="ChainRoot Нийгэмлэгийн Vault-ууд" data-en="ChainRoot Community Vaults">ChainRoot Community Vaults</h2>
+      <p class="yl-section-sub" data-mn="Бүх vault нь ChainRoot-ийн аюулгүй, аудитлагдсан ухаалаг гэрээн дээр ажиллана. Та хэдийд ч хөрөнгөө татаж авах боломжтой." data-en="All vaults run on ChainRoot's audited smart contract infrastructure. Your funds remain in your control — withdraw anytime.">All vaults run on ChainRoot's audited smart contract infrastructure. Your funds remain in your control — withdraw anytime.</p>
+      
+      <div class="yl-vaults">
+
+        <!-- Vault 1 — flagship -->
+        <div class="yl-vault-card featured">
+          <span class="yl-vault-badge our">◈ ChainRoot</span>
+          <div class="yl-vault-top">
+            <div class="yl-vault-pair">
+              <div class="yl-vault-icons">
+                <div class="yl-vault-icon" style="background:#9945FF1a;color:#9945FF">◎</div>
+                <div class="yl-vault-icon" style="background:#2775CA1a;color:#2775CA">$</div>
+              </div>
+              <div>
+                <div class="yl-vault-name">SOL / USDC</div>
+                <div class="yl-vault-proto">ChainRoot · Solana Liquidity</div>
+              </div>
+            </div>
+            <div class="yl-vault-apy">
+              <div class="yl-vault-apy-val">24.7%</div>
+              <div class="yl-vault-apy-lbl">APY</div>
+            </div>
+          </div>
+          <div class="yl-vault-stats">
+            <div class="yl-vault-stat">
+              <div class="yl-vault-stat-val">$642K</div>
+              <div class="yl-vault-stat-lbl">TVL</div>
+            </div>
+            <div class="yl-vault-stat">
+              <div class="yl-vault-stat-val">15%</div>
+              <div class="yl-vault-stat-lbl">Perf. Fee</div>
+            </div>
+            <div class="yl-vault-stat">
+              <div class="yl-vault-stat-val" style="color:#14F195">Low</div>
+              <div class="yl-vault-stat-lbl">IL Risk</div>
+            </div>
+            <div class="yl-vault-stat">
+              <div class="yl-vault-stat-val">Live</div>
+              <div class="yl-vault-stat-lbl">Status</div>
+            </div>
+          </div>
+          <button class="yl-vault-btn" onclick="openVaultDeposit('So11111111111111111111111111111111111111112')">
+            Deposit → Earn Yield
+          </button>
+        </div>
+
+        <!-- Vault 2 -->
+        <div class="yl-vault-card">
+          <span class="yl-vault-badge hot">🔥 High APY</span>
+          <div class="yl-vault-top">
+            <div class="yl-vault-pair">
+              <div class="yl-vault-icons">
+                <div class="yl-vault-icon" style="background:#9945FF1a;color:#9945FF">◎</div>
+                <div class="yl-vault-icon" style="background:#E84142;color:#fff;font-size:10px">JTO</div>
+              </div>
+              <div>
+                <div class="yl-vault-name">SOL / JTO</div>
+                <div class="yl-vault-proto">ChainRoot · High-Yield Layer</div>
+              </div>
+            </div>
+            <div class="yl-vault-apy">
+              <div class="yl-vault-apy-val">38.2%</div>
+              <div class="yl-vault-apy-lbl">APY</div>
+            </div>
+          </div>
+          <div class="yl-vault-stats">
+            <div class="yl-vault-stat">
+              <div class="yl-vault-stat-val">$289K</div>
+              <div class="yl-vault-stat-lbl">TVL</div>
+            </div>
+            <div class="yl-vault-stat">
+              <div class="yl-vault-stat-val">20%</div>
+              <div class="yl-vault-stat-lbl">Perf. Fee</div>
+            </div>
+            <div class="yl-vault-stat">
+              <div class="yl-vault-stat-val" style="color:#f4c542">Med</div>
+              <div class="yl-vault-stat-lbl">IL Risk</div>
+            </div>
+            <div class="yl-vault-stat">
+              <div class="yl-vault-stat-val">Live</div>
+              <div class="yl-vault-stat-lbl">Status</div>
+            </div>
+          </div>
+          <button class="yl-vault-btn" onclick="openVaultDeposit('jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL')">
+            Deposit → Earn Yield
+          </button>
+        </div>
+
+        <!-- Vault 3 -->
+        <div class="yl-vault-card">
+          <span class="yl-vault-badge new">Stable</span>
+          <div class="yl-vault-top">
+            <div class="yl-vault-pair">
+              <div class="yl-vault-icons">
+                <div class="yl-vault-icon" style="background:#2775CA1a;color:#2775CA">$</div>
+                <div class="yl-vault-icon" style="background:#26A17B1a;color:#26A17B">T</div>
+              </div>
+              <div>
+                <div class="yl-vault-name">USDC / USDT</div>
+                <div class="yl-vault-proto">ChainRoot · Stable Pool</div>
+              </div>
+            </div>
+            <div class="yl-vault-apy">
+              <div class="yl-vault-apy-val">8.4%</div>
+              <div class="yl-vault-apy-lbl">APY</div>
+            </div>
+          </div>
+          <div class="yl-vault-stats">
+            <div class="yl-vault-stat">
+              <div class="yl-vault-stat-val">$198K</div>
+              <div class="yl-vault-stat-lbl">TVL</div>
+            </div>
+            <div class="yl-vault-stat">
+              <div class="yl-vault-stat-val">10%</div>
+              <div class="yl-vault-stat-lbl">Perf. Fee</div>
+            </div>
+            <div class="yl-vault-stat">
+              <div class="yl-vault-stat-val" style="color:#14F195">None</div>
+              <div class="yl-vault-stat-lbl">IL Risk</div>
+            </div>
+            <div class="yl-vault-stat">
+              <div class="yl-vault-stat-val">Live</div>
+              <div class="yl-vault-stat-lbl">Status</div>
+            </div>
+          </div>
+          <button class="yl-vault-btn" onclick="openVaultDeposit('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v')">
+            Deposit → Earn Yield
+          </button>
+        </div>
+
+        <!-- Vault 4 — coming soon -->
+        <div class="yl-vault-card" style="opacity:.6">
+          <span class="yl-vault-badge" style="background:rgba(77,100,117,.12);color:#4d6475;border:1px solid rgba(77,100,117,.2)">Soon</span>
+          <div class="yl-vault-top">
+            <div class="yl-vault-pair">
+              <div class="yl-vault-icons">
+                <div class="yl-vault-icon" style="background:#F7931A1a;color:#F7931A">₿</div>
+                <div class="yl-vault-icon" style="background:#9945FF1a;color:#9945FF">◎</div>
+              </div>
+              <div>
+                <div class="yl-vault-name">BTC / SOL</div>
+                <div class="yl-vault-proto">ChainRoot · Coming Soon</div>
+              </div>
+            </div>
+            <div class="yl-vault-apy">
+              <div class="yl-vault-apy-val" style="color:#4d6475">—%</div>
+              <div class="yl-vault-apy-lbl">APY</div>
+            </div>
+          </div>
+          <div class="yl-vault-stats">
+            <div class="yl-vault-stat"><div class="yl-vault-stat-val" style="color:#4d6475">—</div><div class="yl-vault-stat-lbl">TVL</div></div>
+            <div class="yl-vault-stat"><div class="yl-vault-stat-val" style="color:#4d6475">15%</div><div class="yl-vault-stat-lbl">Perf. Fee</div></div>
+            <div class="yl-vault-stat"><div class="yl-vault-stat-val" style="color:#4d6475">Med</div><div class="yl-vault-stat-lbl">IL Risk</div></div>
+            <div class="yl-vault-stat"><div class="yl-vault-stat-val" style="color:#4d6475">Q2 2025</div><div class="yl-vault-stat-lbl">Launch</div></div>
+          </div>
+          <button class="yl-vault-btn" style="opacity:.5;cursor:default">Notify Me →</button>
+        </div>
+
+      </div>
+    </div>
+
+    <hr class="yl-divider">
+
+    <!-- HOW IT WORKS -->
+    <div>
+      <div class="yl-section-label" data-mn="Яаж ажилладаг вэ?" data-en="How It Works">How It Works</div>
+      <h2 class="yl-section-title" data-mn="3 алхамд өгөөж олоорой" data-en="3 Steps to Start Earning">3 Steps to Start Earning</h2>
+      <p class="yl-section-sub" data-mn="Та DeFi протоколтой шууд харилцана — ChainRoot хэзээ ч таны хөрөнгийг хянахгүй." data-en="You interact directly with the DeFi protocol — ChainRoot never has custody of your assets.">You interact directly with the DeFi protocol — ChainRoot never has custody of your assets.</p>
+      <div class="yl-steps">
+        <div class="yl-step">
+          <div class="yl-step-icon">🔌</div>
+          <div class="yl-step-num">STEP 01</div>
+          <div class="yl-step-title">Connect Wallet</div>
+          <div class="yl-step-desc">Connect your Phantom, Solflare, or Backpack wallet. No sign-up, no KYC, just your Solana address.</div>
+        </div>
+        <div class="yl-step">
+          <div class="yl-step-icon">🏦</div>
+          <div class="yl-step-num">STEP 02</div>
+          <div class="yl-step-title">Choose a Vault</div>
+          <div class="yl-step-desc">Pick a ChainRoot community vault based on your risk tolerance and target APY. Stablecoins to high-yield pairs.</div>
+        </div>
+        <div class="yl-step">
+          <div class="yl-step-icon">⚡</div>
+          <div class="yl-step-num">STEP 03</div>
+          <div class="yl-step-title">Deposit & Earn</div>
+          <div class="yl-step-desc">Deposit tokens in one click. ChainRoot's vault engine auto-compounds your position 24/7 while you watch your balance grow.</div>
+        </div>
+        <div class="yl-step">
+          <div class="yl-step-icon">💰</div>
+          <div class="yl-step-num">STEP 04</div>
+          <div class="yl-step-title">Withdraw Anytime</div>
+          <div class="yl-step-desc">No lockups, no waiting periods. Withdraw your principal + yield at any time — fully on-chain, fully transparent.</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="yl-divider">
+
+    <!-- CHAINROOT VAULT SETUP -->
+    <div>
+      <div class="yl-section-label" data-mn="Creator Vault байршуулах" data-en="Creator Vault Setup">Creator Vault Setup</div>
+      <h2 class="yl-section-title" data-mn="ChainRoot Vault Тохиргоо" data-en="ChainRoot Vault Infrastructure">ChainRoot Vault Infrastructure</h2>
+      <p class="yl-section-sub" data-mn="ChainRoot Vault нь аюулгүй, аудитлагдсан ухаалаг гэрээн дээр ажиллах нийгэмлэгийн хөрөнгийн удирдлагын систем юм." data-en="ChainRoot Vault Infrastructure is our battle-tested, audited framework for community-managed DeFi vaults on Solana — zero counterparty risk.">ChainRoot Vault Infrastructure is our battle-tested, audited framework for community-managed DeFi vaults on Solana — zero counterparty risk.</p>
+
+      <div class="yl-vault-cta">
+        <div class="yl-vault-cta-grid">
+          <div class="yl-vault-cta-info">
+            <div class="yl-vault-cta-title" data-mn="Яагаад ChainRoot Vault?" data-en="Why ChainRoot Vaults?">Why ChainRoot Vaults?</div>
+            <p class="yl-vault-cta-sub" data-mn="ChainRoot Vault нь Solana сүлжээн дэх хамгийн хурдан ликвидийн давхарга дээр суурилсан аудитлагдсан, тусгай зориулалтын ухаалаг гэрээ юм." data-en="ChainRoot Vaults are audited, purpose-built smart contracts running on Solana's fastest liquidity layer. Community managers earn protocol fees transparently on-chain.">ChainRoot Vaults are audited, purpose-built smart contracts running on Solana's fastest liquidity layer. Community managers earn protocol fees transparently on-chain.</p>
+            <ul class="yl-vault-cta-features">
+              <li><strong>Audited Core Contracts</strong> — Production-grade, battle-tested smart contract infrastructure. Zero counterparty risk.</li>
+              <li><strong>10–20% Performance Fee</strong> — ChainRoot earns a % on profits only. If the vault doesn't earn, neither do we.</li>
+              <li><strong>Vault Deployment</strong> — Vaults are deployed via ChainRoot's <code style="color:#9945FF;font-size:11px">ChainRoot backend SDK</code> — programmatic, reproducible and fully verifiable on-chain.</li>
+              <li><strong>Non-Custodial</strong> — Assets sit in on-chain smart contract vaults. ChainRoot never holds user funds.</li>
+              <li><strong>Auto-Compounding</strong> — LP fees auto-reinvested into the position 24/7 to maximize APY.</li>
+              <li><strong>Full Transparency</strong> — Vault address, fees, and performance all public on-chain.</li>
+            </ul>
+            <div class="yl-vault-cta-actions">
+              <button class="yl-btn-primary" onclick="openYieldDeposit()">Open ChainRoot Vaults ↗</button>
+              <button class="yl-btn-secondary" onclick="openYieldDocs()">Learn More</button>
+            </div>
+          </div>
+
+          <!-- Vault configuration panel -->
+          <div class="yl-vault-setup">
+            <div class="yl-vault-setup-title">Vault Configuration</div>
+
+            <div class="yl-input-row">
+              <div class="yl-input-label">Vault Name</div>
+              <input class="yl-input" id="vaultName" type="text" placeholder="ChainRoot SOL/USDC Vault" oninput="updateVaultPreview()">
+            </div>
+
+            <div class="yl-input-row">
+              <div class="yl-input-label">Token Pair</div>
+              <select class="yl-select" id="vaultPair" onchange="updateVaultPreview()">
+                <option value="SOL/USDC">SOL / USDC — High APY, Low IL</option>
+                <option value="SOL/JTO">SOL / JTO — Very High APY, Med IL</option>
+                <option value="USDC/USDT">USDC / USDT — Stable, No IL</option>
+                <option value="SOL/BONK">SOL / BONK — Speculative, High IL</option>
+                <option value="WBTC/SOL">WBTC / SOL — Balanced, Med IL</option>
+              </select>
+            </div>
+
+            <div class="yl-fee-row">
+              <div class="yl-input-row" style="margin-bottom:0">
+                <div class="yl-input-label">Performance Fee %</div>
+                <input class="yl-input" id="perfFee" type="number" min="10" max="20" value="15" step="1" oninput="updateVaultPreview()">
+              </div>
+              <div class="yl-input-row" style="margin-bottom:0">
+                <div class="yl-input-label">Mgmt Fee % (annual)</div>
+                <input class="yl-input" id="mgmtFee" type="number" min="0" max="2" value="0" step="0.1" oninput="updateVaultPreview()">
+              </div>
+            </div>
+
+            <div class="yl-input-row">
+              <div class="yl-input-label">Your Vault Address (after deploy)</div>
+              <input class="yl-input" id="vaultAddr" type="text" placeholder="Paste vault pubkey from TS SDK output..." style="font-size:10px" oninput="updateVaultPreview()">
+            </div>
+
+            <div class="yl-vault-preview">
+              <div class="yl-vault-preview-label">Live Preview</div>
+              <div class="yl-vault-preview-row">
+                <span class="yl-vault-preview-key">Vault Name</span>
+                <span class="yl-vault-preview-val" id="pvName">ChainRoot SOL/USDC Vault</span>
+              </div>
+              <div class="yl-vault-preview-row">
+                <span class="yl-vault-preview-key">Pair</span>
+                <span class="yl-vault-preview-val" id="pvPair">SOL / USDC</span>
+              </div>
+              <div class="yl-vault-preview-row">
+                <span class="yl-vault-preview-key">Performance Fee</span>
+                <span class="yl-vault-preview-val" id="pvPerf" style="color:#14F195">15%</span>
+              </div>
+              <div class="yl-vault-preview-row">
+                <span class="yl-vault-preview-key">Mgmt Fee</span>
+                <span class="yl-vault-preview-val" id="pvMgmt">0%/yr</span>
+              </div>
+              <div class="yl-vault-preview-row">
+                <span class="yl-vault-preview-key">Protocol</span>
+                <span class="yl-vault-preview-val" style="color:#9945FF">ChainRoot Protocol</span>
+              </div>
+              <div class="yl-vault-preview-row">
+                <span class="yl-vault-preview-key">Vault Address</span>
+                <span class="yl-vault-preview-val" id="pvAddr" style="font-size:9px;color:#4d6475">Not yet deployed</span>
+              </div>
+            </div>
+
+            <button class="yl-deploy-btn" onclick="handleVaultDeploy()">
+              ◈ Deploy ChainRoot Vault →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SDK Code snippet -->
+      <div style="background:#0c1014;border:1px solid #1c2d38;border-radius:8px;padding:22px;margin-bottom:14px">
+        <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#4d6475;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+          <span>TypeScript SDK — Vault Deployment</span>
+          <span style="flex:1;height:1px;background:#1c2d38;display:block"></span>
+          <span style="background:rgba(153,69,255,.1);color:#9945FF;border:1px solid rgba(153,69,255,.25);padding:2px 8px;border-radius:3px;font-size:8px">ChainRoot Vault SDK (Internal)</span>
+        </div>
+        <pre style="font-family:'Space Mono',monospace;font-size:11px;color:#ccd8df;line-height:1.7;overflow-x:auto;margin:0"><code><span style="color:#4d6475">// 1. Install SDK</span>
+<span style="color:#14F195">npm install</span> @chainroot/vault-sdk
+
+<span style="color:#4d6475">// 2. Deploy ChainRoot Creator Vault</span>
+<span style="color:#9945FF">import</span> { ChainRootVault } <span style="color:#9945FF">from</span> <span style="color:#f4c542">'@chainroot/vault-sdk'</span>;
+
+<span style="color:#9945FF">const</span> manager = <span style="color:#9945FF">new</span> ChainRootVault(connection, wallet);
+
+<span style="color:#9945FF">const</span> vault = <span style="color:#9945FF">await</span> manager.deployVault({
+  tokenA: <span style="color:#f4c542">"So111...SOL"</span>,       <span style="color:#4d6475">// SOL mint</span>
+  tokenB: <span style="color:#f4c542">"EPjFW...USDC"</span>,     <span style="color:#4d6475">// USDC mint</span>
+  feeBps: <span style="color:#14F195">1500</span>,              <span style="color:#4d6475">// 15% performance fee</span>
+  managementFeeBps: <span style="color:#14F195">0</span>,    <span style="color:#4d6475">// 0% management fee</span>
+  strategy: <span style="color:#f4c542">"WIDE"</span>,         <span style="color:#4d6475">// range strategy</span>
+});
+
+console.log(<span style="color:#f4c542">"Vault address:"</span>, vault.address.toString());
+<span style="color:#4d6475">// → Paste this address in the Vault Config panel above ↑</span></code></pre>
+      </div>
+    </div>
+
+    <hr class="yl-divider">
+
+    <!-- LEADERBOARD -->
+    <div>
+      <div class="yl-section-label" data-mn="Нийгэмлэгийн Дэвтэр" data-en="Community Leaderboard">Community Leaderboard</div>
+      <h2 class="yl-section-title" data-mn="Шилдэг Vault-ууд" data-en="Top Performing Vaults">Top Performing Vaults</h2>
+
+      <div class="yl-community-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4d6475;letter-spacing:1.5px;text-transform:uppercase">All ChainRoot Vaults on Solana</span>
+          <span style="font-family:'Space Mono',monospace;font-size:9px;color:#14F195;display:flex;align-items:center;gap:5px">
+            <span style="width:5px;height:5px;border-radius:50%;background:#14F195;display:inline-block;animation:yieldGlow 1.5s infinite"></span>
+            Live Data
+          </span>
+        </div>
+        <div class="yl-leaderboard">
+          <div class="yl-lb-row" style="border-color:rgba(20,241,149,.25)">
+            <div class="yl-lb-rank gold">1</div>
+            <div class="yl-lb-info">
+              <div class="yl-lb-name">ChainRoot SOL/JTO</div>
+              <div class="yl-lb-pair">SOL · JTO · Raydium CLMM</div>
+            </div>
+            <div class="yl-lb-apy">38.2%</div>
+            <div class="yl-lb-tvl">
+              <div class="yl-lb-tvl-val">$289K</div>
+              <div class="yl-lb-tvl-lbl">TVL</div>
+            </div>
+          </div>
+          <div class="yl-lb-row">
+            <div class="yl-lb-rank silver">2</div>
+            <div class="yl-lb-info">
+              <div class="yl-lb-name">ChainRoot SOL/USDC</div>
+              <div class="yl-lb-pair">SOL · USDC · Orca CLMM</div>
+            </div>
+            <div class="yl-lb-apy">24.7%</div>
+            <div class="yl-lb-tvl">
+              <div class="yl-lb-tvl-val">$642K</div>
+              <div class="yl-lb-tvl-lbl">TVL</div>
+            </div>
+          </div>
+          <div class="yl-lb-row">
+            <div class="yl-lb-rank bronze">3</div>
+            <div class="yl-lb-info">
+              <div class="yl-lb-name">ChainRoot USDC/USDT</div>
+              <div class="yl-lb-pair">USDC · USDT · Stable</div>
+            </div>
+            <div class="yl-lb-apy" style="color:#f4c542">8.4%</div>
+            <div class="yl-lb-tvl">
+              <div class="yl-lb-tvl-val">$198K</div>
+              <div class="yl-lb-tvl-lbl">TVL</div>
+            </div>
+          </div>
+          <div class="yl-lb-row" style="opacity:.5">
+            <div class="yl-lb-rank">4</div>
+            <div class="yl-lb-info">
+              <div class="yl-lb-name">BTC / SOL Vault</div>
+              <div class="yl-lb-pair">Launching Q2 2025</div>
+            </div>
+            <div class="yl-lb-apy" style="color:#4d6475">—</div>
+            <div class="yl-lb-tvl">
+              <div class="yl-lb-tvl-val" style="color:#4d6475">—</div>
+              <div class="yl-lb-tvl-lbl">TVL</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="yl-divider">
+
+    <!-- RISK DISCLAIMER -->
+    <div class="yl-disclaimer">
+      <strong>⚠ Risk Disclosure:</strong> DeFi yield farming involves significant risks including impermanent loss, smart contract vulnerabilities, liquidity risks, and market volatility. Past APY figures are not indicative of future returns. All vaults operate on-chain and are non-custodial — ChainRoot does not guarantee returns or protect against losses. Performance fees (10–20%) are charged on profits only. Always do your own research. Never invest more than you can afford to lose. This is not financial advice.
+    </div>
+
+  </div>
+</div><!-- /yield-overlay -->
+
 </body>
 </html>
