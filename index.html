@@ -502,6 +502,38 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 .data-badge{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1.5px;padding:2px 8px;border-radius:3px;font-weight:700}
 .data-badge-live{background:rgba(0,232,122,.1);color:#00e87a;border:1px solid rgba(0,232,122,.25)}
 .data-badge-delay{background:rgba(244,197,66,.1);color:#f4c542;border:1px solid rgba(244,197,66,.25)}
+/* ── NEWS ENGINE STYLES ─────────────────────────────────────────────────────── */
+.news-tab{padding:11px 16px;background:transparent;border:none;border-bottom:2px solid transparent;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;margin-bottom:-1px;}
+.news-tab:hover{color:var(--text)}
+.news-tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.news-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:all .18s;text-decoration:none;position:relative;overflow:hidden;}
+.news-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.news-card.featured{border-color:rgba(0,232,122,.2)}
+.news-card.featured::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--blue));}
+.news-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.news-card-source{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.news-card-time{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)}
+.news-card-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#fff;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.news-card:hover .news-card-title{color:var(--accent)}
+.news-card-body{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.news-card-footer{display:flex;align-items:center;gap:8px;margin-top:2px;flex-wrap:wrap}
+.news-cat-badge{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:3px;text-transform:uppercase;}
+.ncb-crypto{background:rgba(0,232,122,.1);color:var(--accent);border:1px solid rgba(0,232,122,.2)}
+.ncb-defi{background:rgba(153,69,255,.1);color:#a78bfa;border:1px solid rgba(153,69,255,.2)}
+.ncb-stocks{background:rgba(0,180,216,.1);color:var(--blue);border:1px solid rgba(0,180,216,.2)}
+.ncb-macro{background:rgba(244,197,66,.1);color:var(--gold);border:1px solid rgba(244,197,66,.2)}
+.ncb-commodities{background:rgba(255,124,58,.1);color:#ff7c3a;border:1px solid rgba(255,124,58,.2)}
+.ncb-news{background:rgba(77,100,117,.1);color:var(--muted);border:1px solid rgba(77,100,117,.2)}
+.news-sentiment-tag{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.5px;padding:2px 7px;border-radius:3px;display:flex;align-items:center;gap:4px;}
+.nst-bull{background:rgba(0,232,122,.08);color:var(--accent);border:1px solid rgba(0,232,122,.18)}
+.nst-bear{background:rgba(255,69,96,.08);color:var(--red);border:1px solid rgba(255,69,96,.18)}
+.nst-neut{background:rgba(77,100,117,.08);color:var(--muted);border:1px solid rgba(77,100,117,.18)}
+.news-card-img{width:100%;height:140px;object-fit:cover;border-radius:5px;background:var(--bg3);display:block;}
+.news-hero{grid-column:1/-1}
+.news-hero .news-card-title{font-size:17px;-webkit-line-clamp:2}
+.news-hero .news-card-body{-webkit-line-clamp:3}
+@media(max-width:820px){#news-grid{grid-template-columns:1fr!important}.news-hero{grid-column:1}}
+
 /* ── COIN FILTER TABS ───────────────────────────────────────────────────────── */
 .coin-tab{
   padding:11px 16px;background:transparent;border:none;
@@ -2003,7 +2035,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
     <div class="ng" id="g1">
       <div class="ngh" onclick="tog('g1')"><span data-mn="Зах зээлийн тойм" data-en="Market Overview">Зах зээлийн тойм</span> <span class="arr">∨</span></div>
       <div class="nbody">
-        <div class="nl" onclick="go('crypto-bubbles',this)"><div class="nd d"></div><span data-mn="Крипто Бааль" data-en="Crypto Bubbles">Крипто Бааль</span><span class="nt d">DeFi</span></div>
+
         <div class="nl on" onclick="go('crypto-prices',this)"><div class="nd d"></div><span data-mn="Крипто Үнэ" data-en="Crypto Prices">Крипто Үнэ</span><span class="nt d">DeFi</span></div>
         <div class="nl" onclick="go('global-assets',this)"><div class="nd c"></div><span data-mn="Дэлхийн Хөрөнгийн Жагсаалт" data-en="Global Asset Ranking">Дэлхийн Хөрөнгийн Жагсаалт</span><span class="nt c">CeFi</span></div>
         <div class="nl" onclick="go('fear-greed',this)"><div class="nd c"></div><span data-mn="Айдас &amp;탐욕 Индекс" data-en="Fear &amp; Greed Index">Айдас &amp; Шунал Индекс</span><span class="nt c">CeFi</span></div>
@@ -2170,8 +2202,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
       <!-- Filter tabs -->
       <div style="border-bottom:1px solid var(--border);background:var(--bg1);padding:0 40px;display:flex;align-items:center;gap:0;overflow-x:auto">
-        <button class="coin-tab on" data-filter="top200" onclick="setCoinFilter('top200',this)">🏆 Top 200</button>
-        <button class="coin-tab" data-filter="top400" onclick="setCoinFilter('top400',this)">📈 201 – 400</button>
+        <button class="coin-tab on" data-filter="top200" onclick="setCoinFilter('top200',this)">🏆 Top 50</button>
         <button class="coin-tab" data-filter="defi" onclick="setCoinFilter('defi',this)">⬡ DeFi</button>
         <button class="coin-tab" data-filter="layer1" onclick="setCoinFilter('layer1',this)">🔷 Layer 1</button>
         <button class="coin-tab" data-filter="binance" onclick="setCoinFilter('binance',this)">🟡 Binance</button>
@@ -2209,33 +2240,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
         <!-- Source badge -->
         <div id="coin-source-badge" style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
           <span id="coin-source-label" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1.5px">LOADING…</span>
-          <span id="coin-load-more-btn" style="display:none">
-            <button onclick="loadMoreCoins()" style="background:transparent;border:1px solid var(--border2);color:var(--text);padding:4px 12px;border-radius:4px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text)'">View Coins 201–400 →</button>
-          </span>
         </div>
 
         <table class="ct">
           <thead><tr><th>#</th><th>Coin</th><th>Price</th><th>24h</th><th>1h</th><th>7d</th><th>7d Chart</th><th>Mkt Cap</th><th>Volume 24h</th><th>Source</th></tr></thead>
           <tbody id="coinBody"><tr><td colspan="10" style="text-align:center;padding:32px;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px">⟳ LOADING LIVE PRICES...</td></tr></tbody>
         </table>
-      </div>
-    </div>
-
-    <!-- CRYPTO BUBBLES -->
-    <div class="pnl" id="P-crypto-bubbles">
-      <div class="ph">
-        <div><div class="pht"><span data-mn="Крипто Бааль" data-en="Crypto Bubbles">Крипто Бааль</span> <span class="pbg d">DeFi</span></div><div class="phs"><span data-mn="24ц гүйцэтгэл — бааль хэмжээ = зах зээлийн кап · CoinGecko шууд" data-en="24h performance — bubble size = market cap · live from CoinGecko">24ц гүйцэтгэл — бааль хэмжээ = зах зээлийн кап · CoinGecko шууд</span></div></div>
-        <div class="phst">
-          <div style="display:flex;gap:18px;font-family:'Space Mono',monospace;font-size:10px;align-items:center">
-            <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#00e87a;display:inline-block"></span>Gaining</span>
-            <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#ff4560;display:inline-block"></span>Losing</span>
-            <span style="color:var(--muted)">Size = Market Cap</span>
-          </div>
-        </div>
-      </div>
-      <div class="pc" style="padding-top:10px">
-        <div id="bubblesLoading" style="text-align:center;padding:60px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px">⟳ LOADING LIVE DATA...</div>
-        <canvas id="bubbleCanvas" style="width:100%;display:none;border-radius:6px;background:var(--bg2);border:1px solid var(--border)"></canvas>
       </div>
     </div>
 
@@ -2302,8 +2312,71 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
     <!-- NEWS -->
     <div class="pnl" id="P-news">
-      <div class="ph"><div><div class="pht"><span data-mn="Крипто &amp; Зах зээлийн мэдээ" data-en="Crypto &amp; TradFi News">Крипто &amp; Зах зээлийн мэдээ</span> <span class="pbg c">CeFi</span></div><div class="phs"><span data-mn="Зах зээлийн цуглуулсан мэдээлэл — цаг тутам шинэчлэгдэнэ" data-en="Aggregated market intelligence — refreshed hourly">Зах зээлийн цуглуулсан мэдээлэл — цаг тутам шинэчлэгдэнэ</span></div></div></div>
-      <div class="pc" id="newsFeed"></div>
+      <div class="ph">
+        <div>
+          <div class="pht">
+            <span data-mn="Крипто &amp; Зах зээлийн мэдээ" data-en="Crypto &amp; TradFi News">Крипто &amp; Зах зээлийн мэдээ</span>
+            <span class="pbg c">CeFi</span>
+            <span id="news-live-dot" style="display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:1px;background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);padding:3px 9px;border-radius:3px">
+              <span class="live-dot"></span>LIVE
+            </span>
+          </div>
+          <div class="phs">CryptoCompare · Finnhub · RSS aggregator — refreshes every 10 min</div>
+        </div>
+        <div class="phst" style="gap:10px;flex-wrap:wrap">
+          <div id="news-last-updated" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">Fetching…</div>
+          <button onclick="newsRefresh()" style="display:flex;align-items:center;gap:5px;padding:6px 13px;background:transparent;border:1px solid var(--border2);border-radius:4px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text);cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text)'">↻ Refresh</button>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <div style="padding:0 40px;border-bottom:1px solid var(--border);background:var(--bg1)">
+        <div style="display:flex;align-items:center;gap:0;overflow-x:auto" id="news-filter-bar">
+          <button class="news-tab on" data-cat="all"         onclick="newsSetCat('all',this)">All</button>
+          <button class="news-tab"    data-cat="crypto"      onclick="newsSetCat('crypto',this)">🔗 Crypto</button>
+          <button class="news-tab"    data-cat="defi"        onclick="newsSetCat('defi',this)">⬡ DeFi</button>
+          <button class="news-tab"    data-cat="stocks"      onclick="newsSetCat('stocks',this)">📈 Stocks</button>
+          <button class="news-tab"    data-cat="macro"       onclick="newsSetCat('macro',this)">🌐 Macro</button>
+          <button class="news-tab"    data-cat="commodities" onclick="newsSetCat('commodities',this)">🪨 Commodities</button>
+          <div style="margin-left:auto;padding:8px 0;flex-shrink:0">
+            <input id="news-search" type="text" placeholder="Search news…" oninput="newsFilter()"
+              style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:6px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text);outline:none;width:200px;transition:border-color .15s"
+              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sentiment bar -->
+      <div style="padding:12px 40px;border-bottom:1px solid var(--border);background:var(--bg1);display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;flex-shrink:0">Market Mood</div>
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px">
+          <div style="flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;display:flex">
+            <div id="news-bull-bar" style="height:100%;background:var(--accent);border-radius:3px 0 0 3px;transition:width .5s;width:0%"></div>
+            <div id="news-neut-bar" style="height:100%;background:var(--muted);transition:width .5s;width:0%"></div>
+            <div id="news-bear-bar" style="height:100%;background:var(--red);border-radius:0 3px 3px 0;transition:width .5s;width:0%"></div>
+          </div>
+          <span id="news-sentiment-txt" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);white-space:nowrap">—</span>
+        </div>
+        <div id="news-stats-row" style="display:flex;gap:16px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">
+          <span id="ns-total">0 articles</span>
+          <span id="ns-bull"  style="color:var(--accent)">0 bullish</span>
+          <span id="ns-bear"  style="color:var(--red)">0 bearish</span>
+          <span id="ns-src">0 sources</span>
+        </div>
+      </div>
+
+      <!-- News grid -->
+      <div class="pc" style="padding-top:24px">
+        <div id="news-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="grid-column:1/-1;text-align:center;padding:60px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px">
+            <div style="width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px"></div>
+            FETCHING LIVE NEWS…
+          </div>
+        </div>
+        <div id="news-load-more" style="display:none;text-align:center;margin-top:24px">
+          <button onclick="newsLoadMore()" style="padding:10px 28px;background:transparent;border:1px solid var(--border2);border-radius:5px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text);cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text)'">Load More →</button>
+        </div>
+      </div>
     </div>
 
     <!-- BITCOIN MAs -->
@@ -2980,7 +3053,7 @@ function renderTicker(coins){
 
 // ── COIN TABLE ENGINE ─────────────────────────────────────────────────────────
 let COIN_FILTER  = 'top200';
-let COIN_STORE   = { top200:[], top400:[], defi:[], layer1:[], binance:[], hyperliquid:[] };
+let COIN_STORE   = { top200:[], defi:[], layer1:[], binance:[], hyperliquid:[] };
 let COIN_LOADED  = {};
 let COIN_FETCHING= {};
 
@@ -2991,7 +3064,6 @@ async function fetchCoinFilter(filter) {
   try {
     const urlMap = {
       top200:      `${CR_API}/api/crypto/markets`,
-      top400:      `${CR_API}/api/crypto/coins?page=2`,
       defi:        `${CR_API}/api/crypto/category/defi`,
       layer1:      `${CR_API}/api/crypto/category/layer1`,
       binance:     `${CR_API}/api/crypto/binance`,
@@ -3018,9 +3090,6 @@ function setCoinFilter(filter, el) {
   document.querySelectorAll('.coin-tab').forEach(t => t.classList.remove('on'));
   if (el) el.classList.add('on');
   else document.querySelector(`.coin-tab[data-filter="${filter}"]`)?.classList.add('on');
-  // Show/hide load-more
-  const lmb = document.getElementById('coin-load-more-btn');
-  if (lmb) lmb.style.display = (filter === 'top200' && !COIN_LOADED.top400) ? 'inline' : 'none';
   renderCoinTable();
   if (!COIN_LOADED[filter]) fetchCoinFilter(filter);
 }
@@ -3049,11 +3118,10 @@ function renderCoinTable() {
   );
 
   const srcMap = {
-    top200:      'CoinGecko · Top 200 by Market Cap',
-    top400:      'CoinGecko · Coins 201 – 400 by Market Cap',
+    top200:      'CoinGecko · Top 50 by Market Cap',
     defi:        'CoinGecko · DeFi Tokens',
     layer1:      'CoinGecko · Layer 1 Blockchains',
-    binance:     'Binance · Top USDT Pairs',
+    binance:     'Binance · Top 100 USDT Pairs by Volume',
     hyperliquid: 'Hyperliquid · Perpetual Contracts'
   };
   if (srcLbl) srcLbl.textContent = (srcMap[COIN_FILTER]||'') + ' · ' + list.length + ' coins';
@@ -3139,14 +3207,10 @@ function renderCoins(list) {
   COIN_STORE.top200 = list;
   COIN_LOADED.top200 = true;
   ALL_COINS = list;
-  // Always reset to top200 tab on fresh data load
   COIN_FILTER = 'top200';
   document.querySelectorAll('.coin-tab').forEach(t => t.classList.remove('on'));
   document.querySelector('[data-filter="top200"]')?.classList.add('on');
   renderCoinTable();
-  // Show load-more button
-  const lmb = document.getElementById('coin-load-more-btn');
-  if (lmb) lmb.style.display = 'inline';
 }
 
 function filterCoins(q) { renderCoinTable(); }
@@ -6057,6 +6121,186 @@ function setSiteLang(lang) {
 
 // Expose globally
 window.setSiteLang = setSiteLang;
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   CHAINROOT LIVE NEWS ENGINE
+   Sources: CryptoCompare · Finnhub · RSS via AllOrigins proxy
+   Auto-refresh: 10 min · Filter by category · Sentiment tagging
+═══════════════════════════════════════════════════════════════ */
+const NEWS = (function(){
+  const FH_KEY   = 'd0eaie9r01qgv48uo9igd0eaie9r01qgv48uo9j0';
+  const PROXY    = 'https://api.allorigins.win/get?url=';
+  const PAGE_SZ  = 20;
+
+  let allArticles = [], filtered = [], currentCat = 'all', displayCount = PAGE_SZ;
+
+  // ── RSS helper ──────────────────────────────────────────────
+  async function fetchRSS(feedUrl, defaultCat) {
+    try {
+      const r = await fetch(PROXY + encodeURIComponent(feedUrl), {signal:AbortSignal.timeout(14000)});
+      if (!r.ok) return [];
+      const j = await r.json();
+      const doc = new DOMParser().parseFromString(j.contents||'', 'text/xml');
+      const srcName = doc.querySelector('channel > title')?.textContent?.trim().split('|')[0].trim() || feedUrl.split('/')[2];
+      return Array.from(doc.querySelectorAll('item')).slice(0,15).map(function(item,i){
+        const title  = item.querySelector('title')?.textContent?.replace(/<[^>]+>/g,'').trim()||'';
+        const desc   = item.querySelector('description')?.textContent?.replace(/<[^>]+>/g,'').slice(0,260).trim()||'';
+        const link   = item.querySelector('link')?.textContent?.trim()||'#';
+        const pubDate= item.querySelector('pubDate')?.textContent?.trim()||'';
+        const img    = item.querySelector('enclosure[type^="image"]')?.getAttribute('url')||item.querySelector('thumbnail')?.getAttribute('url')||'';
+        return {id:'rss_'+i+'_'+Date.now(), title:title, body:desc, url:link, source:srcName,
+          time:pubDate?new Date(pubDate).getTime():Date.now()-i*300000,
+          cat:catFromText(defaultCat,title), sentiment:sentimentFromText(title+' '+desc), imageUrl:img};
+      }).filter(function(a){return a.title;});
+    } catch(e){ return []; }
+  }
+
+  // ── Sources ─────────────────────────────────────────────────
+  const SOURCES = [
+    {id:'cryptocompare', async fetch(){
+      try{
+        const r=await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN&sortOrder=latest',{signal:AbortSignal.timeout(12000)});
+        if(!r.ok)return[];
+        const d=await r.json();
+        return(d.Data||[]).slice(0,30).map(function(a){return{
+          id:'cc_'+a.id, title:a.title, body:(a.body||'').replace(/<[^>]+>/g,'').slice(0,260),
+          url:a.url, source:a.source_info?.name||a.source||'CryptoCompare',
+          time:(a.published_on||0)*1000, cat:catFromText(a.categories||'',a.title),
+          sentiment:sentVotes(a.upvotes,a.downvotes), imageUrl:a.imageurl||''};});
+      }catch(e){return[];}
+    }},
+    {id:'finnhub-general', async fetch(){
+      try{
+        const r=await fetch('https://finnhub.io/api/v1/news?category=general&token='+FH_KEY,{signal:AbortSignal.timeout(10000)});
+        if(!r.ok)return[];
+        const d=await r.json();
+        return(d||[]).slice(0,20).map(function(a){return{
+          id:'fh_'+a.id, title:a.headline, body:a.summary||'', url:a.url,
+          source:a.source||'Finnhub', time:(a.datetime||0)*1000,
+          cat:catFromText(a.category||'',a.headline), sentiment:sentimentFromText(a.headline+' '+(a.summary||'')),
+          imageUrl:a.image||''};});
+      }catch(e){return[];}
+    }},
+    {id:'finnhub-crypto', async fetch(){
+      try{
+        const r=await fetch('https://finnhub.io/api/v1/news?category=crypto&token='+FH_KEY,{signal:AbortSignal.timeout(10000)});
+        if(!r.ok)return[];
+        const d=await r.json();
+        return(d||[]).slice(0,20).map(function(a){return{
+          id:'fhc_'+a.id, title:a.headline, body:a.summary||'', url:a.url,
+          source:a.source||'Finnhub', time:(a.datetime||0)*1000,
+          cat:catFromText('crypto',a.headline), sentiment:sentimentFromText(a.headline+' '+(a.summary||'')),
+          imageUrl:a.image||''};});
+      }catch(e){return[];}
+    }},
+    {id:'cointelegraph',  async fetch(){return fetchRSS('https://cointelegraph.com/rss','crypto');}},
+    {id:'coindesk',       async fetch(){return fetchRSS('https://www.coindesk.com/arc/outboundfeeds/rss/','crypto');}},
+    {id:'decrypt',        async fetch(){return fetchRSS('https://decrypt.co/feed','crypto');}},
+    {id:'investing',      async fetch(){return fetchRSS('https://www.investing.com/rss/news.rss','macro');}},
+    {id:'invest-cmd',     async fetch(){return fetchRSS('https://www.investing.com/rss/news_288.rss','commodities');}},
+    {id:'invest-eq',      async fetch(){return fetchRSS('https://www.investing.com/rss/news_25.rss','stocks');}},
+    {id:'cnbc',           async fetch(){return fetchRSS('https://www.cnbc.com/id/20409666/device/rss/rss.html','stocks');}},
+  ];
+
+  // ── Helpers ─────────────────────────────────────────────────
+  function catFromText(hint,title){
+    const t=(hint+' '+title).toLowerCase();
+    if(/defi|uniswap|aave|curve|tvl|amm|raydium|orca|yield farm/i.test(t)) return'defi';
+    if(/bitcoin|ethereum|solana|crypto|btc|eth|sol|nft|blockchain|web3|altcoin|binance|stablecoin|xrp|bnb|doge/i.test(t)) return'crypto';
+    if(/gold|silver|oil|crude|natural gas|wheat|corn|commodity|commodities|wti|brent|xau|xag|metal|copper/i.test(t)) return'commodities';
+    if(/stock|equity|nasdaq|s&p|dow|aapl|msft|nvda|tsla|earnings|ipo|nyse|shares|dividend/i.test(t)) return'stocks';
+    if(/fed|federal|inflation|cpi|ppi|gdp|interest rate|treasury|dollar|dxy|macro|economic|recession|central bank|fomc|m2/i.test(t)) return'macro';
+    return'crypto';
+  }
+  const BULL=/surge|soar|rally|gain|bullish|pump|green|rise|high|record|ath|bull|buy|breakout|recovery|growth|adoption|upgrade/i;
+  const BEAR=/crash|drop|fall|decline|bearish|dump|red|low|loss|bear|sell|correction|fear|hack|exploit|ban|lawsuit|regulat|fine|liquidat|bankrupt|plunge|warning/i;
+  function sentimentFromText(t){const b=(t.match(BULL)||[]).length,br=(t.match(BEAR)||[]).length;return b>br?'bullish':br>b?'bearish':'neutral';}
+  function sentVotes(up,down){const u=parseInt(up)||0,d=parseInt(down)||0;return u>d*1.3?'bullish':d>u*1.3?'bearish':'neutral';}
+  function dedupe(arr){const seen=new Set();return arr.filter(function(a){const k=a.title.slice(0,55).toLowerCase();if(seen.has(k))return false;seen.add(k);return true;});}
+  function timeAgo(ms){if(!ms)return'';const diff=Date.now()-ms,m=Math.floor(diff/60000);if(m<1)return'Just now';if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';}
+  function sentTag(s){if(s==='bullish')return'<span class="news-sentiment-tag nst-bull">▲ Bullish</span>';if(s==='bearish')return'<span class="news-sentiment-tag nst-bear">▼ Bearish</span>';return'<span class="news-sentiment-tag nst-neut">→ Neutral</span>';}
+  function catBadge(cat){const m={crypto:['ncb-crypto','🔗 Crypto'],defi:['ncb-defi','⬡ DeFi'],stocks:['ncb-stocks','📈 Stocks'],macro:['ncb-macro','🌐 Macro'],commodities:['ncb-commodities','🪨 Commodities']};const[cls,lbl]=m[cat]||['ncb-news',cat];return'<span class="news-cat-badge '+cls+'">'+lbl+'</span>';}
+
+  // ── Render ───────────────────────────────────────────────────
+  function render(){
+    const grid=document.getElementById('news-grid');if(!grid)return;
+    const slice=filtered.slice(0,displayCount);
+    if(!slice.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;font-family:\'Space Mono\',monospace;font-size:11px;color:var(--muted);letter-spacing:2px">No articles found</div>';document.getElementById('news-load-more').style.display='none';return;}
+    grid.innerHTML=slice.map(function(a,i){
+      const isHero=i===0, hasImg=a.imageUrl&&a.imageUrl.startsWith('http');
+      return'<a href="'+a.url+'" target="_blank" rel="noopener noreferrer" class="news-card'+(isHero?' featured news-hero':'')+'" style="text-decoration:none">'
+        +(hasImg?'<img class="news-card-img" src="'+a.imageUrl+'" alt="" loading="lazy" onerror="this.style.display=\'none\'"/>'  :'')
+        +'<div class="news-card-top"><span class="news-card-source">'+a.source+'</span><span class="news-card-time">'+timeAgo(a.time)+'</span></div>'
+        +'<div class="news-card-title">'+a.title+'</div>'
+        +(a.body?'<div class="news-card-body">'+a.body+'</div>':'')
+        +'<div class="news-card-footer">'+catBadge(a.cat)+sentTag(a.sentiment)+'</div>'
+        +'</a>';
+    }).join('');
+    document.getElementById('news-load-more').style.display=filtered.length>displayCount?'block':'none';
+    // Sentiment bar
+    const bull=filtered.filter(function(a){return a.sentiment==='bullish';}).length;
+    const bear=filtered.filter(function(a){return a.sentiment==='bearish';}).length;
+    const neut=filtered.length-bull-bear, tot=filtered.length||1;
+    const bb=document.getElementById('news-bull-bar'),nb=document.getElementById('news-neut-bar'),rb=document.getElementById('news-bear-bar'),st=document.getElementById('news-sentiment-txt');
+    if(bb)bb.style.width=(bull/tot*100).toFixed(1)+'%';
+    if(nb)nb.style.width=(neut/tot*100).toFixed(1)+'%';
+    if(rb)rb.style.width=(bear/tot*100).toFixed(1)+'%';
+    if(st){st.textContent=bull>bear*1.5?'Bullish 📈':bear>bull*1.5?'Bearish 📉':'Neutral ↔';st.style.color=bull>bear*1.5?'var(--accent)':bear>bull*1.5?'var(--red)':'var(--muted)';}
+    const nsTotal=document.getElementById('ns-total'),nsBull=document.getElementById('ns-bull'),nsBear=document.getElementById('ns-bear'),nsSrc=document.getElementById('ns-src');
+    if(nsTotal)nsTotal.textContent=filtered.length+' articles';
+    if(nsBull)nsBull.textContent=bull+' bullish';
+    if(nsBear)nsBear.textContent=bear+' bearish';
+    if(nsSrc)nsSrc.textContent=new Set(allArticles.map(function(a){return a.source;})).size+' sources';
+  }
+
+  function applyFilter(){
+    const q=(document.getElementById('news-search')?.value||'').toLowerCase();
+    filtered=allArticles.filter(function(a){
+      const mc=currentCat==='all'||a.cat===currentCat;
+      const mq=!q||a.title.toLowerCase().includes(q)||(a.body||'').toLowerCase().includes(q)||a.source.toLowerCase().includes(q);
+      return mc&&mq;
+    });
+    displayCount=PAGE_SZ;render();
+  }
+
+  async function fetchAll(){
+    const results=await Promise.allSettled(SOURCES.map(function(s){return s.fetch();}));
+    let fresh=[];
+    results.forEach(function(r){if(r.status==='fulfilled')fresh=fresh.concat(r.value);});
+    if(fresh.length){
+      allArticles=dedupe(fresh).sort(function(a,b){return b.time-a.time;});
+      applyFilter();
+      const upd=document.getElementById('news-last-updated');
+      if(upd)upd.textContent='Updated '+new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+    } else if(!allArticles.length){
+      const grid=document.getElementById('news-grid');
+      if(grid)grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;font-family:\'Space Mono\',monospace;font-size:11px;color:var(--muted)">⚠ Could not load news — check connection</div>';
+    }
+  }
+
+  return {
+    init:function(){fetchAll();setInterval(fetchAll,10*60*1000);},
+    refresh:function(){fetchAll();},
+    setCat:function(c){currentCat=c;displayCount=PAGE_SZ;applyFilter();},
+    filter:function(){applyFilter();},
+    loadMore:function(){displayCount+=PAGE_SZ;render();}
+  };
+})();
+
+function newsRefresh(){NEWS.refresh();const btn=event&&event.currentTarget;if(btn){const orig=btn.textContent;btn.textContent='⟳ Fetching…';setTimeout(function(){btn.textContent=orig;},3000);}}
+function newsSetCat(cat,el){document.querySelectorAll('.news-tab').forEach(function(t){t.classList.remove('on');});if(el)el.classList.add('on');NEWS.setCat(cat);}
+function newsFilter(){NEWS.filter();}
+function newsLoadMore(){NEWS.loadMore();}
+
+// Lazy-init: only fetch when news panel is first opened
+(function(){
+  const _orig=window.go;
+  window.go=function(id,el){
+    if(_orig)_orig(id,el);
+    if(id==='news'&&!window._newsInited){window._newsInited=true;setTimeout(function(){NEWS.init();},80);}
+  };
+})();
 </script>
 <script>
 /* ═══════════════════════════════════════════════════════════
