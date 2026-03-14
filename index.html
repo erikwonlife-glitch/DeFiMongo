@@ -3556,97 +3556,130 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
           <span data-mn="Манай <strong style='color:#ccd8df'>TradingView индикатор</strong> нь крипто болон хувьцаан дээр автоматаар BUY &amp; SELL дохио өгдөг — таны чартан дээр шууд харагдана." data-en="Our custom <strong style='color:#ccd8df'>TradingView indicator</strong> gives you automatic BUY &amp; SELL signals on both crypto and stocks — directly on your chart.">Манай <strong style="color:#ccd8df">TradingView индикатор</strong> нь крипто болон хувьцаан дээр автоматаар BUY &amp; SELL дохио өгдөг — таны чартан дээр шууд харагдана.</span>
         </p>
         <ul class="tr-features">
-          <li data-mn="Аливаа чарт дээр шууд BUY / SELL дохио" data-en="Real-time BUY / SELL signal overlay on any chart">Аливаа чарт дээр шууд BUY / SELL дохио</li>
-          <li data-mn="Крипто (BTC, ETH, SOL...) болон хувьцаанд ажилладаг" data-en="Works on crypto (BTC, ETH, SOL...) and stocks">Крипто (BTC, ETH, SOL...) болон хувьцаанд ажилладаг</li>
-          <li data-mn="Мэдэгдлийн систем — шууд мэдэгдэл авна" data-en="Custom alert system — get notified instantly">Мэдэгдлийн систем — шууд мэдэгдэл авна</li>
-          <li data-mn="Монгол хэлний дэмжлэг &amp; заавар" data-en="Mongolian-language support &amp; onboarding">Монгол хэлний дэмжлэг &amp; заавар</li>
-          <li data-mn="Сар эсвэл жилийн захиалга — хэдийд ч цуцлах боломжтой" data-en="Monthly or Annual subscription — cancel anytime">Сар эсвэл жилийн захиалга — хэдийд ч цуцлах боломжтой</li>
+          <li>▲▼ BUY / SELL дохио — орох, гарах цэг</li>
+          <li>━━ Дэмжлэг &amp; Эсэргүүцлийн түвшин</li>
+          <li>🎯 Entry gate · Exit gate — тодорхой заагч</li>
+          <li>🔔 Мэдэгдлийн систем — шууд мэдэгдэл</li>
+          <li>📊 Крипто + Хувьцаан + Forex дэмжлэг</li>
         </ul>
       </div>
 
-      <!-- Fake indicator preview -->
-      <div class="tr-indicator-preview">
-        <div class="tr-indicator-preview-label">
-          <span>BTC/USDT · 4H · ChainRoot v2</span>
-          <span class="tr-live-dot">LIVE</span>
+      <!-- ANIMATED INDICATOR DEMO CHART -->
+      <div class="tr-indicator-preview" style="padding:0;overflow:hidden;border-radius:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#0c1014;border-bottom:1px solid #1c2d38">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-family:'Space Mono',monospace;font-size:10px;color:#ccd8df;font-weight:700">BTC/USDT</span>
+            <span style="font-family:'Space Mono',monospace;font-size:9px;color:#4d6475">4H</span>
+            <span style="font-family:'Space Mono',monospace;font-size:9px;color:#4d6475">·</span>
+            <span style="font-family:'Space Mono',monospace;font-size:9px;color:#00e87a">ChainRoot v2</span>
+          </div>
+          <span class="tr-live-dot" style="font-family:'Space Mono',monospace;font-size:9px;color:#00e87a;display:flex;align-items:center;gap:5px">
+            <span style="width:6px;height:6px;border-radius:50%;background:#00e87a;display:inline-block;animation:pulse 1.5s infinite"></span>LIVE DEMO
+          </span>
         </div>
-        <div class="tr-fake-chart">
-          <div class="tr-candle" style="height:45%;background:#ff4560;"></div>
-          <div class="tr-candle" style="height:60%;background:#00e87a;"></div>
-          <div class="tr-candle" style="height:40%;background:#00e87a;"></div>
-          <div class="tr-candle" style="height:72%;background:#ff4560;"></div>
-          <div class="tr-candle" style="height:55%;background:#00e87a;position:relative;">
-            <div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:#00e87a;color:#000;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;white-space:nowrap;">▲ BUY</div>
-          </div>
-          <div class="tr-candle" style="height:80%;background:#00e87a;"></div>
-          <div class="tr-candle" style="height:90%;background:#00e87a;"></div>
-          <div class="tr-candle" style="height:78%;background:#ff4560;"></div>
-          <div class="tr-candle" style="height:60%;background:#ff4560;"></div>
-          <div class="tr-candle" style="height:42%;background:#ff4560;position:relative;">
-            <div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:#ff4560;color:#fff;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;white-space:nowrap;">▼ SELL</div>
-          </div>
-          <div class="tr-candle" style="height:50%;background:#ff4560;"></div>
-          <div class="tr-candle" style="height:65%;background:#00e87a;"></div>
-          <div class="tr-candle" style="height:85%;background:#00e87a;position:relative;">
-            <div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:#00e87a;color:#000;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;white-space:nowrap;">▲ BUY</div>
-          </div>
-        </div>
-        <div class="tr-signal-rows">
-          <div class="tr-signal-row buy">
-            <span>BTC/USDT 4H</span>
-            <span class="tr-signal-tag buy">▲ BUY SIGNAL</span>
-            <span class="tr-signal-time" data-mn="2 цагийн өмнө" data-en="2h ago">2 цагийн өмнө</span>
-          </div>
-          <div class="tr-signal-row sell">
-            <span>ETH/USDT 1H</span>
-            <span class="tr-signal-tag sell">▼ SELL SIGNAL</span>
-            <span class="tr-signal-time" data-mn="5 цагийн өмнө" data-en="5h ago">5 цагийн өмнө</span>
-          </div>
-          <div class="tr-signal-row buy">
-            <span>AAPL 1D</span>
-            <span class="tr-signal-tag buy">▲ BUY SIGNAL</span>
-            <span class="tr-signal-time" data-mn="1 өдрийн өмнө" data-en="1d ago">1 өдрийн өмнө</span>
-          </div>
-        </div>
+        <canvas id="indicatorDemoCanvas" style="width:100%;height:280px;display:block;cursor:crosshair"></canvas>
+        <div id="indicatorSignalFeed" style="padding:8px 12px;background:#0c1014;border-top:1px solid #1c2d38;display:flex;flex-direction:column;gap:5px;min-height:82px"></div>
       </div>
     </div>
 
     <hr class="tr-divider">
 
-    <!-- Pricing CTA -->
+    <!-- Pricing CTA with CRYPTO PAYMENT -->
     <div class="tr-pricing">
       <div class="tr-pricing-title" data-mn="Индикаторт захиалга хийх" data-en="Subscribe to the Indicator">Индикаторт захиалга хийх</div>
-      <p class="tr-pricing-sub" data-mn="ChainRoot индикаторт бүрэн хандалт авна уу. Хэдийд ч цуцлах боломжтой." data-en="Get full access to ChainRoot indicator on TradingView. Cancel anytime.">ChainRoot индикаторт бүрэн хандалт авна уу. Хэдийд ч цуцлах боломжтой.</p>
+      <p class="tr-pricing-sub">Крипто төлбөрөөр хандалт авна уу · USDT эсвэл SOL · Хэдийд ч цуцлах боломжтой</p>
       <div class="tr-plans">
+
+        <!-- Monthly -->
         <div class="tr-plan">
-          <div class="tr-plan-name" data-mn="Сарын захиалга" data-en="Monthly">Сарын захиалга</div>
+          <div class="tr-plan-name">Сарын захиалга</div>
           <div class="tr-plan-price">$9<span>/сар</span></div>
-          <div class="tr-plan-period" data-mn="Сар бүр төлбөр" data-en="Billed monthly">Сар бүр төлбөр</div>
+          <div class="tr-plan-period">≈ 9 USDT · Сар бүр</div>
           <ul class="tr-plan-features">
-            <li data-mn="TradingView индикатор хандалт" data-en="TradingView indicator access">TradingView индикатор хандалт</li>
-            <li data-mn="BUY / SELL дохио" data-en="BUY / SELL signals">BUY / SELL дохио</li>
-            <li data-mn="Мэдэгдэл тохируулга" data-en="Alert setup">Мэдэгдэл тохируулга</li>
-            <li data-mn="Монгол хэлний дэмжлэг" data-en="Mongolian support">Монгол хэлний дэмжлэг</li>
+            <li>TradingView индикатор хандалт</li>
+            <li>BUY / SELL · Entry / Exit дохио</li>
+            <li>Дэмжлэг &amp; Эсэргүүцлийн түвшин</li>
+            <li>Мэдэгдлийн систем</li>
+            <li>Монгол хэлний дэмжлэг</li>
           </ul>
-          <button class="tr-plan-btn" onclick="alert('Захиалгын холбоос удахгүй!')">
-            <span data-mn="Захиалах →" data-en="Subscribe →">Захиалах →</span>
+          <button class="tr-plan-btn" onclick="openCryptoPayment('monthly')">
+            Крипто төлбөр →
           </button>
         </div>
+
+        <!-- Annual -->
         <div class="tr-plan featured">
-          <div class="tr-plan-badge" data-mn="ХАМГИЙН АШИГТАЙ" data-en="BEST VALUE">ХАМГИЙН АШИГТАЙ</div>
-          <div class="tr-plan-name" data-mn="Жилийн захиалга" data-en="Annual">Жилийн захиалга</div>
+          <div class="tr-plan-badge">ХАМГИЙН АШИГТАЙ</div>
+          <div class="tr-plan-name">Жилийн захиалга</div>
           <div class="tr-plan-price">$69<span>/жил</span></div>
-          <div class="tr-plan-period save" data-mn="$39 хэмнэлт · 36% хямдрал" data-en="Save $39 · 36% off">$39 хэмнэлт · 36% хямдрал</div>
+          <div class="tr-plan-period save">≈ 69 USDT · $39 хэмнэлт</div>
           <ul class="tr-plan-features">
-            <li data-mn="TradingView индикатор хандалт" data-en="TradingView indicator access">TradingView индикатор хандалт</li>
-            <li data-mn="BUY / SELL дохио" data-en="BUY / SELL signals">BUY / SELL дохио</li>
-            <li data-mn="Мэдэгдэл тохируулга" data-en="Alert setup">Мэдэгдэл тохируулга</li>
-            <li data-mn="Монгол хэлний дэмжлэг" data-en="Mongolian support">Монгол хэлний дэмжлэг</li>
-            <li data-mn="Үнэгүй шинэчлэлт" data-en="Free indicator updates">Үнэгүй шинэчлэлт</li>
+            <li>TradingView индикатор хандалт</li>
+            <li>BUY / SELL · Entry / Exit дохио</li>
+            <li>Дэмжлэг &amp; Эсэргүүцлийн түвшин</li>
+            <li>Мэдэгдлийн систем</li>
+            <li>Монгол хэлний дэмжлэг</li>
+            <li>Үнэгүй шинэчлэлт бүхэн</li>
           </ul>
-          <button class="tr-plan-btn" onclick="alert('Захиалгын холбоос удахгүй!')">
-            <span data-mn="Захиалах →" data-en="Subscribe →">Захиалах →</span>
+          <button class="tr-plan-btn" onclick="openCryptoPayment('annual')">
+            Крипто төлбөр →
           </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CRYPTO PAYMENT MODAL -->
+    <div id="cryptoPayModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center">
+      <div style="background:#111820;border:1px solid #1c2d38;border-radius:16px;padding:32px;max-width:440px;width:90%;position:relative">
+        <button onclick="closeCryptoPayment()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:#4d6475;font-size:18px;cursor:pointer">✕</button>
+
+        <div style="text-align:center;margin-bottom:24px">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#ccd8df;margin-bottom:6px">Крипто Төлбөр</div>
+          <div id="cryptoPayTitle" style="font-family:'Space Mono',monospace;font-size:11px;color:#00e87a"></div>
+        </div>
+
+        <!-- Token selector -->
+        <div style="display:flex;gap:10px;margin-bottom:20px">
+          <button onclick="selectToken('usdt')" id="btnUsdt" style="flex:1;padding:10px;border-radius:8px;border:2px solid #00e87a;background:rgba(0,232,122,.1);font-family:'Space Mono',monospace;font-size:11px;color:#00e87a;cursor:pointer;font-weight:700">USDT (TRC20)</button>
+          <button onclick="selectToken('sol')" id="btnSol" style="flex:1;padding:10px;border-radius:8px;border:1px solid #1c2d38;background:transparent;font-family:'Space Mono',monospace;font-size:11px;color:#4d6475;cursor:pointer">SOL</button>
+        </div>
+
+        <!-- Amount -->
+        <div style="background:#0c1014;border:1px solid #1c2d38;border-radius:8px;padding:14px;margin-bottom:16px;text-align:center">
+          <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4d6475;letter-spacing:2px;margin-bottom:4px">ТӨЛӨХ ДҮН</div>
+          <div id="cryptoPayAmount" style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:#00e87a"></div>
+          <div id="cryptoPayToken" style="font-family:'Space Mono',monospace;font-size:10px;color:#4d6475;margin-top:2px"></div>
+        </div>
+
+        <!-- Wallet address -->
+        <div style="margin-bottom:16px">
+          <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4d6475;letter-spacing:2px;margin-bottom:8px">ХҮЛЭЭН АВАХ ХАЯГ</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div id="cryptoPayAddr" style="flex:1;font-family:'Space Mono',monospace;font-size:10px;color:#ccd8df;background:#0c1014;border:1px solid #1c2d38;border-radius:6px;padding:10px 12px;word-break:break-all;line-height:1.5"></div>
+            <button onclick="copyCryptoAddr()" style="padding:10px 14px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);border-radius:6px;color:#00e87a;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;white-space:nowrap;flex-shrink:0" id="copyAddrBtn">Хуулах</button>
+          </div>
+        </div>
+
+        <!-- QR placeholder -->
+        <div id="cryptoQR" style="text-align:center;margin-bottom:16px;padding:16px;background:#0c1014;border:1px solid #1c2d38;border-radius:8px">
+          <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4d6475;margin-bottom:8px">QR КОД</div>
+          <div style="width:120px;height:120px;background:#1c2d38;border-radius:8px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:10px;color:#4d6475">QR</div>
+        </div>
+
+        <!-- Instructions -->
+        <div style="background:rgba(0,232,122,.05);border:1px solid rgba(0,232,122,.15);border-radius:8px;padding:14px;margin-bottom:16px">
+          <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4d6475;letter-spacing:1.5px;margin-bottom:8px">ЗААВАРЧИЛГАА</div>
+          <ol style="font-family:'Inter',sans-serif;font-size:12px;color:#4d6475;line-height:1.8;padding-left:16px;margin:0">
+            <li>Дээрх хаяг руу яг тийм дүнгийн <strong style="color:#ccd8df">USDT эсвэл SOL</strong> илгээнэ үү</li>
+            <li>Гүйлгээний <strong style="color:#ccd8df">TX Hash</strong>-г хуулж авна уу</li>
+            <li><a href="https://x.com/jf_macro" target="_blank" style="color:#00e87a">@jf_macro</a>-д TX Hash болон таны <strong style="color:#ccd8df">TradingView нэр</strong>-ийг илгээнэ үү</li>
+            <li><strong style="color:#ccd8df">24 цагийн дотор</strong> хандалт нэмэгдэнэ</li>
+          </ol>
+        </div>
+
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4d6475;text-align:center">
+          Асуулт байвал: <a href="https://x.com/jf_macro" target="_blank" style="color:#00e87a">@jf_macro</a> руу DM илгэнэ үү
         </div>
       </div>
     </div>
