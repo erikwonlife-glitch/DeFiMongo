@@ -421,6 +421,17 @@ function go(id,el){
   if(t){t.classList.add('on');document.getElementById('main').scrollTop=0;}
   document.querySelectorAll('.nl').forEach(l=>l.classList.remove('on'));
   if(el)el.classList.add('on');
+  // Init TradingView widgets lazily when panel opens
+  setTimeout(function(){
+    if(id==='halving'     && typeof initTVHalving  ==='function') initTVHalving();
+    if(id==='fed'         && typeof initTVFed      ==='function') initTVFed();
+    if(id==='dxy'         && typeof initTVDxy      ==='function') initTVDxy();
+    if(id==='liquidity'   && typeof initTVLiq      ==='function') initTVLiq();
+    if(id==='ism'         && typeof initTVIsm      ==='function') initTVIsm();
+    if(id==='social-risk' && typeof initTVSocial   ==='function') initTVSocial();
+    if(id==='low-cycles'  && typeof initTVEpoch    ==='function') initTVEpoch();
+    if(id==='perf-year'   && typeof initTVYearly   ==='function') initTVYearly();
+  }, 200);
 }
 function tog(id){const g=document.getElementById(id);if(g)g.classList.toggle('closed');}
 
