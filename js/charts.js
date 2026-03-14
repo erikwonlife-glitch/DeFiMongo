@@ -2052,49 +2052,107 @@ async function drawAllCharts(){
         scales:{x:{grid:{color:'#1c2d38'},ticks:{color:MUTED,callback:v=>'$'+v+'T'}},y:{grid:{color:'#1c2d38'},ticks:{color:MUTED,font:{size:9}}}}}});
   }
 
-  // ── ON-CHAIN — TVL live from DeFiLlama ─────────────────────────────────────
+  // ── ON-CHAIN — TVL + BTC stats live from Railway ────────────────────────────
   const tvlEl=document.getElementById('tvlChart');
-  if(tvlEl){
+  const exEl=document.getElementById('exchangeChart');
+  if(tvlEl||exEl){
     try{
-      const protocols=await fetchJSON('https://api.llama.fi/protocols');
-      const top7=(protocols||[]).filter(p=>p.tvl>0).sort((a,b)=>b.tvl-a.tvl).slice(0,7);
-      const cols=['rgba(0,232,122,.75)','rgba(0,180,216,.75)','rgba(244,197,66,.75)','rgba(255,107,53,.75)','rgba(170,136,255,.75)','rgba(255,69,96,.75)','rgba(77,100,117,.65)'];
-      new Chart(tvlEl,{type:'bar',data:{labels:top7.map(p=>p.name),datasets:[{label:'TVL',data:top7.map(p=>+(p.tvl/1e9).toFixed(2)),backgroundColor:cols,borderRadius:4}]},
-        options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>'$'+v.raw+'B'}}},
-          scales:{x:{grid:{color:'#1c2d38'},ticks:{color:MUTED,callback:v=>'$'+v+'B'}},y:{grid:{color:'#1c2d38'},ticks:{color:MUTED,font:{size:9}}}}}});
+      const [tvlData, onchainData] = await Promise.allSettled([
+        fetchJSON(`${CR_API}/api/defi/tvl`),
+        fetchJSON(`${CR_API}/api/onchain/btc`)
+      ]);
+
+      // TVL chart — top 7 protocols
+      if(tvlEl && tvlData.status==='fulfilled' && tvlData.value?.top7){
+        const top7=tvlData.value.top7;
+        const d=tvlData.value;
+        const cols=['rgba(0,232,122,.75)','rgba(0,180,216,.75)','rgba(244,197,66,.75)','rgba(255,107,53,.75)','rgba(170,136,255,.75)','rgba(255,69,96,.75)','rgba(77,100,117,.65)'];
+        new Chart(tvlEl,{type:'bar',data:{labels:top7.map(p=>p.name),datasets:[{label:'TVL',data:top7.map(p=>+(p.tvl/1e9).toFixed(2)),backgroundColor:cols,borderRadius:4}]},
+          options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>'$'+v.raw+'B'}}},
+            scales:{x:{grid:{color:'#1c2d38'},ticks:{color:MUTED,callback:v=>'$'+v+'B'}},y:{grid:{color:'#1c2d38'},ticks:{color:MUTED,font:{size:9}}}}}});
+        // Update stat card
+        const tvlCard=document.querySelector('#P-onchain .ov');
+        if(tvlCard) tvlCard.textContent='$'+(d.totalTVL/1e9).toFixed(1)+'B';
+      }
+
+      // BTC on-chain stats — update stat cards
+      if(onchainData.status==='fulfilled' && onchainData.value){
+        const oc=onchainData.value;
+        const addrEl=document.getElementById('ocActiveAddr');
+        if(addrEl && oc.activeAddr) addrEl.textContent=(oc.activeAddr/1000).toFixed(0)+'K';
+        // Address chart
+        if(exEl && oc.addrChart && oc.addrChart.length>5){
+          const g=hexGrad(exEl,ACCENT);
+          new Chart(exEl,{type:'line',data:{
+            labels:oc.addrChart.map(p=>p.date),
+            datasets:[{label:'Active Addresses',data:oc.addrChart.map(p=>+(p.val/1000).toFixed(1)),borderColor:ACCENT,backgroundColor:g,fill:true,tension:0.3,pointRadius:0}]},
+            options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>v.raw+'K addrs'}}},
+              scales:{y:{grid:{color:'#1c2d38'},ticks:{color:MUTED,callback:v=>v+'K'}},x:{grid:{color:'#1c2d38'},ticks:{color:MUTED,maxTicksLimit:6}}}}});
+        }
+      }
     }catch(e){}
   }
-  const exEl=document.getElementById('exchangeChart');
-  if(exEl){
-    const exBal=[2.42,2.40,2.38,2.41,2.39,2.36,2.34,2.35,2.31,2.29,2.27,2.25,2.28,2.26,2.23,2.21,2.24,2.22,2.20,2.18,2.19,2.17,2.15,2.13,2.16,2.14,2.12,2.10,2.11,2.09];
-    const g=hexGrad(exEl,RED);
-    new Chart(exEl,{type:'line',data:{labels:l30.length?l30:Array.from({length:30},(_,i)=>`D${i+1}`),datasets:[{label:'Exchange BTC Balance (M)',data:exBal,borderColor:RED,backgroundColor:g,fill:true,tension:0.3,pointRadius:0}]},
-      options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1c2d38'},ticks:{color:MUTED,callback:v=>v+'M'}},x:{grid:{color:'#1c2d38'},ticks:{color:MUTED,maxTicksLimit:6}}}}});
-  }
 
-  // ── DEX VOLUME — live from DeFiLlama ───────────────────────────────────────
+  // ── DEX VOLUME — live from Railway/DeFiLlama ─────────────────────────────────
   const dexShareEl=document.getElementById('dexShareChart');
   const dexVolEl=document.getElementById('dexVolumeChart');
   if(dexShareEl||dexVolEl){
     try{
-      const dexData=await fetchJSON('https://api.llama.fi/overview/dexs?excludeTotalDataChart=false&excludeTotalDataChartBreakdown=false&dataType=dailyVolume');
-      const topDex=(dexData?.protocols||[]).filter(p=>p.total24h>0).sort((a,b)=>b.total24h-a.total24h).slice(0,5);
-      const othersV=(dexData?.protocols||[]).slice(5).reduce((s,p)=>s+(p.total24h||0),0);
-      const dexCols=['rgba(0,232,122,.8)','rgba(0,180,216,.8)','rgba(244,197,66,.8)','rgba(255,107,53,.8)','rgba(170,136,255,.8)','rgba(77,100,117,.6)'];
-      if(dexShareEl){
-        new Chart(dexShareEl,{type:'doughnut',data:{labels:[...topDex.map(p=>p.name),'Others'],datasets:[{data:[...topDex.map(p=>+(p.total24h/1e9).toFixed(2)),+(othersV/1e9).toFixed(2)],backgroundColor:dexCols,borderColor:BG2,borderWidth:2}]},
-          options:{responsive:true,cutout:'60%',plugins:{legend:{position:'right',labels:{color:MUTED,font:{size:9},padding:8}},tooltip:{callbacks:{label:v=>'$'+v.raw+'B'}}}}});
-      }
-      if(dexVolEl&&dexData?.totalDataChart){
-        const chart14=dexData.totalDataChart.slice(-14);
-        const dexL=chart14.map(([ts])=>new Date(ts*1000).toLocaleDateString('en',{month:'short',day:'numeric'}));
-        const dexV=chart14.map(([,v])=>+(v/1e9).toFixed(2));
-        new Chart(dexVolEl,{type:'bar',data:{labels:dexL,datasets:[{label:'Total DEX Volume',data:dexV,backgroundColor:'rgba(0,232,122,.6)',borderRadius:3,borderColor:ACCENT,borderWidth:1}]},
-          options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>'$'+v.raw+'B'}}},scales:{y:{grid:{color:'#1c2d38'},ticks:{color:MUTED,callback:v=>'$'+v+'B'}},x:{grid:{color:'#1c2d38'},ticks:{color:MUTED,font:{size:8}}}}}});
+      const dexData=await fetchJSON(`${CR_API}/api/defi/dex`);
+      if(dexData?.top5){
+        const top5=dexData.top5;
+        const othersV=(dexData.totalVol||0)-top5.reduce(function(s,p){return s+p.vol24h;},0);
+        const dexCols=['rgba(0,232,122,.8)','rgba(0,180,216,.8)','rgba(244,197,66,.8)','rgba(255,107,53,.8)','rgba(170,136,255,.8)','rgba(77,100,117,.6)'];
+        // Update stat cards
+        const ogs=document.querySelectorAll('#P-dex .oc');
+        if(ogs[0]) ogs[0].querySelector('.ov').textContent='$'+(dexData.totalVol/1e9).toFixed(1)+'B';
+        top5.slice(0,3).forEach(function(p,i){
+          if(ogs[i+1]){
+            ogs[i+1].querySelector('.ov').textContent='$'+(p.vol24h/1e9).toFixed(1)+'B';
+            ogs[i+1].querySelector('.ol').textContent=p.name;
+            const share=((p.vol24h/dexData.totalVol)*100).toFixed(0);
+            ogs[i+1].querySelector('.och').textContent=share+'% share';
+          }
+        });
+        if(dexShareEl){
+          new Chart(dexShareEl,{type:'doughnut',data:{labels:[...top5.map(p=>p.name),'Others'],
+            datasets:[{data:[...top5.map(p=>+(p.vol24h/1e9).toFixed(2)),+(othersV/1e9).toFixed(2)],backgroundColor:dexCols,borderColor:BG2,borderWidth:2}]},
+            options:{responsive:true,cutout:'60%',plugins:{legend:{position:'right',labels:{color:MUTED,font:{size:9},padding:8}},tooltip:{callbacks:{label:v=>'$'+v.raw+'B'}}}}});
+        }
+        if(dexVolEl&&dexData.chart14){
+          new Chart(dexVolEl,{type:'bar',data:{labels:dexData.chart14.map(p=>p.date),datasets:[{label:'DEX Volume',data:dexData.chart14.map(p=>p.vol),backgroundColor:'rgba(0,232,122,.6)',borderRadius:3,borderColor:ACCENT,borderWidth:1}]},
+            options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>'$'+v.raw+'B'}}},scales:{y:{grid:{color:'#1c2d38'},ticks:{color:MUTED,callback:v=>'$'+v+'B'}},x:{grid:{color:'#1c2d38'},ticks:{color:MUTED,font:{size:8}}}}}});
+        }
       }
     }catch(e){}
   }
 
+  // ── PUMP FUN — live volume from Railway/DeFiLlama ────────────────────────────
+  const pumpLEl=document.getElementById('pumpLaunchChart');
+  const pumpGEl=document.getElementById('pumpGradChart');
+  if(pumpLEl||pumpGEl){
+    try{
+      const pData=await fetchJSON(`${CR_API}/api/defi/pumpfun`);
+      if(pData){
+        // Update stat cards
+        const pOgs=document.querySelectorAll('#P-pumpfun .oc');
+        if(pOgs[2] && pData.vol24h) pOgs[2].querySelector('.ov').textContent='$'+(pData.vol24h/1e6).toFixed(1)+'M';
+        // Volume chart
+        if(pumpLEl && pData.chart14 && pData.chart14.length){
+          const gv=hexGrad(pumpLEl,ACCENT);
+          new Chart(pumpLEl,{type:'bar',data:{labels:pData.chart14.map(p=>p.date),datasets:[{label:'Volume $M',data:pData.chart14.map(p=>p.vol),backgroundColor:'rgba(0,232,122,.6)',borderRadius:3}]},
+            options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>'$'+v.raw+'M'}}},
+              scales:{y:{grid:{color:'#1c2d38'},ticks:{color:MUTED,callback:v=>'$'+v+'M'}},x:{grid:{color:'#1c2d38'},ticks:{color:MUTED,font:{size:8}}}}}});
+        }
+        if(pumpGEl && pData.chart14 && pData.chart14.length){
+          const gv2=hexGrad(pumpGEl,ORANGE);
+          new Chart(pumpGEl,{type:'line',data:{labels:pData.chart14.map(p=>p.date),datasets:[{label:'Volume $M',data:pData.chart14.map(p=>p.vol),borderColor:ORANGE,backgroundColor:gv2,fill:true,tension:0.4,pointRadius:2}]},
+            options:{responsive:true,plugins:{legend:{display:false}},
+              scales:{y:{grid:{color:'#1c2d38'},ticks:{color:ORANGE,callback:v=>'$'+v+'M'}},x:{grid:{color:'#1c2d38'},ticks:{color:MUTED,font:{size:8}}}}}});
+        }
+      }
+    }catch(e){}
+  } // end pumpfun
 
   // ── BITCOIN HALVING CYCLES — TradingView Lightweight Charts ──────────────────
   (function buildHalvingChart() {
@@ -2566,24 +2624,6 @@ async function drawAllCharts(){
       if (upd2) upd2.textContent = '↻ Updated ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
     };
   })();
-
-  // ── PUMP FUN ────────────────────────────────────────────────────────────────
-  const pumpLEl=document.getElementById('pumpLaunchChart');
-  if(pumpLEl){
-    const launches=[980,1120,890,1340,1580,1210,1050,1390,1480,1260,1180,1420,1520,1284];
-    const grads=[18,22,15,28,32,21,19,27,29,24,20,26,28,23];
-    new Chart(pumpLEl,{type:'bar',data:{labels:Array.from({length:14},(_,i)=>`Day ${i+1}`),datasets:[{label:'Launches',data:launches,backgroundColor:'rgba(0,232,122,.6)',borderRadius:3},{label:'Graduated',data:grads.map(v=>v*10),backgroundColor:'rgba(244,197,66,.7)',borderRadius:3}]},
-      options:{responsive:true,plugins:{legend:{labels:{color:MUTED,font:{size:9}}}},scales:{y:{grid:{color:'#1c2d38'},ticks:{color:MUTED}},x:{grid:{color:'#1c2d38'},ticks:{color:MUTED,font:{size:8}}}}}});
-  }
-  const pumpGEl=document.getElementById('pumpGradChart');
-  if(pumpGEl){
-    const gv=hexGrad(pumpGEl,ORANGE);
-    new Chart(pumpGEl,{type:'line',data:{labels:Array.from({length:14},(_,i)=>`Day ${i+1}`),datasets:[
-      {label:'Volume $M',data:[28,35,22,48,62,41,38,55,59,44,40,52,58,48],borderColor:ORANGE,backgroundColor:gv,fill:true,tension:0.4,yAxisID:'y',pointRadius:2},
-      {label:'Grad %',data:[1.8,2.0,1.7,2.1,2.0,1.7,1.8,1.9,2.0,1.9,1.7,1.8,1.8,1.8],borderColor:GOLD,fill:false,tension:0.4,yAxisID:'y2',pointRadius:2}
-    ]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:MUTED,font:{size:9}}}},
-      scales:{y:{grid:{color:'#1c2d38'},ticks:{color:ORANGE,callback:v=>'$'+v+'M'}},y2:{position:'right',grid:{drawOnChartArea:false},ticks:{color:GOLD,callback:v=>v+'%'}},x:{grid:{color:'#1c2d38'},ticks:{color:MUTED,font:{size:8}}}}}});
-  }
 
   // ── HYPERLIQUID OI ──────────────────────────────────────────────────────────
   const hlOIEl=document.getElementById('hlOIChart');
