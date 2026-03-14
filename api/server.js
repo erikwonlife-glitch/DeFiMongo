@@ -359,6 +359,93 @@ app.get('/api/crypto/hyperliquid', async function(req, res) {
 });
 
 // ══════════════════════════════════════════════════════════════════
+// ── GLOBAL ASSET PRICES — stocks via Yahoo Finance, commodities via Stooq ─────
+// GET /api/global/prices
+app.get('/api/global/prices', async function(req, res) {
+  const cached = getCache('global/prices');
+  if (cached) return res.json(cached);
+
+  const STOCKS = [
+    {id:'nvda', yf:'NVDA',  name:'NVIDIA',            mcapT:3.3},
+    {id:'aapl', yf:'AAPL',  name:'Apple',             mcapT:3.7},
+    {id:'msft', yf:'MSFT',  name:'Microsoft',         mcapT:3.1},
+    {id:'amzn', yf:'AMZN',  name:'Amazon',            mcapT:2.3},
+    {id:'goog', yf:'GOOGL', name:'Alphabet (Google)', mcapT:2.0},
+    {id:'meta', yf:'META',  name:'Meta',              mcapT:1.7},
+    {id:'tsla', yf:'TSLA',  name:'Tesla',             mcapT:0.9},
+    {id:'brk',  yf:'BRK-B', name:'Berkshire Hath.',   mcapT:1.1},
+    {id:'tsm',  yf:'TSM',   name:'TSMC',              mcapT:0.9},
+    {id:'eli',  yf:'LLY',   name:'Eli Lilly',         mcapT:0.8},
+    {id:'jpm',  yf:'JPM',   name:'JPMorgan Chase',    mcapT:0.7},
+    {id:'v',    yf:'V',     name:'Visa',              mcapT:0.6},
+    {id:'wmt',  yf:'WMT',   name:'Walmart',           mcapT:0.8},
+    {id:'xom',  yf:'XOM',   name:'ExxonMobil',        mcapT:0.5},
+    {id:'nflx', yf:'NFLX',  name:'Netflix',           mcapT:0.4},
+    {id:'unh',  yf:'UNH',   name:'UnitedHealth',      mcapT:0.5},
+    {id:'cost', yf:'COST',  name:'Costco',            mcapT:0.5},
+  ];
+  const COMMODITIES = [
+    {id:'gold',      stooq:'xauusd', name:'Gold',      ticker:'XAU/USD', mcapT:34.9},
+    {id:'silver',    stooq:'xagusd', name:'Silver',    ticker:'XAG/USD', mcapT:4.5},
+    {id:'crude-oil', stooq:'cl.f',   name:'Crude Oil', ticker:'WTI',     mcapT:2.1},
+  ];
+
+  async function yahooQuote(sym) {
+    try {
+      const now = Math.floor(Date.now()/1000), from = now - 7*86400;
+      const url = 'https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+
+                  '?interval=1d&period1='+from+'&period2='+now;
+      const r = await fetch(url, {timeout:10000, headers:{'User-Agent':'Mozilla/5.0'}});
+      if (!r.ok) return null;
+      const j = await r.json();
+      const res = j && j.chart && j.chart.result && j.chart.result[0];
+      if (!res) return null;
+      const q = res.indicators && res.indicators.quote && res.indicators.quote[0];
+      if (!q || !q.close) return null;
+      const closes = q.close.filter(function(v){return v!=null;});
+      if (closes.length < 2) return null;
+      const price = closes[closes.length-1];
+      const prev  = closes[closes.length-2];
+      const chg24 = prev > 0 ? +((price-prev)/prev*100).toFixed(2) : null;
+      // Try to get market cap from summaryDetail
+      const mcapRaw = res.summaryDetail && res.summaryDetail.marketCap;
+      return {price:+price.toFixed(2), chg24:chg24, mcapRaw: mcapRaw||null};
+    } catch(e) {return null;}
+  }
+
+  async function stooqQuote(sym) {
+    try {
+      const r = await fetch('https://stooq.com/q/d/l/?s='+sym+'&i=d', {timeout:10000});
+      if (!r.ok) return null;
+      const csv = (await r.text()).trim();
+      if (!csv||csv.length<30) return null;
+      const lines = csv.split('\n').slice(1).filter(Boolean);
+      if (lines.length < 2) return null;
+      const last = lines[lines.length-1].split(',');
+      const prev = lines[lines.length-2].split(',');
+      const price = parseFloat(last[4]), prevC = parseFloat(prev[4]);
+      if (isNaN(price)||price<=0) return null;
+      return {price:+price.toFixed(4), chg24: prevC>0?+((price-prevC)/prevC*100).toFixed(2):null};
+    } catch(e) {return null;}
+  }
+
+  const out = {stocks:{}, commodities:{}, ts:Date.now()};
+
+  await Promise.allSettled([
+    ...STOCKS.map(async function(s) {
+      const q = await yahooQuote(s.yf);
+      out.stocks[s.id] = {name:s.name, mcapT:s.mcapT, price:q?q.price:null, chg24:q?q.chg24:null};
+    }),
+    ...COMMODITIES.map(async function(c) {
+      const q = await stooqQuote(c.stooq);
+      out.commodities[c.id] = {name:c.name, ticker:c.ticker, mcapT:c.mcapT, price:q?q.price:null, chg24:q?q.chg24:null};
+    })
+  ]);
+
+  setCache('global/prices', out);
+  res.json(out);
+});
+
 // GENERIC ROUTES — MUST COME AFTER ALL SPECIFIC /api/crypto/* ROUTES
 // ══════════════════════════════════════════════════════════════════
 
