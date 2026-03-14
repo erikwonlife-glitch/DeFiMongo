@@ -89,14 +89,10 @@ function createSymbolOverview(containerId, symbols, options) {
     scaleMode:        'Percentage',
     backgroundColor:  'rgba(14,26,32,0)',
     lineWidth:        2,
-    dateRanges:       ['1d|1','1m|30','3m|60','12m|1D','60m|1W','all|1M'],
     fontFamily:       'Space Mono, monospace',
-    fontColor:        '#4d6475',
-    gridLineColor:    'rgba(28,45,56,0.4)',
-    noTimeScale:      false,
-    chartType:        'area',
-    lineType:         0,
-    isTransparent:    true
+    isTransparent:    true,
+    chartType:        'line',
+    noTimeScale:      false
   };
   var merged = Object.assign({}, defaults, options || {});
   injectTVWidget(containerId,
@@ -128,20 +124,15 @@ function initTVHalving() {
   });
 }
 
-// ── FED BALANCE SHEET vs BTC — dual chart ────────────────────────────────────
+// ── FED BALANCE SHEET vs BTC ──────────────────────────────────────────────────
 window._tvFedReady = false;
 function initTVFed() {
   if (window._tvFedReady) return;
   window._tvFedReady = true;
   createSymbolOverview('fedBtcChart', [
-    ['Bitcoin', 'BITSTAMP:BTCUSD|1W'],
-    ['Fed Balance Sheet', 'FRED:WALCL|1W']
-  ], {
-    scaleMode:      'Percentage',
-    chartType:      'line',
-    dateRanges:     ['5y|1W','all|1M'],
-    showVolume:     false
-  });
+    ['Bitcoin',          'BITSTAMP:BTCUSD|1W'],
+    ['Fed Balance Sheet','FRED:WALCL|1W']
+  ], { scaleMode: 'Percentage', chartType: 'line' });
 }
 
 // ── DOLLAR INDEX vs BTC ───────────────────────────────────────────────────────
@@ -150,13 +141,9 @@ function initTVDxy() {
   if (window._tvDxyReady) return;
   window._tvDxyReady = true;
   createSymbolOverview('dxyBtcChart', [
-    ['Bitcoin', 'BITSTAMP:BTCUSD|1W'],
-    ['DXY', 'TVC:DXY|1W']
-  ], {
-    scaleMode:  'Percentage',
-    chartType:  'line',
-    dateRanges: ['5y|1W','all|1M']
-  });
+    ['Bitcoin','BITSTAMP:BTCUSD|1W'],
+    ['DXY',    'TVC:DXY|1W']
+  ], { scaleMode: 'Percentage', chartType: 'line' });
 }
 
 // ── GLOBAL LIQUIDITY vs BTC ───────────────────────────────────────────────────
@@ -165,47 +152,32 @@ function initTVLiq() {
   if (window._tvLiqReady) return;
   window._tvLiqReady = true;
   createSymbolOverview('liqBtcChart', [
-    ['Bitcoin',        'BITSTAMP:BTCUSD|1W'],
-    ['Fed Balance',    'FRED:WALCL|1W'],
-    ['ECB Balance',    'ECBBS:ECBASSETSW|1W'],
-    ['Total Liquidity','GLASSNODE:BTC_SOPR|1W'] // placeholder — use M2 proxy
-  ], {
-    scaleMode:  'Percentage',
-    chartType:  'line',
-    dateRanges: ['5y|1W','all|1M']
-  });
+    ['Bitcoin',      'BITSTAMP:BTCUSD|1W'],
+    ['Fed Balance',  'FRED:WALCL|1W'],
+    ['ECB Balance',  'ECBBS:ECBASSETSW|1W']
+  ], { scaleMode: 'Percentage', chartType: 'line' });
 }
 
-// ── BITCOIN ISM CHART — BTC + ISM Manufacturing ───────────────────────────────
+// ── ISM CHART — BTC + ISM Manufacturing ──────────────────────────────────────
 window._tvIsmReady = false;
 function initTVIsm() {
   if (window._tvIsmReady) return;
   window._tvIsmReady = true;
   createSymbolOverview('ismBtcChart', [
-    ['Bitcoin',             'BITSTAMP:BTCUSD|1M'],
-    ['ISM Manufacturing',   'ECONOMICS:USISR|1M']
-  ], {
-    scaleMode:  'Percentage',
-    chartType:  'line',
-    dateRanges: ['5y|1M','all|1M'],
-    showVolume: false
-  });
+    ['Bitcoin',           'BITSTAMP:BTCUSD|1M'],
+    ['ISM Manufacturing', 'ECONOMICS:USISR|1M']
+  ], { scaleMode: 'Percentage', chartType: 'line' });
 }
 
-// ── BITCOIN SOCIAL RISK — BTC + Google Trends proxy ──────────────────────────
+// ── SOCIAL RISK — BTC + BTC Dominance ────────────────────────────────────────
 window._tvSocialReady = false;
 function initTVSocial() {
   if (window._tvSocialReady) return;
   window._tvSocialReady = true;
-  // Use BTC dominance as social risk proxy since GT not on TV
   createSymbolOverview('socialRiskChart', [
     ['Bitcoin',      'BITSTAMP:BTCUSD|1W'],
     ['BTC Dominance','CRYPTOCAP:BTC.D|1W']
-  ], {
-    scaleMode:  'Percentage',
-    chartType:  'area',
-    dateRanges: ['3y|1W','all|1M']
-  });
+  ], { scaleMode: 'Percentage', chartType: 'area' });
 }
 
 // ── EPOCH CYCLES — BTC full history ──────────────────────────────────────────
