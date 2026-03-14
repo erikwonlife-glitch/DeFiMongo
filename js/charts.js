@@ -2354,9 +2354,6 @@ async function drawAllCharts(){
       var upd2 = document.getElementById('halvingUpdated');
       if (upd2) upd2.textContent = '↻ Updated ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
     };
-      var upd2 = document.getElementById('halvingUpdated');
-      if (upd2) upd2.textContent = '↻ Updated ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
-    };
   })();
 
   // ── CYCLE LOW — last point = current live price ─────────────────────────────
