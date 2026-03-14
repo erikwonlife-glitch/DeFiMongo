@@ -181,7 +181,8 @@ function getBtcOverlayData(fallbackArr) {
   if (window.BTC_CURRENT && src.length) {
     var nowTs = Math.floor(Date.now()/1000);
     var last  = src[src.length-1];
-    if (nowTs - last.time < 3*86400) {
+    // Replace last point if within 35 days (covers monthly data gaps)
+    if (nowTs - last.time < 35*86400) {
       src[src.length-1] = { time: nowTs, value: Math.round(window.BTC_CURRENT) };
     } else {
       src.push({ time: nowTs, value: Math.round(window.BTC_CURRENT) });
