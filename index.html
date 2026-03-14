@@ -2359,21 +2359,65 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
         </div>
       </div>
 
-      <!-- Filter bar -->
-      <div style="padding:0 40px;border-bottom:1px solid var(--border);background:var(--bg1)">
-        <div style="display:flex;align-items:center;gap:0;overflow-x:auto" id="news-filter-bar">
-          <button class="news-tab on" data-cat="all"         onclick="newsSetCat('all',this)">All</button>
-          <button class="news-tab"    data-cat="crypto"      onclick="newsSetCat('crypto',this)">🔗 Crypto</button>
-          <button class="news-tab"    data-cat="defi"        onclick="newsSetCat('defi',this)">⬡ DeFi</button>
-          <button class="news-tab"    data-cat="stocks"      onclick="newsSetCat('stocks',this)">📈 Stocks</button>
-          <button class="news-tab"    data-cat="macro"       onclick="newsSetCat('macro',this)">🌐 Macro</button>
-          <button class="news-tab"    data-cat="commodities" onclick="newsSetCat('commodities',this)">🪨 Commodities</button>
-          <div style="margin-left:auto;padding:8px 0;flex-shrink:0">
-            <input id="news-search" type="text" placeholder="Search news…" oninput="newsFilter()"
-              style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:6px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text);outline:none;width:200px;transition:border-color .15s"
+      <!-- MARKET SENTIMENT DASHBOARD — moved to top, bigger, more signals -->
+      <div style="padding:20px 40px;border-bottom:1px solid var(--border);background:var(--bg1)">
+
+        <!-- Main sentiment signal row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+
+          <!-- Overall Mood -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center">
+            <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Нийт Сэтгэл</div>
+            <div id="news-sentiment-txt" style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--accent)">—</div>
+            <div style="margin-top:8px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;display:flex">
+              <div id="news-bull-bar" style="height:100%;background:var(--accent);transition:width .5s;width:0%"></div>
+              <div id="news-neut-bar" style="height:100%;background:var(--muted);transition:width .5s;width:0%"></div>
+              <div id="news-bear-bar" style="height:100%;background:var(--red);border-radius:0 3px 3px 0;transition:width .5s;width:0%"></div>
+            </div>
+          </div>
+
+          <!-- Bullish count -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center">
+            <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Bullish мэдээ</div>
+            <div id="ns-bull" style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--accent)">—</div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px">нийт мэдээнээс</div>
+          </div>
+
+          <!-- Bearish count -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center">
+            <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Bearish мэдээ</div>
+            <div id="ns-bear" style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--red)">—</div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px">нийт мэдээнээс</div>
+          </div>
+
+          <!-- Total articles -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center">
+            <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Нийт мэдээ</div>
+            <div id="ns-total" style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--text)">—</div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px" id="ns-src">0 эх сурвалж</div>
+          </div>
+
+          <!-- Search -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;display:flex;flex-direction:column;justify-content:center;gap:8px">
+            <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase">Хайх</div>
+            <input id="news-search" type="text" placeholder="мэдээ хайх…" oninput="newsFilter()"
+              style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:7px 10px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text);outline:none;width:100%;transition:border-color .15s;box-sizing:border-box"
               onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"/>
           </div>
+
         </div>
+
+        <!-- Category quick filters — smaller, secondary -->
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px">Шүүх:</span>
+          <button onclick="newsSetCat('all',this)"         class="news-tab on"  data-cat="all"         style="padding:4px 10px;font-size:9px">Бүгд</button>
+          <button onclick="newsSetCat('crypto',this)"      class="news-tab"     data-cat="crypto"      style="padding:4px 10px;font-size:9px">Крипто</button>
+          <button onclick="newsSetCat('macro',this)"       class="news-tab"     data-cat="macro"       style="padding:4px 10px;font-size:9px">Макро</button>
+          <button onclick="newsSetCat('stocks',this)"      class="news-tab"     data-cat="stocks"      style="padding:4px 10px;font-size:9px">Хувьцаа</button>
+          <button onclick="newsSetCat('commodities',this)" class="news-tab"     data-cat="commodities" style="padding:4px 10px;font-size:9px">Түүхий эд</button>
+          <button onclick="newsSetCat('defi',this)"        class="news-tab"     data-cat="defi"        style="padding:4px 10px;font-size:9px">DeFi</button>
+        </div>
+
       </div>
 
       <!-- LIVE INTELLIGENCE FEEDS -->
@@ -2424,25 +2468,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
         </div>
         <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);padding:8px 0;text-align:center;letter-spacing:1px">
           🇲🇳 МОНГОЛ ОРЧУУЛГА БОЛОМЖТОЙ · ДАРЖ ОРЧУУЛНА · 10 МИН ТУТ ШИНЭЧЛЭГДЭНЭ
-        </div>
-      </div>
-
-      <!-- Sentiment bar -->
-      <div style="padding:12px 40px;border-bottom:1px solid var(--border);background:var(--bg1);display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;flex-shrink:0">Market Mood</div>
-        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px">
-          <div style="flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;display:flex">
-            <div id="news-bull-bar" style="height:100%;background:var(--accent);border-radius:3px 0 0 3px;transition:width .5s;width:0%"></div>
-            <div id="news-neut-bar" style="height:100%;background:var(--muted);transition:width .5s;width:0%"></div>
-            <div id="news-bear-bar" style="height:100%;background:var(--red);border-radius:0 3px 3px 0;transition:width .5s;width:0%"></div>
-          </div>
-          <span id="news-sentiment-txt" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);white-space:nowrap">—</span>
-        </div>
-        <div id="news-stats-row" style="display:flex;gap:16px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">
-          <span id="ns-total">0 articles</span>
-          <span id="ns-bull"  style="color:var(--accent)">0 bullish</span>
-          <span id="ns-bear"  style="color:var(--red)">0 bearish</span>
-          <span id="ns-src">0 sources</span>
         </div>
       </div>
 
