@@ -245,6 +245,17 @@ async function init(){
   if(!window._chartsDrawn){
     window._chartsDrawn=true;
     drawAllCharts();
+    // After charts draw, immediately fire all refresh hooks so live BTC price
+    // replaces any hardcoded fallback values used during initial render
+    setTimeout(function() {
+      if (window['_halvingRefresh'])  window['_halvingRefresh']();
+      if (window['_epochRefresh'])    window['_epochRefresh']();
+      if (window['_fedRefresh'])      window['_fedRefresh']();
+      if (window['_dxyRefresh'])      window['_dxyRefresh']();
+      if (window['_liqRefresh'])      window['_liqRefresh']();
+      if (window['_ismRefresh'])      window['_ismRefresh']();
+      if (window['_socialRefresh'])   window['_socialRefresh']();
+    }, 100); // small delay to let chart series initialize first
     // Load full BTC daily history for accurate overlay charts
     loadBtcDailyHistory();
     // Pre-load halving cycle data for halving chart
