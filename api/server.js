@@ -308,7 +308,8 @@ app.get('/api/crypto/feargreed', async function(req, res) {
     const r = await fetch('https://api.alternative.me/fng/?limit=90', {timeout:10000});
     if (!r.ok) return res.status(502).json({error:'FNG '+r.status});
     const data = await r.json();
-    setCache('crypto/feargreed', data);
+    // Cache 4 hours — Fear & Greed only updates once per day at midnight UTC
+    setCache('crypto/feargreed', data, 4 * 60 * 60 * 1000);
     res.json(data);
   } catch(e) { res.status(502).json({error:e.message}); }
 });
