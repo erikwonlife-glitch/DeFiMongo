@@ -791,6 +791,87 @@ app.get('/api/translate', async function(req, res) {
   } catch(e) { res.status(502).json({ error: e.message, translation: null }); }
 });
 
+// ── DEFI TVL — from DeFiLlama (proxy to avoid CORS) ─────────────────────────
+app.get('/api/defi/tvl', async function(req, res) {
+  const cached = getCache('defi/tvl');
+  if (cached) return res.json(cached);
+  try {
+    const [protocols, chains] = await Promise.all([
+      fetch('https://api.llama.fi/protocols', {timeout:15000}).then(function(r){return r.json();}),
+      fetch('https://api.llama.fi/v2/chains', {timeout:15000}).then(function(r){return r.json();})
+    ]);
+    // Total TVL from top chains
+    const totalTVL = (chains||[]).reduce(function(s,c){return s+(c.tvl||0);},0);
+    // Top 7 protocols
+    const top7 = (protocols||[]).filter(function(p){return p.tvl>0;}).sort(function(a,b){return b.tvl-a.tvl;}).slice(0,7)
+      .map(function(p){return {name:p.name, tvl:p.tvl, change24h:p.change_1d||0, category:p.category};});
+    const result = {totalTVL, top7, updated: Date.now()};
+    setCache('defi/tvl', result, 30*60*1000);
+    res.json(result);
+  } catch(e){res.status(502).json({error:e.message});}
+});
+
+// ── DEX VOLUME — from DeFiLlama ───────────────────────────────────────────────
+app.get('/api/defi/dex', async function(req, res) {
+  const cached = getCache('defi/dex');
+  if (cached) return res.json(cached);
+  try {
+    const data = await fetch('https://api.llama.fi/overview/dexs?excludeTotalDataChart=false&excludeTotalDataChartBreakdown=false&dataType=dailyVolume', {timeout:15000}).then(function(r){return r.json();});
+    const top5 = (data?.protocols||[]).filter(function(p){return p.total24h>0;}).sort(function(a,b){return b.total24h-a.total24h;}).slice(0,5)
+      .map(function(p){return {name:p.name, vol24h:p.total24h, change24h:p.change_1d||0};});
+    const totalVol = top5.reduce(function(s,p){return s+p.vol24h;},0) + (data?.protocols||[]).slice(5).reduce(function(s,p){return s+(p.total24h||0);},0);
+    const chart14 = (data?.totalDataChart||[]).slice(-14).map(function(p){return {date:new Date(p[0]*1000).toLocaleDateString('en',{month:'short',day:'numeric'}),vol:+(p[1]/1e9).toFixed(2)};});
+    const result = {totalVol, top5, chart14, updated: Date.now()};
+    setCache('defi/dex', result, 30*60*1000);
+    res.json(result);
+  } catch(e){res.status(502).json({error:e.message});}
+});
+
+// ── PUMPFUN STATS — from DeFiLlama dexs (Pump.fun is tracked) ────────────────
+app.get('/api/defi/pumpfun', async function(req, res) {
+  const cached = getCache('defi/pumpfun');
+  if (cached) return res.json(cached);
+  try {
+    // PumpFun volume from DeFiLlama
+    const data = await fetch('https://api.llama.fi/summary/dexs/pump-fun?excludeTotalDataChart=false&dataType=dailyVolume', {timeout:15000}).then(function(r){return r.json();});
+    const vol24h = data?.total24h || 0;
+    const vol7d  = data?.total7d  || 0;
+    const chart14 = (data?.totalDataChart||[]).slice(-14).map(function(p){
+      return {date: new Date(p[0]*1000).toLocaleDateString('en',{month:'short',day:'numeric'}), vol: +(p[1]/1e6).toFixed(1)};
+    });
+    const result = {vol24h, vol7d, chart14, updated: Date.now()};
+    setCache('defi/pumpfun', result, 30*60*1000);
+    res.json(result);
+  } catch(e){res.status(502).json({error:e.message});}
+});
+
+// ── ON-CHAIN BTC STATS — from public APIs ─────────────────────────────────────
+app.get('/api/onchain/btc', async function(req, res) {
+  const cached = getCache('onchain/btc');
+  if (cached) return res.json(cached);
+  try {
+    // Blockchain.info for basic on-chain metrics
+    const [stats, addrs] = await Promise.allSettled([
+      fetch('https://api.blockchain.info/stats', {timeout:12000}).then(function(r){return r.json();}),
+      fetch('https://api.blockchain.info/charts/n-unique-addresses?timespan=30days&format=json&sampled=true', {timeout:12000}).then(function(r){return r.json();})
+    ]);
+    const s = stats.status==='fulfilled' ? stats.value : {};
+    const a = addrs.status==='fulfilled' ? addrs.value : {};
+    const addrData = (a.values||[]).slice(-30).map(function(p){return {date:new Date(p.x*1000).toLocaleDateString('en',{month:'short',day:'numeric'}),val:p.y};});
+    const result = {
+      activeAddr:     s.n_unique_addresses || null,
+      hashRate:       s.hash_rate ? +(s.hash_rate/1e18).toFixed(2) : null, // EH/s
+      difficulty:     s.difficulty || null,
+      blockHeight:    s.n_blocks_total || null,
+      mempoolSize:    s.mempool_size || null,
+      addrChart:      addrData,
+      updated:        Date.now()
+    };
+    setCache('onchain/btc', result, 30*60*1000);
+    res.json(result);
+  } catch(e){res.status(502).json({error:e.message});}
+});
+
 // GENERIC ROUTES — MUST COME AFTER ALL SPECIFIC /api/crypto/* ROUTES
 // ══════════════════════════════════════════════════════════════════
 
