@@ -2979,94 +2979,101 @@ function renderTicker(coins){
 }
 
 // ── COIN TABLE ENGINE ─────────────────────────────────────────────────────────
-let COIN_FILTER  = 'top200';   // active filter
-let COIN_STORE   = {           // cached coin lists by filter
-  top200: [], top400: [], defi: [], layer1: [], binance: [], hyperliquid: []
-};
-let COIN_LOADED  = {};         // which filters have been fetched
+let COIN_FILTER  = 'top200';
+let COIN_STORE   = { top200:[], top400:[], defi:[], layer1:[], binance:[], hyperliquid:[] };
+let COIN_LOADED  = {};
+let COIN_FETCHING= {};
 
 async function fetchCoinFilter(filter) {
-  if (COIN_LOADED[filter]) return;
-  COIN_LOADED[filter] = true;
+  if (COIN_FETCHING[filter]) return; // already in flight
+  if (COIN_LOADED[filter] && COIN_STORE[filter].length) return; // already loaded
+  COIN_FETCHING[filter] = true;
   try {
-    let url = '';
-    if (filter === 'top200') url = `${CR_API}/api/crypto/markets`;
-    else if (filter === 'top400') url = `${CR_API}/api/crypto/coins?page=2`;
-    else if (filter === 'defi') url = `${CR_API}/api/crypto/category/defi`;
-    else if (filter === 'layer1') url = `${CR_API}/api/crypto/category/layer1`;
-    else if (filter === 'binance') url = `${CR_API}/api/crypto/binance`;
-    else if (filter === 'hyperliquid') url = `${CR_API}/api/crypto/hyperliquid`;
-    const r = await fetch(url, {signal: AbortSignal.timeout(20000)});
+    const urlMap = {
+      top200:      `${CR_API}/api/crypto/markets`,
+      top400:      `${CR_API}/api/crypto/coins?page=2`,
+      defi:        `${CR_API}/api/crypto/category/defi`,
+      layer1:      `${CR_API}/api/crypto/category/layer1`,
+      binance:     `${CR_API}/api/crypto/binance`,
+      hyperliquid: `${CR_API}/api/crypto/hyperliquid`
+    };
+    const url = urlMap[filter];
+    if (!url) return;
+    const r = await fetch(url, {signal: AbortSignal.timeout(25000)});
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
     if (Array.isArray(data) && data.length) {
       COIN_STORE[filter] = data;
+      COIN_LOADED[filter] = true;
       if (COIN_FILTER === filter) renderCoinTable();
     }
   } catch(e) {
-    COIN_LOADED[filter] = false; // allow retry
     console.warn('fetchCoinFilter failed:', filter, e.message);
   }
+  COIN_FETCHING[filter] = false;
 }
 
 function setCoinFilter(filter, el) {
   COIN_FILTER = filter;
   document.querySelectorAll('.coin-tab').forEach(t => t.classList.remove('on'));
   if (el) el.classList.add('on');
-  renderCoinTable();
-  // Lazy-fetch if not loaded yet
-  if (!COIN_LOADED[filter]) fetchCoinFilter(filter);
-  // Show/hide load more button
+  else document.querySelector(`.coin-tab[data-filter="${filter}"]`)?.classList.add('on');
+  // Show/hide load-more
   const lmb = document.getElementById('coin-load-more-btn');
-  if (lmb) lmb.style.display = filter === 'top200' ? 'inline' : 'none';
+  if (lmb) lmb.style.display = (filter === 'top200' && !COIN_LOADED.top400) ? 'inline' : 'none';
+  renderCoinTable();
+  if (!COIN_LOADED[filter]) fetchCoinFilter(filter);
 }
 
 function loadMoreCoins() {
-  fetchCoinFilter('top400');
-  const btn = document.getElementById('coin-load-more-btn');
-  if (btn) btn.style.display = 'none';
-  // Merge top200 + top400
-  setTimeout(() => {
-    const merged = [...COIN_STORE.top200, ...COIN_STORE.top400];
+  const lmb = document.getElementById('coin-load-more-btn');
+  if (lmb) lmb.innerHTML = '<span style="font-family:\'Space Mono\',monospace;font-size:9px;color:var(--muted)">⟳ Loading 201–400…</span>';
+  fetchCoinFilter('top400').then(() => {
+    // Merge pages into top400 store
     const seen = new Set();
-    COIN_STORE.top400 = merged.filter(c => {
-      const key = c.id || c.symbol;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
+    const merged = [...COIN_STORE.top200, ...COIN_STORE.top400].filter(c => {
+      const k = c.id || c.symbol;
+      if (seen.has(k)) return false;
+      seen.add(k); return true;
     });
+    COIN_STORE.top400 = merged;
     COIN_FILTER = 'top400';
     document.querySelectorAll('.coin-tab').forEach(t => t.classList.remove('on'));
     document.querySelector('[data-filter="top400"]')?.classList.add('on');
+    if (lmb) lmb.style.display = 'none';
     renderCoinTable();
-  }, 3000);
+  });
 }
 
 function renderCoinTable() {
-  const tb = document.getElementById('coinBody');
+  const tb     = document.getElementById('coinBody');
   const srcLbl = document.getElementById('coin-source-label');
   if (!tb) return;
 
-  let list = COIN_STORE[COIN_FILTER] || [];
+  let list = [...(COIN_STORE[COIN_FILTER] || [])];
   const q = (document.getElementById('coinSearch')?.value || '').toLowerCase();
   if (q) list = list.filter(c =>
-    (c.name || '').toLowerCase().includes(q) ||
-    (c.symbol || '').toLowerCase().includes(q)
+    (c.name||'').toLowerCase().includes(q) ||
+    (c.symbol||'').toLowerCase().includes(q)
   );
 
   const srcMap = {
-    top200: 'CoinGecko · Top 200 by Market Cap',
-    top400: 'CoinGecko · Top 400 by Market Cap',
-    defi: 'CoinGecko · DeFi Category',
-    layer1: 'CoinGecko · Layer 1 Blockchains',
-    binance: 'Binance · Top USDT Pairs by Volume',
+    top200:      'CoinGecko · Top 200 by Market Cap',
+    top400:      'CoinGecko · Top 400 by Market Cap',
+    defi:        'CoinGecko · DeFi Tokens',
+    layer1:      'CoinGecko · Layer 1 Blockchains',
+    binance:     'Binance · Top USDT Pairs',
     hyperliquid: 'Hyperliquid · Perpetual Contracts'
   };
-  if (srcLbl) srcLbl.textContent = (srcMap[COIN_FILTER] || '') + ' · ' + list.length + ' coins';
+  if (srcLbl) srcLbl.textContent = (srcMap[COIN_FILTER]||'') + ' · ' + list.length + ' coins';
+
+  // Update header stats
+  const ctEl = document.getElementById('coinCount');
+  if (ctEl) ctEl.textContent = list.length;
 
   if (!list.length) {
-    tb.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:40px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px">
-      <div style="width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px"></div>
+    tb.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:48px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px">
+      <div style="width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px"></div>
       FETCHING ${COIN_FILTER.toUpperCase()} DATA…
     </td></tr>`;
     return;
@@ -3082,26 +3089,27 @@ function renderCoinTable() {
     const spark = c.sparkline_in_7d?.price || [];
     let sparkSVG = '';
     if (spark.length > 1) {
-      const mn = Math.min(...spark), mx = Math.max(...spark), r = mx - mn || 1;
-      const pts = spark.filter((_, j) => j % Math.ceil(spark.length / 30) === 0)
-        .map((v, j, a) => `${j/(a.length-1)*80},${20-(v-mn)/r*18}`).join(' ');
+      const mn = Math.min(...spark), mx = Math.max(...spark), rng = mx - mn || 1;
+      const pts = spark.filter((_,j) => j % Math.ceil(spark.length/30) === 0)
+        .map((v,j,a) => `${j/(a.length-1)*80},${20-(v-mn)/rng*18}`).join(' ');
       const sc = spark[spark.length-1] >= spark[0] ? ACCENT : RED;
       sparkSVG = `<svg viewBox="0 0 80 20" style="width:80px;height:20px"><polyline points="${pts}" fill="none" stroke="${sc}" stroke-width="1.5"/></svg>`;
     }
-    // Source badge
     let srcBadge = '';
-    if (isBinance)  srcBadge = `<span style="font-family:'Space Mono',monospace;font-size:7px;padding:1px 5px;border-radius:2px;background:rgba(243,186,47,.1);color:#F3BA2F;border:1px solid rgba(243,186,47,.2)">BNB</span>`;
-    else if (isHL)  srcBadge = `<span style="font-family:'Space Mono',monospace;font-size:7px;padding:1px 5px;border-radius:2px;background:rgba(0,232,122,.1);color:var(--accent);border:1px solid rgba(0,232,122,.2)">HL</span>`;
+    if (isBinance) srcBadge = `<span style="font-family:'Space Mono',monospace;font-size:7px;padding:1px 5px;border-radius:2px;background:rgba(243,186,47,.12);color:#F3BA2F;border:1px solid rgba(243,186,47,.2)">BNB</span>`;
+    else if (isHL) srcBadge = `<span style="font-family:'Space Mono',monospace;font-size:7px;padding:1px 5px;border-radius:2px;background:rgba(0,232,122,.1);color:var(--accent);border:1px solid rgba(0,232,122,.2)">HL</span>`;
 
     const imgHtml = c.image
       ? `<img src="${c.image}" style="width:22px;height:22px;border-radius:50%;flex-shrink:0" loading="lazy" onerror="this.style.display='none'"/>`
       : `<div style="width:22px;height:22px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);flex-shrink:0">${(c.symbol||'?')[0].toUpperCase()}</div>`;
 
-    const clickHandler = (!isBinance && !isHL) ? `onclick="openCoinModal('${c.id}')" style="cursor:pointer"` : '';
-    const oiHtml = isHL ? `<span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">OI: ${fmt(c.open_interest * c.current_price)}</span>` : '';
+    const clickable = !isBinance && !isHL;
+    const rowClick  = clickable ? `onclick="openCoinModal('${c.id}')"` : '';
+    const rowCursor = clickable ? 'cursor:pointer' : '';
+    const oiHtml    = isHL && c.open_interest ? `<br><span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">OI: ${fmt(c.open_interest*c.current_price)}</span>` : '';
 
-    return `<tr ${clickHandler} onmouseover="this.querySelectorAll('td').forEach(t=>t.style.background='rgba(0,232,122,.022)')" onmouseout="this.querySelectorAll('td').forEach(t=>t.style.background='')">
-      <td style="color:var(--muted);font-family:'Space Mono',monospace;font-size:11px">${c.market_cap_rank || i+1}</td>
+    return `<tr ${rowClick} style="${rowCursor}" onmouseover="this.querySelectorAll('td').forEach(t=>t.style.background='rgba(0,232,122,.022)')" onmouseout="this.querySelectorAll('td').forEach(t=>t.style.background='')">
+      <td style="color:var(--muted);font-family:'Space Mono',monospace;font-size:11px">${c.market_cap_rank||i+1}</td>
       <td><div style="display:flex;align-items:center;gap:9px">
         ${imgHtml}
         <div>
@@ -3111,33 +3119,41 @@ function renderCoinTable() {
       </div></td>
       <td style="font-family:'Space Mono',monospace;font-size:12px;font-weight:600">${fmt(c.current_price)}</td>
       <td class="${pctClass(chg24)}" style="font-family:'Space Mono',monospace;font-size:11px">${fmtPct(chg24)}</td>
-      <td class="${pctClass(chg1h)}" style="font-family:'Space Mono',monospace;font-size:11px">${fmtPct(chg1h)}</td>
-      <td class="${pctClass(chg7d)}" style="font-family:'Space Mono',monospace;font-size:11px">${fmtPct(chg7d)}</td>
+      <td class="${pctClass(chg1h)}" style="font-family:'Space Mono',monospace;font-size:11px">${chg1h?fmtPct(chg1h):'—'}</td>
+      <td class="${pctClass(chg7d)}" style="font-family:'Space Mono',monospace;font-size:11px">${chg7d?fmtPct(chg7d):'—'}</td>
       <td>${sparkSVG}</td>
-      <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)">${fmt(c.market_cap || 0)}${oiHtml}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)">${fmt(c.market_cap||0)}${oiHtml}</td>
       <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)">${fmt(c.total_volume)}</td>
       <td style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">${c.source||'CG'}</td>
     </tr>`;
   }).join('');
 
-  // Update gainers dynamically
-  const sorted = [...list].filter(c => c.price_change_percentage_24h).sort((a,b) => b.price_change_percentage_24h - a.price_change_percentage_24h);
+  // Update gainers from current list
   const gainersEl = document.getElementById('gainersRow');
-  if (gainersEl && sorted.length) {
-    gainersEl.innerHTML = sorted.slice(0, 3).map((c, i) => {
-      const sym = (c.symbol||'').toUpperCase();
-      const col = '#' + Math.abs((c.id||sym).split('').reduce((h,ch)=>((h<<5)-h)+ch.charCodeAt(0),0)).toString(16).slice(0,6).padEnd(6,'a');
-      return `<div class="tri"><span class="trn">${i+1}</span><div class="tric" style="background:${col}1a;color:${col}">${sym[0]||'?'}</div><span class="trnm">${c.name} <span class="trsy">${sym}</span></span><span class="trc up">${fmtPct(c.price_change_percentage_24h)}</span></div>`;
-    }).join('');
+  if (gainersEl) {
+    const top3 = [...list].filter(c=>c.price_change_percentage_24h>0)
+      .sort((a,b)=>b.price_change_percentage_24h-a.price_change_percentage_24h).slice(0,3);
+    if (top3.length) {
+      gainersEl.innerHTML = top3.map((c,i) => {
+        const sym = (c.symbol||'').toUpperCase();
+        const col = '#'+Math.abs((c.id||sym).split('').reduce((h,ch)=>((h<<5)-h)+ch.charCodeAt(0),0)).toString(16).slice(0,6).padEnd(6,'0');
+        return `<div class="tri"><span class="trn">${i+1}</span><div class="tric" style="background:${col}22;color:${col}">${sym[0]||'?'}</div><span class="trnm">${c.name} <span class="trsy">${sym}</span></span><span class="trc up">${fmtPct(c.price_change_percentage_24h)}</span></div>`;
+      }).join('');
+    }
   }
 }
 
-// Keep old renderCoins wired so init() still works
+// Called by init() when CoinGecko markets data arrives
 function renderCoins(list) {
-  if (!COIN_STORE.top200.length) COIN_STORE.top200 = list;
+  COIN_STORE.top200 = list;
+  COIN_LOADED.top200 = true;
   ALL_COINS = list;
+  // Always reset to top200 tab on fresh data load
+  COIN_FILTER = 'top200';
+  document.querySelectorAll('.coin-tab').forEach(t => t.classList.remove('on'));
+  document.querySelector('[data-filter="top200"]')?.classList.add('on');
   renderCoinTable();
-  // Show load-more button on first load
+  // Show load-more button
   const lmb = document.getElementById('coin-load-more-btn');
   if (lmb) lmb.style.display = 'inline';
 }
@@ -3160,6 +3176,19 @@ function renderGlobal(g){
   if(ethDomEl)ethDomEl.textContent=(d.market_cap_percentage?.eth||0).toFixed(1)+'%';
   const mcChgEl=document.getElementById('globalMCChg');
   if(mcChgEl){const c=d.market_cap_change_percentage_24h_usd||0;mcChgEl.textContent=fmtPct(c);mcChgEl.className='cc '+pctClass(c);}
+  // Update crypto prices panel header
+  const cgCap=document.getElementById('cgTotalCap');
+  const cgVol=document.getElementById('cgVolume');
+  const cgChg=document.getElementById('cgCapChg');
+  const altDom=document.getElementById('altDom');
+  if(cgCap)cgCap.textContent=fmt(d.total_market_cap?.usd);
+  if(cgVol)cgVol.textContent=fmt(d.total_volume?.usd);
+  if(cgChg){const c=d.market_cap_change_percentage_24h_usd||0;cgChg.textContent=fmtPct(c);cgChg.className='phsc '+(c>=0?'up':'dn');}
+  if(altDom){
+    const btc=d.market_cap_percentage?.btc||0;
+    const eth=d.market_cap_percentage?.eth||0;
+    altDom.textContent=(100-btc-eth).toFixed(1)+'%';
+  }
 }
 
 // ── RENDER TRENDING ───────────────────────────────────────────────────────────
