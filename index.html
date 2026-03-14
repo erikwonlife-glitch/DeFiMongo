@@ -5605,13 +5605,26 @@ async function openMkt(type,id){
   const color=type==='fx'?C_FX:type==='cmd'?C_CMD:C_EQ;
   if(id==='overview'){
     const cEl=document.getElementById(`${type}-ov-cards`);
-    if(cEl&&!group.some(i=>HIST[i.id]?.length)) cEl.innerHTML=`<div class="mkt-loading"><div class="mkt-spinner"></div>Fetching from Stooq…</div>`;
+    if(cEl&&!group.some(i=>PRECOMP[i.id]||HIST[i.id]?.length))
+      cEl.innerHTML=`<div class="mkt-loading"><div class="mkt-spinner"></div>Fetching from ChainRoot API…</div>`;
     await loadGroup(group);
     renderOverview(`${type}-ov-cards`,`${type}-ov-rsi`,`${type}-ov-ma`,`${type}-ov-sigs`,group,color);
   } else {
     const inst=group.find(p=>p.id===id);if(!inst)return;
     const bId=`${type}-${id}-body`,el=document.getElementById(bId);
-    if(el&&!HIST[inst.id]?.length) el.innerHTML=`<div class="mkt-loading"><div class="mkt-spinner"></div>Fetching ${inst.sym}…</div>`;
+
+    // ── If we already have data cached, render INSTANTLY — no loading wait ──
+    if(PRECOMP[inst.id]||HIST[inst.id]?.length){
+      renderDetail(bId,inst,color);
+      return; // done — instant render from cache
+    }
+
+    // ── First time loading this instrument ──
+    if(el) el.innerHTML=`<div class="mkt-loading"><div class="mkt-spinner"></div>
+      <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-top:12px;letter-spacing:1.5px">
+        Fetching ${inst.sym} from ChainRoot API…
+      </div>
+    </div>`;
     await loadInst(inst);
     renderDetail(bId,inst,color);
   }
@@ -5626,6 +5639,27 @@ async function openMkt(type,id){
     else if(id.startsWith('cmd-')) openMkt('cmd',id.slice(4));
     else if(id.startsWith('eq-'))  openMkt('eq', id.slice(3));
   };
+})();
+
+// ── BACKGROUND PREFETCH — silently loads all instruments after page load ─────
+// This means by the time user clicks any pair, data is already cached → instant
+(function prefetchAll(){
+  // Wait 3 seconds after page load so crypto data loads first
+  setTimeout(async ()=>{
+    const groups = [
+      {type:'fx',  list:FX_PAIRS},
+      {type:'cmd', list:CMD_ASSETS},
+      {type:'eq',  list:EQ_STOCKS},
+    ];
+    for(const {list} of groups){
+      for(const inst of list){
+        if(!PRECOMP[inst.id]&&!LOADED[inst.id]){
+          loadInst(inst).catch(()=>{}); // fire and forget
+          await new Promise(r=>setTimeout(r,400)); // stagger 400ms each
+        }
+      }
+    }
+  }, 3000);
 })();
 
 })(); // end IIFE
