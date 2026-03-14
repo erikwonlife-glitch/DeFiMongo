@@ -5184,8 +5184,10 @@ const HIST   = {};
 const QUOTE  = {};
 const LOADED = {};
 const CHARTS = {};
+const PRECOMP= {}; // pre-computed data from Railway API
+const API_BASE = 'https://chainroot-production.up.railway.app';
 
-// ── STOOQ FETCH (primary) ────────────────────────────────────────────────────
+// ── STOOQ FETCH (fallback only) ──────────────────────────────────────────────
 async function fetchStooq(sym, rows=400){
   try{
     const url   = `https://stooq.com/q/d/l/?s=${sym.toLowerCase()}&i=d`;
@@ -5245,6 +5247,36 @@ async function fetchFHQuote(sym){
 async function loadInst(inst, force=false){
   if(LOADED[inst.id]&&!force) return;
   LOADED[inst.id]=true;
+
+  // ── PRIMARY: Call your own Railway API server ────────────────────────────
+  try{
+    const type = FX_PAIRS.find(p=>p.id===inst.id)?'fx':CMD_ASSETS.find(p=>p.id===inst.id)?'cmd':'eq';
+    const r = await fetch(`${API_BASE}/api/${type}/${inst.id}`, {signal:AbortSignal.timeout(20000)});
+    if(!r.ok) throw new Error('API '+r.status);
+    const d = await r.json();
+    if(!d||!d.chart||!d.chart.labels||!d.chart.labels.length) throw new Error('Empty data');
+
+    // Store pre-computed indicators so renderDetail can use them directly
+    PRECOMP[inst.id] = d;
+
+    // Build HIST array from chart data (needed for indicator recalc fallback)
+    HIST[inst.id] = d.chart.labels.map((date,i)=>({
+      date,
+      open:  d.chart.closes[i]||0,
+      high:  d.chart.closes[i]||0,
+      low:   d.chart.closes[i]||0,
+      close: d.chart.closes[i]||0,
+      volume:0
+    }));
+
+    // Store live quote
+    QUOTE[inst.id] = {c:d.price, pc:d.prev, h:d.high, l:d.low, o:d.open};
+    return; // success — skip fallback
+  }catch(e){
+    console.warn('Railway API failed for', inst.id, '— trying direct fetch fallback:', e.message);
+  }
+
+  // ── FALLBACK: Direct Stooq/Yahoo (may fail due to CORS on some browsers) ──
   let rows = await fetchStooq(inst.stooq);
   if(!rows||rows.length<20) rows = await fetchYahoo(inst.yf);
   HIST[inst.id] = rows||[];
@@ -5255,7 +5287,8 @@ async function loadInst(inst, force=false){
 }
 
 async function loadGroup(group){
-  for(const inst of group){ await loadInst(inst); await new Promise(r=>setTimeout(r,200)); }
+  // Fire all in parallel since Railway API is fast
+  await Promise.all(group.map(inst => loadInst(inst)));
 }
 
 // ── INDICATORS ───────────────────────────────────────────────────────────────
@@ -5386,13 +5419,20 @@ function rsiHTML(rsi){
 // ── MACD SUMMARY HTML ────────────────────────────────────────────────────────
 function macdSummaryHTML(macd){
   if(!macd)return'';
-  const n=macd.macdLine.length-1,line=macd.macdLine[n],sig=macd.sigFull[n],hist=macd.histogram[n];
+  // Accepts both flat {line,signal,histogram} from API and array format {macdLine,sigFull,histogram}
+  let line, sig, hist;
+  if(macd.macdLine){
+    const n=macd.macdLine.length-1;
+    line=macd.macdLine[n]; sig=macd.sigFull?.[n]; hist=macd.histogram?.[n];
+  } else {
+    line=macd.line; sig=macd.signal; hist=macd.histogram;
+  }
   if(line==null)return'';
-  const bull=line>sig,col=bull?C_GRN:C_RED;
+  const bull=sig!=null?line>sig:line>0, col=bull?C_GRN:C_RED;
   return`<div style="display:flex;align-items:center;gap:16px;background:var(--bg3);border-radius:6px;padding:14px 16px;flex-wrap:wrap;margin-bottom:12px">
     <div><div style="font-family:'Space Mono',monospace;font-size:8px;color:${C_MUT};letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">MACD</div><div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:${col}">${line.toFixed(5)}</div></div>
     <div><div style="font-family:'Space Mono',monospace;font-size:8px;color:${C_MUT};letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Signal</div><div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#f4c542">${sig!=null?sig.toFixed(5):'—'}</div></div>
-    <div><div style="font-family:'Space Mono',monospace;font-size:8px;color:${C_MUT};letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Histogram</div><div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:${hist>=0?C_GRN:C_RED}">${hist!=null?hist.toFixed(5):'—'}</div></div>
+    <div><div style="font-family:'Space Mono',monospace;font-size:8px;color:${C_MUT};letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Histogram</div><div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:${hist!=null?hist>=0?C_GRN:C_RED:C_MUT}">${hist!=null?hist.toFixed(5):'—'}</div></div>
     <div style="margin-left:auto"><div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:${col};background:${col}18;border:1px solid ${col}44;padding:5px 12px;border-radius:4px">${bull?'▲ BULLISH':'▼ BEARISH'} MOMENTUM</div></div>
   </div>`;
 }
@@ -5403,38 +5443,51 @@ function maBadge(sig){return`<span class="ma-badge ma-${sig}">${sig==='bull'?'�
 function renderDetail(bodyId,inst,color){
   const el=document.getElementById(bodyId);if(!el)return;
   const data=HIST[inst.id]||[], quote=QUOTE[inst.id];
-  if(!data.length){
+  const pre=PRECOMP[inst.id]; // pre-computed from Railway API
+
+  if(!data.length && !pre){
     el.innerHTML=`<div class="mkt-loading" style="flex-direction:column;gap:14px;padding:60px 20px">
       <div style="color:${C_RED};font-family:'Space Mono',monospace;font-size:12px;text-align:center">⚠ Could not load ${inst.sym}</div>
-      <div style="font-family:'Space Mono',monospace;font-size:10px;color:${C_MUT};text-align:center;line-height:1.9">Stooq and Yahoo Finance both returned empty.<br>This can happen due to proxy rate limits — try refreshing.</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:${C_MUT};text-align:center;line-height:1.9">API server returned empty data.<br>Try refreshing — data is cached for 1 hour.</div>
       <button onclick="mktRefresh('${inst.id}')" style="background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);color:var(--accent);padding:9px 24px;border-radius:5px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;margin:0 auto">↻ Retry</button>
     </div>`;return;
   }
-  let closes=data.map(d=>d.close);
-  if(quote?.c&&quote.c>0) closes=[...closes.slice(0,-1),quote.c];
-  const price=closes[closes.length-1],prev=closes[closes.length-2]||price;
-  const chg=((price-prev)/prev)*100;
-  const rsi=calcRSI(closes,14),ma20=calcMA(closes,20),ma50=calcMA(closes,50),ma200=calcMA(closes,200);
-  const macd=calcMACD(closes);
-  const lMacd=macd.macdLine[macd.macdLine.length-1];
-  const sig=overallSig(rsi,price,ma20,ma50,ma200,lMacd);
-  const sigCol=sig==='bull'?C_GRN:sig==='bear'?C_RED:'#f4c542';
-  const dec=inst.dec||4;
-  const W=Math.min(closes.length,252);
-  const cLabels=data.map(d=>d.date).slice(-W);
-  const cCloses=closes.slice(-W);
-  const rsiSeries=calcRSISeries(cCloses,14);
-  const ma20s=cCloses.map((_,i)=>{const s=cCloses.slice(0,i+1);return s.length>=20?+calcMA(s,20).toFixed(dec+1):null;});
-  const ma50s=cCloses.map((_,i)=>{const s=cCloses.slice(0,i+1);return s.length>=50?+calcMA(s,50).toFixed(dec+1):null;});
-  const ma200s=cCloses.map((_,i)=>{const s=cCloses.slice(0,i+1);return s.length>=200?+calcMA(s,200).toFixed(dec+1):null;});
-  const macdChart=calcMACD(cCloses);
-  const h24=quote?.h||price,l24=quote?.l||price,o24=quote?.o||prev;
+
+  // Use pre-computed values from Railway API if available, otherwise calculate locally
+  const price  = pre ? pre.price  : (quote?.c||data[data.length-1]?.close||0);
+  const prev   = pre ? pre.prev   : (data[data.length-2]?.close||price);
+  const chg    = pre ? pre.change : ((price-prev)/prev)*100;
+  const rsi    = pre ? pre.rsi    : calcRSI(data.map(d=>d.close),14);
+  const ma20   = pre ? pre.ma20   : calcMA(data.map(d=>d.close),20);
+  const ma50   = pre ? pre.ma50   : calcMA(data.map(d=>d.close),50);
+  const ma200  = pre ? pre.ma200  : calcMA(data.map(d=>d.close),200);
+  const lMacd  = pre ? pre.macd?.line : null;
+  const sig    = pre ? pre.signal : overallSig(rsi,price,ma20,ma50,ma200,lMacd);
+  const sigCol = sig==='bull'?C_GRN:sig==='bear'?C_RED:'#f4c542';
+  const dec    = inst.dec||4;
+  const h24    = pre ? pre.high   : (quote?.h||price);
+  const l24    = pre ? pre.low    : (quote?.l||price);
+  const o24    = pre ? pre.open   : (quote?.o||prev);
+
+  // Chart series — use from API if available, otherwise calculate
+  const cLabels  = pre ? pre.chart.labels   : data.map(d=>d.date).slice(-252);
+  const cCloses  = pre ? pre.chart.closes   : data.map(d=>d.close).slice(-252);
+  const ma20s    = pre ? pre.chart.ma20s    : cCloses.map((_,i)=>{const s=cCloses.slice(0,i+1);return s.length>=20?+calcMA(s,20).toFixed(dec+1):null;});
+  const ma50s    = pre ? pre.chart.ma50s    : cCloses.map((_,i)=>{const s=cCloses.slice(0,i+1);return s.length>=50?+calcMA(s,50).toFixed(dec+1):null;});
+  const ma200s   = pre ? pre.chart.ma200s   : cCloses.map((_,i)=>{const s=cCloses.slice(0,i+1);return s.length>=200?+calcMA(s,200).toFixed(dec+1):null;});
+  const rsiSeries= pre ? pre.chart.rsiSeries: calcRSISeries(cCloses,14);
+  const macdLine = pre ? pre.chart.macdLine  : calcMACD(cCloses).macdLine;
+  const sigLine  = pre ? pre.chart.signalLine: calcMACD(cCloses).sigFull;
+  const histogram= pre ? pre.chart.histogram : calcMACD(cCloses).histogram;
+  const macdLast = pre ? pre.macd : {line:lMacd, signal:null, histogram:null};
+
   const pC=bodyId+'-pc',rC=bodyId+'-rc',mC=bodyId+'-mc';
+  const srcLabel = pre ? `ChainRoot API · ${pre.candles} days` : `Stooq · ${data.length} days`;
 
   el.innerHTML=`
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">
-    <span class="data-badge" style="background:rgba(0,180,216,.08);color:var(--blue);border:1px solid rgba(0,180,216,.2);font-family:'Space Mono',monospace;font-size:8px;padding:3px 8px;border-radius:3px">Stooq · ${data.length} days</span>
-    <span style="font-family:'Space Mono',monospace;font-size:9px;color:${C_MUT}">+ Yahoo Finance fallback · Daily OHLC · Free</span>
+    <span class="data-badge" style="background:rgba(0,232,122,.08);color:var(--accent);border:1px solid rgba(0,232,122,.2);font-family:'Space Mono',monospace;font-size:8px;padding:3px 8px;border-radius:3px">● ${srcLabel}</span>
+    <span style="font-family:'Space Mono',monospace;font-size:9px;color:${C_MUT}">Stooq + Yahoo Finance · Daily OHLC · Cached 1hr</span>
     <button onclick="mktRefresh('${inst.id}')" style="margin-left:auto;background:var(--bg3);border:1px solid var(--border2);color:${C_MUT};padding:5px 13px;border-radius:4px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;letter-spacing:1px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='${C_MUT}'">↻ REFRESH</button>
   </div>
   <div class="mkt-cards" style="margin-bottom:22px">
@@ -5480,7 +5533,7 @@ function renderDetail(bodyId,inst,color){
   </div>
   <div class="mkt-box">
     <div class="mkt-box-title">MACD (12, 26, 9) — Momentum Oscillator</div>
-    ${macdSummaryHTML(macd)}
+    ${macdSummaryHTML(macdLast)}
     <div class="mkt-chart-wrap" style="height:160px"><canvas id="${mC}"></canvas></div>
   </div>
   <div class="mkt-box">
@@ -5495,7 +5548,7 @@ function renderDetail(bodyId,inst,color){
   requestAnimationFrame(()=>{
     drawPrice(pC,cLabels,cCloses,color,ma20s,ma50s,ma200s);
     drawRSI(rC,cLabels,rsiSeries);
-    drawMACD(mC,cLabels,macdChart.macdLine,macdChart.sigFull,macdChart.histogram);
+    drawMACD(mC,cLabels,macdLine,sigLine,histogram);
   });
 }
 
@@ -5505,16 +5558,22 @@ function renderOverview(cardsId,rsiId,maId,sigId,group,color){
   if(!cEl||!rEl||!mEl||!sEl)return;
   let cH='',rH='',mH='',sH='';
   group.forEach(inst=>{
+    const pre=PRECOMP[inst.id];
     const data=HIST[inst.id]||[],q=QUOTE[inst.id];
-    if(!data.length){cH+=`<div class="mkt-card"><div class="mkt-card-sym" style="color:${color}">${inst.sym}</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:${C_MUT};margin-top:8px">No data</div></div>`;return;}
-    let closes=data.map(d=>d.close);
-    if(q?.c&&q.c>0)closes=[...closes.slice(0,-1),q.c];
-    const price=closes[closes.length-1],prev=closes[closes.length-2]||price;
-    const chg=((price-prev)/prev)*100;
-    const rsi=calcRSI(closes,14),ma20=calcMA(closes,20),ma50=calcMA(closes,50),ma200=calcMA(closes,200);
-    const macd=calcMACD(closes),lm=macd.macdLine[macd.macdLine.length-1];
-    const sig=overallSig(rsi,price,ma20,ma50,ma200,lm);
-    const dec=inst.dec||4;
+    if(!pre&&!data.length){
+      cH+=`<div class="mkt-card"><div class="mkt-card-sym" style="color:${color}">${inst.sym}</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:${C_MUT};margin-top:8px">No data</div></div>`;return;
+    }
+    // Use pre-computed from API or calculate locally
+    const price = pre?pre.price:(q?.c||data[data.length-1]?.close||0);
+    const prev  = pre?pre.prev:(data[data.length-2]?.close||price);
+    const chg   = pre?pre.change:((price-prev)/prev)*100;
+    const rsi   = pre?pre.rsi:calcRSI(data.map(d=>d.close),14);
+    const ma20  = pre?pre.ma20:calcMA(data.map(d=>d.close),20);
+    const ma50  = pre?pre.ma50:calcMA(data.map(d=>d.close),50);
+    const ma200 = pre?pre.ma200:calcMA(data.map(d=>d.close),200);
+    const lm    = pre?pre.macd?.line:null;
+    const sig   = pre?pre.signal:overallSig(rsi,price,ma20,ma50,ma200,lm);
+    const dec   = inst.dec||4;
     cH+=`<div class="mkt-card"><div class="mkt-card-sym" style="color:${color}">${inst.sym}</div><div class="mkt-card-price">${fmtP(price,dec)}</div><div class="mkt-card-chg" style="color:${chgCol(chg)}">${fmtPct(chg)}</div></div>`;
     sH+=`<div class="sig-pill sig-${sig}">${sig==='bull'?'↑':sig==='bear'?'↓':'→'} ${inst.sym}</div>`;
     rH+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
@@ -5531,7 +5590,7 @@ function renderOverview(cardsId,rsiId,maId,sigId,group,color){
 // ── REFRESH ───────────────────────────────────────────────────────────────────
 async function mktRefresh(id){
   const inst=ALL_INST.find(i=>i.id===id);if(!inst)return;
-  delete LOADED[id];delete HIST[id];delete QUOTE[id];
+  delete LOADED[id];delete HIST[id];delete QUOTE[id];delete PRECOMP[id];
   const g=FX_PAIRS.find(p=>p.id===id)?'fx':CMD_ASSETS.find(p=>p.id===id)?'cmd':'eq';
   const bId=`${g}-${id}-body`,el=document.getElementById(bId);
   if(el)el.innerHTML=`<div class="mkt-loading"><div class="mkt-spinner"></div>Refreshing ${inst.sym}…</div>`;
