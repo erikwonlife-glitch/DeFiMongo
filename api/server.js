@@ -208,8 +208,50 @@ app.get('/api/crypto/btcchart', async function(req, res) {
   } catch(e) { res.status(502).json({error:e.message}); }
 });
 
-// Any coin chart
-app.get('/api/crypto/coin/:id/chart', async function(req, res) {
+// BTC full price history — monthly data since 2013 for overlay charts
+// Uses CoinGecko max history endpoint, returns monthly sampled prices
+app.get('/api/crypto/btc-monthly', async function(req, res) {
+  const cached = getCache('crypto/btc-monthly');
+  if (cached) return res.json(cached);
+  try {
+    // CoinGecko free tier: max days = 'max' gives daily data since 2013
+    const r = await fetch(
+      'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=max&interval=monthly',
+      {timeout:30000, headers:{'User-Agent':'Mozilla/5.0'}}
+    );
+    if (!r.ok) {
+      // Fallback: try 1825 days (5 years) with weekly interval
+      const r2 = await fetch(
+        'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1825&interval=weekly',
+        {timeout:20000, headers:{'User-Agent':'Mozilla/5.0'}}
+      );
+      if (!r2.ok) return res.status(502).json({error:'CoinGecko '+r.status});
+      const d2 = await r2.json();
+      setCache('crypto/btc-monthly', d2);
+      return res.json(d2);
+    }
+    const data = await r.json();
+    // Sample to monthly — take one price point per 30-day window
+    if (data && data.prices && data.prices.length > 0) {
+      const monthly = [];
+      let lastTs = 0;
+      data.prices.forEach(function(p) {
+        const ts = p[0];
+        if (ts - lastTs >= 28 * 86400000) {
+          monthly.push(p);
+          lastTs = ts;
+        }
+      });
+      const result = { prices: monthly, source: 'coingecko-monthly' };
+      setCache('crypto/btc-monthly', result);
+      return res.json(result);
+    }
+    setCache('crypto/btc-monthly', data);
+    res.json(data);
+  } catch(e) { res.status(502).json({error:e.message}); }
+});
+
+
   const id = req.params.id, days = req.query.days||365;
   const cacheKey = 'crypto/coin/'+id+'/chart/'+days;
   const cached = getCache(cacheKey);
