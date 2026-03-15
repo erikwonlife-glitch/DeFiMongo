@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════════════════
-// CHAINROOT DASHBOARD — ALL DATA LIVE FROM APIS
+// DEFIMONGO DASHBOARD — ALL DATA LIVE FROM APIS
 // Prices: CoinGecko free API  |  DeFi: DeFiLlama  |  Sentiment: alternative.me
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -72,7 +72,7 @@ async function fetchJSON(url){
 }
 
 // ── MAIN INITIALISER — runs on load and every 60s ────────────────────────────
-const CR_API = 'https://chainroot-production.up.railway.app';
+const CR_API = 'https://defimongo-production.up.railway.app';
 
 
 // ── SHARED BTC DAILY HISTORY — used by ALL overlay charts ────────────────────
@@ -106,13 +106,13 @@ async function loadBtcDailyHistory() {
     ['_fedRefresh','_dxyRefresh','_liqRefresh','_ismRefresh','_socialRefresh',
      '_halvingRefresh','_epochRefresh'].forEach(function(fn) {
       if (typeof window[fn] === 'function') {
-        try { window[fn](); } catch(e){ console.warn('[ChainRoot] '+fn+' error:', e.message); }
+        try { window[fn](); } catch(e){ console.warn('[DeFiMongo] '+fn+' error:', e.message); }
       }
     });
 
-    console.log('[ChainRoot] BTC daily history loaded:', d.daily.length, 'days from', d.daily[0].date, 'to', d.daily[d.daily.length-1].date);
+    console.log('[DeFiMongo] BTC daily history loaded:', d.daily.length, 'days from', d.daily[0].date, 'to', d.daily[d.daily.length-1].date);
   } catch(e) {
-    console.warn('[ChainRoot] BTC daily history failed, using fallback:', e.message);
+    console.warn('[DeFiMongo] BTC daily history failed, using fallback:', e.message);
     // Fallback: try monthly endpoint
     try {
       const r2 = await fetch(`${CR_API}/api/crypto/btc-monthly`, {signal:AbortSignal.timeout(20000)});
@@ -126,10 +126,10 @@ async function loadBtcDailyHistory() {
             if (seen2[p.ym]) return false;
             seen2[p.ym] = true; return true;
           });
-          console.log('[ChainRoot] BTC monthly fallback loaded:', window.BTC_MONTHLY_HISTORY.length, 'months');
+          console.log('[DeFiMongo] BTC monthly fallback loaded:', window.BTC_MONTHLY_HISTORY.length, 'months');
         }
       }
-    } catch(e2) { console.warn('[ChainRoot] Monthly fallback also failed'); }
+    } catch(e2) { console.warn('[DeFiMongo] Monthly fallback also failed'); }
   }
 }
 
@@ -146,10 +146,10 @@ async function loadHalvingCycle(cycle) {
     const d = await r.json();
     if (!d || !d.prices || !d.prices.length) throw new Error('No data');
     window.BTC_HALVING_CYCLES[cycle] = d.prices; // [{day, ts, price}]
-    console.log('[ChainRoot] Halving cycle', cycle, 'loaded:', d.prices.length, 'days');
+    console.log('[DeFiMongo] Halving cycle', cycle, 'loaded:', d.prices.length, 'days');
     return d.prices;
   } catch(e) {
-    console.warn('[ChainRoot] Halving cycle', cycle, 'failed:', e.message);
+    console.warn('[DeFiMongo] Halving cycle', cycle, 'failed:', e.message);
     return null;
   }
 }
