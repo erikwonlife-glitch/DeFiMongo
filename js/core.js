@@ -353,7 +353,7 @@ function renderTicker(coins){
 
 // ── COIN TABLE ENGINE ─────────────────────────────────────────────────────────
 let COIN_FILTER  = 'top200';
-let COIN_STORE   = { top200:[], defi:[], layer1:[], binance:[], hyperliquid:[] };
+let COIN_STORE   = { top200:[], defi:[] };
 let COIN_LOADED  = {};
 let COIN_FETCHING= {};
 
@@ -376,9 +376,6 @@ async function fetchCoinFilter(filter) {
     const urlMap = {
       top200:      [`${CR_API}/api/crypto/markets`, `${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=true&price_change_percentage=1h,24h,7d`],
       defi:        [`${CR_API}/api/crypto/category/defi`, `${CG}/coins/markets?vs_currency=usd&category=decentralized-finance-defi&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h,24h,7d`],
-      layer1:      [`${CR_API}/api/crypto/category/layer1`, `${CG}/coins/markets?vs_currency=usd&category=layer-1&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h,24h,7d`],
-      binance:     [`${CR_API}/api/crypto/binance`, null],
-      hyperliquid: [`${CR_API}/api/crypto/hyperliquid`, null]
     };
     const urls = urlMap[filter];
     if (!urls) { COIN_FETCHING[filter] = false; return; }
@@ -435,9 +432,6 @@ function renderCoinTable() {
   const srcMap = {
     top200:      'CoinGecko · Top 50 by Market Cap',
     defi:        'CoinGecko · DeFi Tokens',
-    layer1:      'CoinGecko · Layer 1 Blockchains',
-    binance:     'Binance · Top 100 USDT Pairs by Volume',
-    hyperliquid: 'Hyperliquid · Perpetual Contracts'
   };
   if (srcLbl) srcLbl.textContent = (srcMap[COIN_FILTER]||'') + ' · ' + list.length + ' coins';
 
@@ -453,8 +447,8 @@ function renderCoinTable() {
     return;
   }
 
-  const isBinance = COIN_FILTER === 'binance';
-  const isHL      = COIN_FILTER === 'hyperliquid';
+  const isBinance = false;
+  const isHL      = false;
 
   tb.innerHTML = list.map((c, i) => {
     const chg24 = c.price_change_percentage_24h || 0;
