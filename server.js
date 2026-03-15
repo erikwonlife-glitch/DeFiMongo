@@ -940,4 +940,22 @@ app.get('/', function(req, res) {
 app.listen(PORT, function() {
   console.log('DeFiMongo API v3.0 on port '+PORT);
   console.log('Finnhub: '+(FH_KEY?'configured':'NOT SET'));
+
+  // ── KEEP-ALIVE — ping self every 14 min to prevent Railway from sleeping ──
+  setInterval(function() {
+    fetch('http://localhost:' + PORT + '/health')
+      .then(function(r){ if(r.ok) console.log('[KeepAlive] OK'); })
+      .catch(function(e){ console.warn('[KeepAlive] Failed:', e.message); });
+  }, 14 * 60 * 1000);
+});
+
+// ── GRACEFUL ERROR HANDLING — prevent crashes from unhandled errors ──────────
+process.on('uncaughtException', function(err) {
+  console.error('[DeFiMongo] Uncaught Exception:', err.message);
+  // Don't exit — keep server running
+});
+
+process.on('unhandledRejection', function(reason) {
+  console.warn('[DeFiMongo] Unhandled Rejection:', reason);
+  // Don't exit — keep server running
 });
