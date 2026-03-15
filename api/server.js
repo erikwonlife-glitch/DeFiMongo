@@ -8,12 +8,20 @@ const PORT   = process.env.PORT || 8080;
 const FH_KEY = process.env.FINNHUB_KEY || '';
 
 app.use(cors({
-  origin: [
-    'https://erikwonlife-glitch.github.io',
-    'http://localhost:3000',
-    'http://127.0.0.1:5500',
-    'http://localhost:5500'
-  ]
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    // Allow any GitHub Pages subdomain + localhost for dev
+    if (
+      origin.includes('github.io') ||
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1')
+    ) {
+      return callback(null, true);
+    }
+    callback(null, false);
+  },
+  credentials: true
 }));
 app.use(express.json());
 
