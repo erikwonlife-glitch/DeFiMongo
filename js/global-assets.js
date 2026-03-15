@@ -21,19 +21,15 @@ function setSiteLang(lang) {
   const enBtn = document.getElementById('main-lang-en');
   if (mnBtn && enBtn) {
     if (lang === 'mn') {
-      mnBtn.style.background = '#00e87a';
-      mnBtn.style.color = '#000';
-      enBtn.style.background = 'transparent';
-      enBtn.style.color = 'var(--muted)';
+      mnBtn.style.background = '#00e87a'; mnBtn.style.color = '#000';
+      enBtn.style.background = 'transparent'; enBtn.style.color = 'var(--muted)';
     } else {
-      enBtn.style.background = '#00e87a';
-      enBtn.style.color = '#000';
-      mnBtn.style.background = 'transparent';
-      mnBtn.style.color = 'var(--muted)';
+      enBtn.style.background = '#00e87a'; enBtn.style.color = '#000';
+      mnBtn.style.background = 'transparent'; mnBtn.style.color = 'var(--muted)';
     }
   }
 
-  // Also sync the training page language toggle if it's open
+  // Sync training page language toggle
   const trMn = document.getElementById('lang-mn');
   const trEn = document.getElementById('lang-en');
   if (trMn && trEn) {
@@ -46,7 +42,88 @@ function setSiteLang(lang) {
     }
   }
 
-  // Save preference so it persists across page refreshes
+  // ── DYNAMIC CONTENT TRANSLATIONS ────────────────────────────────────────────
+  const T = {
+    mn: {
+      // Fear & Greed zones
+      'Extreme Fear': 'Хэт Айдас', 'Fear': 'Айдас', 'Neutral': 'Тэнцвэртэй',
+      'Greed': 'Шунал', 'Extreme Greed': 'Хэт Шунал',
+      // Sentiment
+      'Bullish': 'Буллиш', 'Bearish': 'Бэариш',
+      // Time labels
+      'Today': 'Өнөөдөр', 'Yesterday': 'Өчигдөр', 'Last Week': 'Өнгөрсөн 7 хоног',
+      'Last Month': 'Өнгөрсөн сар', '3 Months': '3 сар',
+      // Coin table
+      'Loading…': 'Ачаалж байна…', 'No data': 'Мэдээлэл байхгүй',
+      // News
+      'Just now': 'Яг одоо', 'No articles found': 'Мэдээ олдсонгүй',
+      'All News': 'Бүгд', 'Load More': 'Цааш үзэх',
+      // ETF
+      'Total Inflows': 'Нийт орлого', 'Total Outflows': 'Нийт гарлага',
+      'Net Flow': 'Цэвэр урсгал',
+      // MA labels
+      'Current Price': 'Одоогийн үнэ', 'Above MA': 'MA-аас дээш',
+      'Below MA': 'MA-аас доош', 'Distance': 'Зай',
+      // RSI labels
+      'Overbought': 'Хэт өндөр', 'Oversold': 'Хэт доор', 'Neutral': 'Тэнцвэртэй',
+      // Chart labels
+      'Price': 'Үнэ', 'Volume': 'Эргэлт', 'Market Cap': 'Зах зээлийн Кап',
+      'Dominance': 'Давамгайлал', 'Open Interest': 'Нээлттэй позиц',
+      // DCA
+      'Calculate': 'Тооцоолох', 'Total Invested': 'Нийт оруулалт',
+      'Current Value': 'Одоогийн үнэ цэнэ', 'Profit': 'Ашиг',
+      'Average Buy Price': 'Дундаж авах үнэ',
+    },
+    en: {
+      'Хэт Айдас': 'Extreme Fear', 'Айдас': 'Fear', 'Тэнцвэртэй': 'Neutral',
+      'Шунал': 'Greed', 'Хэт Шунал': 'Extreme Greed',
+      'Буллиш': 'Bullish', 'Бэариш': 'Bearish',
+      'Өнөөдөр': 'Today', 'Өчигдөр': 'Yesterday',
+      'Өнгөрсөн 7 хоног': 'Last Week', 'Өнгөрсөн сар': 'Last Month', '3 сар': '3 Months',
+      'Ачаалж байна…': 'Loading…', 'Мэдээлэл байхгүй': 'No data',
+      'Яг одоо': 'Just now', 'Мэдээ олдсонгүй': 'No articles found',
+      'Бүгд': 'All News', 'Цааш үзэх': 'Load More',
+      'Нийт орлого': 'Total Inflows', 'Нийт гарлага': 'Total Outflows',
+      'Цэвэр урсгал': 'Net Flow',
+      'Одоогийн үнэ': 'Current Price', 'MA-аас дээш': 'Above MA', 'MA-аас доош': 'Below MA',
+      'Хэт өндөр': 'Overbought', 'Хэт доор': 'Oversold',
+      'Үнэ': 'Price', 'Эргэлт': 'Volume', 'Зах зээлийн Кап': 'Market Cap',
+      'Давамгайлал': 'Dominance', 'Нээлттэй позиц': 'Open Interest',
+    }
+  };
+
+  // Apply dynamic text swaps to common text nodes
+  const dict = T[lang] || {};
+  // Fear & Greed label
+  const fgLbl = document.querySelector('.fgl');
+  if (fgLbl && dict[fgLbl.textContent]) fgLbl.textContent = dict[fgLbl.textContent];
+
+  // News tab active label
+  document.querySelectorAll('.news-tab').forEach(function(tab) {
+    const key = tab.getAttribute('data-cat') || '';
+    const labels = {
+      mn: {all:'Бүгд', crypto:'Крипто', defi:'DeFi', macro:'Макро', stocks:'Хувьцаа', commodities:'Бараа'},
+      en: {all:'All', crypto:'Crypto', defi:'DeFi', macro:'Macro', stocks:'Stocks', commodities:'Commodities'}
+    };
+    if (labels[lang] && labels[lang][key]) tab.textContent = labels[lang][key];
+  });
+
+  // Coin tab labels
+  const coinTabs = {
+    mn: {top200: '🏆 Топ 50', defi: '⬡ DeFi'},
+    en: {top200: '🏆 Top 50', defi: '⬡ DeFi'}
+  };
+  document.querySelectorAll('.coin-tab').forEach(function(tab) {
+    const filter = tab.getAttribute('data-filter');
+    if (coinTabs[lang] && coinTabs[lang][filter]) tab.textContent = coinTabs[lang][filter];
+  });
+
+  // Page title
+  document.title = lang === 'mn'
+    ? 'DeFiMongo — Монголын Крипто Зах Зээлийн Мэдээлэл'
+    : 'DeFiMongo — Mongolian Crypto Market Intelligence';
+
+  // Save preference
   try { localStorage.setItem('cr_lang', lang); } catch(e) {}
 }
 
