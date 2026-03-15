@@ -143,17 +143,14 @@ const NEWS = (function(){
   }
 
   const SOURCES = [
-    // CryptoCompare through Railway (most reliable)
     {id:'cryptocompare', fetch: fetchCryptoCompare},
-    // RSS feeds through Railway proxy
     {id:'cointelegraph', fetch: function(){ return fetchRSS('https://cointelegraph.com/rss','crypto'); }},
     {id:'coindesk',      fetch: function(){ return fetchRSS('https://www.coindesk.com/arc/outboundfeeds/rss/','crypto'); }},
     {id:'decrypt',       fetch: function(){ return fetchRSS('https://decrypt.co/feed','crypto'); }},
-    {id:'theblock',      fetch: function(){ return fetchRSS('https://www.theblock.co/rss.xml','crypto'); }},
     {id:'cnbc-markets',  fetch: function(){ return fetchRSS('https://www.cnbc.com/id/20910258/device/rss/rss.html','macro'); }},
     {id:'reuters-biz',   fetch: function(){ return fetchRSS('https://feeds.reuters.com/reuters/businessNews','macro'); }},
     {id:'investing',     fetch: function(){ return fetchRSS('https://www.investing.com/rss/news.rss','macro'); }},
-    {id:'ft-markets',    fetch: function(){ return fetchRSS('https://www.ft.com/rss/home/uk','macro'); }},
+    {id:'invest-eq',     fetch: function(){ return fetchRSS('https://www.investing.com/rss/news_25.rss','stocks'); }},
   ];
 
   function catFromText(hint,title){
@@ -223,28 +220,19 @@ const NEWS = (function(){
   }
 
   async function fetchAll(){
-    // Show loading state
-    var grid=document.getElementById('news-grid');
-    if(grid && !allArticles.length){
-      grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;font-family:\'Space Mono\',monospace;font-size:11px;color:var(--muted);letter-spacing:2px">'
-        +'<div style="width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px"></div>'
-        +'FETCHING LIVE NEWS…</div>';
-    }
     var results=await Promise.allSettled(SOURCES.map(function(s){return s.fetch();}));
     var fresh=[];
-    results.forEach(function(r){if(r.status==='fulfilled'&&Array.isArray(r.value))fresh=fresh.concat(r.value);});
+    results.forEach(function(r){if(r.status==='fulfilled')fresh=fresh.concat(r.value);});
     if(fresh.length){
       allArticles=dedupe(fresh).sort(function(a,b){return b.time-a.time;});
-      window._lastNewsArticles = allArticles;
+      window._lastNewsArticles = allArticles; // save for side feed renderer
       window._renderSideFeeds && window._renderSideFeeds(allArticles);
       applyFilter();
       var upd=document.getElementById('news-last-updated');
       if(upd)upd.textContent='Updated '+new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
     } else if(!allArticles.length){
-      if(grid)grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;font-family:\'Space Mono\',monospace;font-size:11px;color:var(--muted)">'
-        +'⚠ Мэдээ ачаалж чадсангүй. <br><br>'
-        +'<button onclick="newsRefresh()" style="margin-top:14px;padding:9px 20px;background:var(--accent);border:none;border-radius:5px;font-family:\'Space Mono\',monospace;font-size:11px;color:#000;cursor:pointer;font-weight:700">↻ Дахин оролдох</button>'
-        +'</div>';
+      var grid=document.getElementById('news-grid');
+      if(grid)grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;font-family:\'Space Mono\',monospace;font-size:11px;color:var(--muted)">⚠ Could not load news</div>';
     }
   }
 
