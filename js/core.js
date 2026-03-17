@@ -216,7 +216,50 @@ async function fetchWithFallback(railwayUrl, directUrl) {
   return null;
 }
 
+// ── LIVE BTC PRICE — Binance (no CORS, no rate limit) → CoinGecko fallback ───
+async function fetchLiveBTCPrice() {
+  // 1. Try Binance — fastest, no rate limits, no CORS issues
+  try {
+    const r = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT', {signal: AbortSignal.timeout(5000)});
+    if (r.ok) {
+      const d = await r.json();
+      if (d && d.price) {
+        const p = parseFloat(d.price);
+        if (p > 1000) { console.log('[DeFiMongo] BTC price from Binance:', p); return p; }
+      }
+    }
+  } catch(e) { console.warn('[DeFiMongo] Binance price failed:', e.message); }
+  // 2. Try CoinGecko simple price — lightweight endpoint
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', {signal: AbortSignal.timeout(8000)});
+    if (r.ok) {
+      const d = await r.json();
+      if (d && d.bitcoin && d.bitcoin.usd) {
+        const p = d.bitcoin.usd;
+        if (p > 1000) { console.log('[DeFiMongo] BTC price from CoinGecko:', p); return p; }
+      }
+    }
+  } catch(e) { console.warn('[DeFiMongo] CoinGecko simple price failed:', e.message); }
+  // 3. Try Railway markets endpoint
+  try {
+    const r = await fetch(`${CR_API}/api/crypto/markets`, {signal: AbortSignal.timeout(8000)});
+    if (r.ok) {
+      const d = await r.json();
+      const btc = Array.isArray(d) && d.find(function(c){ return c.id === 'bitcoin'; });
+      if (btc && btc.current_price > 1000) { console.log('[DeFiMongo] BTC price from Railway:', btc.current_price); return btc.current_price; }
+    }
+  } catch(e) { console.warn('[DeFiMongo] Railway BTC price failed:', e.message); }
+  return null;
+}
+
 async function init(){
+  // 0. Fetch live BTC price FIRST via Binance (fast, reliable, no rate limits)
+  const liveBTC = await fetchLiveBTCPrice();
+  if (liveBTC) {
+    BTC_CURRENT = liveBTC;
+    console.log('[DeFiMongo] Live BTC set early:', BTC_CURRENT);
+  }
+
   // 1. Fetch all live data — Railway first, direct CoinGecko as fallback
   const [markets, global, fg, btcChart] = await Promise.all([
     fetchWithFallback(
@@ -315,6 +358,28 @@ async function init(){
 
   setTimeout(init, 60000);
 }
+
+// ── FAST BTC PRICE REFRESH — every 30s via Binance, updates all chart live segs
+async function refreshBTCPrice() {
+  const p = await fetchLiveBTCPrice();
+  if (p && p !== BTC_CURRENT) {
+    BTC_CURRENT = p;
+    updateAllPriceCards();
+    // Refresh all chart live price segments
+    if (window['_ismRefresh'])     window['_ismRefresh']();
+    if (window['_fedRefresh'])     window['_fedRefresh']();
+    if (window['_dxyRefresh'])     window['_dxyRefresh']();
+    if (window['_liqRefresh'])     window['_liqRefresh']();
+    if (window['_socialRefresh'])  window['_socialRefresh']();
+    if (window['_halvingRefresh']) window['_halvingRefresh']();
+    if (window['_epochRefresh'])   window['_epochRefresh']();
+    // Update Fed BTC/USD display
+    const fedBtcEl = document.getElementById('dxyBtc');
+    if (fedBtcEl) fedBtcEl.textContent = '$' + Math.round(p).toLocaleString();
+    console.log('[DeFiMongo] BTC price refreshed:', p);
+  }
+}
+setInterval(refreshBTCPrice, 30000);
 
 // ── UPDATE EVERY PRICE STAT CARD ─────────────────────────────────────────────
 function updateAllPriceCards(){
