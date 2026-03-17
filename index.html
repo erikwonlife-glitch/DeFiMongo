@@ -571,6 +571,74 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
   filter:drop-shadow(0 0 3px rgba(0,0,0,.9));
 }
 .data-badge-eod{background:rgba(77,100,117,.1);color:#4d6475;border:1px solid rgba(77,100,117,.2)}
+
+/* ── DOCS OVERLAY ──────────────────────────────────────────── */
+.docs-overlay {
+  display: none; position: fixed; inset: 0; z-index: 1000;
+  background: #07090b; flex-direction: column; overflow-y: auto;
+}
+.docs-overlay.on { display: flex; }
+.docs-topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(7,9,11,.97); backdrop-filter: blur(12px);
+  border-bottom: 1px solid #1c2d38;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 56px; flex-shrink: 0;
+}
+.docs-logo { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+.docs-logo-dot { width: 8px; height: 8px; border-radius: 50%; background: #00e87a; }
+.docs-close-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 16px; background: transparent; border: 1px solid #1c2d38;
+  border-radius: 4px; font-family: 'Space Mono', monospace; font-size: 11px;
+  color: #4d6475; cursor: pointer; transition: all .2s;
+}
+.docs-close-btn:hover { border-color: #243844; color: #ccd8df; }
+.docs-shell {
+  display: flex; flex: 1; max-width: 1100px; margin: 0 auto; width: 100%; padding: 40px 5% 80px; gap: 40px;
+}
+.docs-nav {
+  width: 200px; flex-shrink: 0; position: sticky; top: 80px; align-self: flex-start;
+}
+.docs-nav-item {
+  display: block; padding: 8px 12px; border-radius: 6px;
+  font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .5px;
+  color: var(--muted); cursor: pointer; transition: all .15s; margin-bottom: 2px;
+  border: none; background: transparent; text-align: left; width: 100%;
+}
+.docs-nav-item:hover { color: #ccd8df; background: #0c1014; }
+.docs-nav-item.active { color: #00e87a; background: rgba(0,232,122,.07); border-left: 2px solid #00e87a; }
+.docs-nav-sep { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 2px; color: #1c2d38; padding: 14px 12px 4px; text-transform: uppercase; }
+.docs-content { flex: 1; min-width: 0; }
+.docs-section { display: none; }
+.docs-section.active { display: block; }
+.docs-h1 { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+.docs-h2 { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: #ccd8df; margin: 28px 0 10px; }
+.docs-tag { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 2px; color: #00e87a; text-transform: uppercase; margin-bottom: 10px; }
+.docs-lead { font-family: 'Space Grotesk', sans-serif; font-size: 15px; color: var(--muted); line-height: 1.8; margin-bottom: 20px; }
+.docs-p { font-family: 'Space Grotesk', sans-serif; font-size: 13px; color: var(--muted); line-height: 1.9; margin-bottom: 14px; }
+.docs-divider { border: none; border-top: 1px solid #1c2d38; margin: 28px 0; }
+.docs-callout {
+  border-radius: 10px; padding: 16px 20px; margin-bottom: 18px;
+  font-family: 'Space Grotesk', sans-serif; font-size: 13px; line-height: 1.8;
+}
+.docs-callout.warn  { background: rgba(244,197,66,.05); border: 1px solid rgba(244,197,66,.2); color: #ccd8df; }
+.docs-callout.info  { background: rgba(0,232,122,.05);  border: 1px solid rgba(0,232,122,.15); color: #ccd8df; }
+.docs-callout.danger{ background: rgba(232,64,64,.05);  border: 1px solid rgba(232,64,64,.2);  color: #ccd8df; }
+.docs-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-family: 'Space Grotesk', sans-serif; font-size: 13px; }
+.docs-table th { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 1.5px; color: var(--muted); padding: 10px 14px; border-bottom: 1px solid #1c2d38; text-align: left; }
+.docs-table td { padding: 12px 14px; border-bottom: 1px solid rgba(28,45,56,.5); color: #ccd8df; vertical-align: top; }
+.docs-table tr:last-child td { border-bottom: none; }
+.docs-table tr:hover td { background: rgba(255,255,255,.02); }
+.docs-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-family: 'Space Mono', monospace; font-size: 8px; font-weight: 700; letter-spacing: 1px; }
+.docs-badge.green { background: rgba(0,232,122,.15); color: #00e87a; border: 1px solid rgba(0,232,122,.25); }
+.docs-badge.yellow { background: rgba(244,197,66,.15); color: #f4c542; border: 1px solid rgba(244,197,66,.25); }
+.docs-badge.red { background: rgba(232,64,64,.15); color: #e84040; border: 1px solid rgba(232,64,64,.25); }
+.docs-badge.blue { background: rgba(100,160,255,.15); color: #64a0ff; border: 1px solid rgba(100,160,255,.25); }
+@media (max-width: 700px) {
+  .docs-nav { display: none; }
+  .docs-shell { padding: 24px 5% 60px; gap: 0; }
+}
 </style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y0D07PGRN0"></script>
@@ -2224,6 +2292,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
       </div>
     </div>
 
+    <!-- DOCS nav item -->
+    <div class="ng" id="gDocs" style="margin-top:4px">
+      <div class="ngh" onclick="openDocsPage('overview')" style="background:linear-gradient(135deg,rgba(0,232,122,.05),rgba(0,180,216,.03));border-radius:4px;margin:2px 8px;padding:10px 12px;border:1px solid rgba(0,232,122,.15)">
+        <span style="color:#00e87a;font-weight:700" data-mn="📄 Баримт бичиг" data-en="📄 Documentation">📄 Баримт бичиг</span>
+        <span style="font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:3px;background:rgba(0,232,122,.1);color:#00e87a;border:1px solid rgba(0,232,122,.25);letter-spacing:.5px" data-mn="ШИНЭ" data-en="NEW">ШИНЭ</span>
+      </div>
+    </div>
+
     <!-- ═══ FOREX ═══════════════════════════════ -->
     <div class="mkt-sep">
       <span class="mkt-sep-dot" style="background:#f4c542"></span>
@@ -3687,6 +3763,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 <script src="js/yield.js?v=4"></script>
 <script src="js/new-features.js?v=2"></script>
 <script src="js/predict.js?v=1"></script>
+<script src="js/docs.js?v=1"></script>
 
 <div class="training-overlay" id="trainingOverlay">
 
@@ -5124,6 +5201,283 @@ console.log(<span style="color:#f4c542">"Vault address:"</span>, vault.address.t
 
   </div>
 </div><!-- /yield-overlay -->
+
+<!-- ═══════════════════════════════════════════════════════
+     DOCS PAGE OVERLAY
+════════════════════════════════════════════════════════ -->
+<div class="docs-overlay" id="docsOverlay">
+
+  <!-- Topbar -->
+  <div class="docs-topbar">
+    <div class="docs-logo">
+      <div class="docs-logo-dot"></div>
+      <span data-mn="DeFiMongo — Баримт Бичиг" data-en="DeFiMongo — Documentation">DeFiMongo — Баримт Бичиг</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden">
+        <button id="docs-lang-mn" onclick="setSiteLang('mn')" style="padding:5px 12px;background:#00e87a;color:#000;border:none;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;cursor:pointer">МН</button>
+        <button id="docs-lang-en" onclick="setSiteLang('en')" style="padding:5px 12px;background:transparent;color:var(--muted);border:none;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;cursor:pointer">EN</button>
+      </div>
+      <button class="docs-close-btn" onclick="closeDocsPage()">✕ &nbsp;<span data-mn="Хаах" data-en="Close">Хаах</span></button>
+    </div>
+  </div>
+
+  <!-- Shell: sidebar nav + content -->
+  <div class="docs-shell">
+
+    <!-- Sidebar nav -->
+    <div class="docs-nav">
+      <div class="docs-nav-sep" data-mn="ЕРӨНХИЙ" data-en="GENERAL">ЕРӨНХИЙ</div>
+      <button class="docs-nav-item active" onclick="showDocsSection('overview')" data-mn="📋 Тойм" data-en="📋 Overview">📋 Тойм</button>
+      <button class="docs-nav-item" onclick="showDocsSection('disclaimer')" data-mn="⚠️ Татгалзах мэдэгдэл" data-en="⚠️ Disclaimer">⚠️ Татгалзах мэдэгдэл</button>
+      <button class="docs-nav-item" onclick="showDocsSection('privacy')" data-mn="🔒 Нууцлалын бодлого" data-en="🔒 Privacy Policy">🔒 Нууцлалын бодлого</button>
+      <button class="docs-nav-item" onclick="showDocsSection('terms')" data-mn="📜 Үйлчилгээний нөхцөл" data-en="📜 Terms of Service">📜 Үйлчилгээний нөхцөл</button>
+      <div class="docs-nav-sep" data-mn="БҮТЭЭГДЭХҮҮН" data-en="PRODUCTS">БҮТЭЭГДЭХҮҮН</div>
+      <button class="docs-nav-item" onclick="showDocsSection('indicator')" data-mn="📈 Индикатор" data-en="📈 Indicator">📈 Индикатор</button>
+      <button class="docs-nav-item" onclick="showDocsSection('prediction')" data-mn="◎ Таамаглалын зах зээл" data-en="◎ Prediction Market">◎ Таамаглалын зах зээл</button>
+      <button class="docs-nav-item" onclick="showDocsSection('fees')" data-mn="💰 Хураамж &amp; Үнэ" data-en="💰 Fees &amp; Pricing">💰 Хураамж &amp; Үнэ</button>
+      <div class="docs-nav-sep" data-mn="ХЭРЭГТЭЙ" data-en="USEFUL">ХЭРЭГТЭЙ</div>
+      <button class="docs-nav-item" onclick="showDocsSection('risk')" data-mn="🛡️ Эрсдэлийн мэдэгдэл" data-en="🛡️ Risk Disclosure">🛡️ Эрсдэлийн мэдэгдэл</button>
+      <button class="docs-nav-item" onclick="showDocsSection('contact')" data-mn="✉️ Холбоо барих" data-en="✉️ Contact">✉️ Холбоо барих</button>
+    </div>
+
+    <!-- Content area -->
+    <div class="docs-content">
+
+      <!-- ── OVERVIEW ── -->
+      <div class="docs-section active" id="docs-overview">
+        <div class="docs-tag" data-mn="БАРИМТ БИЧИГ" data-en="DOCUMENTATION">БАРИМТ БИЧИГ</div>
+        <h1 class="docs-h1" data-mn="DeFiMongo платформын тойм" data-en="DeFiMongo Platform Overview">DeFiMongo платформын тойм</h1>
+        <p class="docs-lead" data-mn="DeFiMongo нь Монгол хэрэглэгчдэд зориулан крипто болон уламжлалт санхүүгийн зах зээлийн тухай мэдлэг, дохио, хэрэгслийг нэгтгэн гаргасан дижитал санхүүгийн тагнуулын платформ юм." data-en="DeFiMongo is a digital financial intelligence platform built for Mongolian users — combining market data, trading signals, educational tools, and prediction markets in one place.">DeFiMongo нь Монгол хэрэглэгчдэд зориулан крипто болон уламжлалт санхүүгийн зах зээлийн тухай мэдлэг, дохио, хэрэгслийг нэгтгэн гаргасан дижитал санхүүгийн тагнуулын платформ юм.</p>
+
+        <h2 class="docs-h2" data-mn="Бидний санал болгодог зүйлс" data-en="What We Offer">Бидний санал болгодог зүйлс</h2>
+        <table class="docs-table">
+          <thead><tr><th data-mn="БҮТЭЭГДЭХҮҮН" data-en="PRODUCT">БҮТЭЭГДЭХҮҮН</th><th data-mn="ТАЙЛБАР" data-en="DESCRIPTION">ТАЙЛБАР</th><th data-mn="ТӨЛӨВ" data-en="STATUS">ТӨЛӨВ</th></tr></thead>
+          <tbody>
+            <tr><td data-mn="Зах зээлийн тагнуул" data-en="Market Intelligence">Зах зээлийн тагнуул</td><td data-mn="Крипто, хувьцаа, форексийн шууд үнийн мэдээлэл" data-en="Live crypto, stock, and forex price data">Крипто, хувьцаа, форексийн шууд үнийн мэдээлэл</td><td><span class="docs-badge green" data-mn="АМЬД" data-en="LIVE">АМЬД</span></td></tr>
+            <tr><td data-mn="TradingView Индикатор" data-en="TradingView Indicator">TradingView Индикатор</td><td data-mn="Захиалгат BUY/SELL дохионы индикатор" data-en="Custom BUY/SELL signal indicator">Захиалгат BUY/SELL дохионы индикатор</td><td><span class="docs-badge green" data-mn="АМЬД" data-en="LIVE">АМЬД</span></td></tr>
+            <tr><td data-mn="Таамаглалын зах зээл" data-en="Prediction Market">Таамаглалын зах зээл</td><td data-mn="Монголын үйл явдлуудын таамаглалын зах зээл" data-en="Real-world event prediction market for Mongolia">Монголын үйл явдлуудын таамаглалын зах зээл</td><td><span class="docs-badge yellow" data-mn="БЕТА" data-en="BETA">БЕТА</span></td></tr>
+            <tr><td data-mn="Өгөөжийн сан" data-en="Yield Vaults">Өгөөжийн сан</td><td data-mn="DeFi-н өндөр өгөөжийн хадгаламж" data-en="High-yield DeFi stable savings">DeFi-н өндөр өгөөжийн хадгаламж</td><td><span class="docs-badge blue" data-mn="УДАХГҮЙ" data-en="COMING SOON">УДАХГҮЙ</span></td></tr>
+          </tbody>
+        </table>
+
+        <h2 class="docs-h2" data-mn="Технологи" data-en="Technology">Технологи</h2>
+        <p class="docs-p" data-mn="Манай платформ Solana блокчэйн дээр суурилсан бөгөөд Phantom Wallet-тай нэгтгэгдсэн. Бэкэнд нь Railway дээр Node.js/Express ашиглан ажиллаж байна. Фронтэнд нь GitHub Pages дээр байрладаг." data-en="Our platform is built on the Solana blockchain ecosystem with Phantom Wallet integration. The backend runs Node.js/Express on Railway. The frontend is hosted on GitHub Pages.">Манай платформ Solana блокчэйн дээр суурилсан бөгөөд Phantom Wallet-тай нэгтгэгдсэн. Бэкэнд нь Railway дээр Node.js/Express ашиглан ажиллаж байна. Фронтэнд нь GitHub Pages дээр байрладаг.</p>
+
+        <div class="docs-callout info">
+          <strong>ℹ️ <span data-mn="Тэмдэглэл" data-en="Note">Тэмдэглэл</span>:</strong>
+          <span data-mn=" DeFiMongo нь зөвхөн програм хангамжийн үйлчилгээ үзүүлэгч бөгөөд санхүүгийн байгууллага биш юм. Бидний бүх бүтээгдэхүүн нь мэдлэг, хэрэгсэл санал болгох зорилготой." data-en=" DeFiMongo is a software tools provider only and is not a financial institution. All our products are designed to provide knowledge and tools, not financial services."> DeFiMongo нь зөвхөн програм хангамжийн үйлчилгээ үзүүлэгч бөгөөд санхүүгийн байгууллага биш юм.</span>
+        </div>
+      </div>
+
+      <!-- ── DISCLAIMER ── -->
+      <div class="docs-section" id="docs-disclaimer">
+        <div class="docs-tag" data-mn="ХУУЛИЙН БАРИМТ БИЧИГ" data-en="LEGAL DOCUMENT">ХУУЛИЙН БАРИМТ БИЧИГ</div>
+        <h1 class="docs-h1" data-mn="Татгалзах мэдэгдэл" data-en="Disclaimer">Татгалзах мэдэгдэл</h1>
+        <p class="docs-lead" data-mn="Сүүлийн шинэчлэл: 2025 он" data-en="Last updated: 2025">Сүүлийн шинэчлэл: 2025 он</p>
+
+        <div class="docs-callout warn">⚠️ <strong data-mn="Чухал анхааруулга" data-en="Important Warning">Чухал анхааруулга</strong>: <span data-mn="Энэхүү мэдэгдлийг анхааралтай уншина уу. Платформыг ашигласнаар та доорх нөхцөлүүдийг зөвшөөрсөнд тооцогдоно." data-en="Please read this disclaimer carefully. By using the platform you acknowledge and agree to the terms below.">Энэхүү мэдэгдлийг анхааралтай уншина уу. Платформыг ашигласнаар та доорх нөхцөлүүдийг зөвшөөрсөнд тооцогдоно.</span></div>
+
+        <h2 class="docs-h2" data-mn="Зөвхөн програм хангамжийн үйлчилгээ" data-en="Software Provider Only">Зөвхөн програм хангамжийн үйлчилгээ</h2>
+        <p class="docs-p" data-mn="DeFiMongo нь зөвхөн програм хангамжийн хэрэгсэл, боловсролын контент санал болгодог платформ бөгөөд санхүүгийн зөвлөгөө, хөрөнгө оруулалтын зөвлөгөө, арилжааны зөвлөгөө эсвэл бусад санхүүгийн чиглэлийн зөвлөмж гаргадаггүй. Манай индикатор, дохио, боловсролын материал нь зөвхөн мэдлэг олгох зорилготой бөгөөд санхүүгийн зөвлөгөө биш юм." data-en="DeFiMongo is a platform that provides software tools and educational content only, and does not offer financial advice, investment advice, trading advice, or any other form of financial guidance or recommendations. Our indicators, signals, and educational content are provided for informational purposes only and do not constitute financial advice.">DeFiMongo нь зөвхөн програм хангамжийн хэрэгсэл, боловсролын контент санал болгодог платформ бөгөөд санхүүгийн зөвлөгөө, хөрөнгө оруулалтын зөвлөгөө гаргадаггүй.</p>
+
+        <h2 class="docs-h2" data-mn="Хөрөнгө оруулалтын эрсдэл" data-en="Investment Risk">Хөрөнгө оруулалтын эрсдэл</h2>
+        <p class="docs-p" data-mn="Крипто хөрөнгө оруулалт нь өндөр эрсдэлтэй бөгөөд оруулсан хөрөнгийн бүрэн алдагдал хүртэл хүрэх боломжтой. Өнгөрсөн үр дүн нь ирээдүйн үр дүнг баталгаажуулдаггүй. Та хөрөнгө оруулалтын шийдвэр гаргахаасаа өмнө бие даасан санхүүгийн зөвлөхтэй зөвлөлдөх хэрэгтэй." data-en="Cryptocurrency investments carry significant risk, including the possible loss of all capital invested. Past performance is not indicative of future results. You should consult an independent financial advisor before making any investment decisions.">Крипто хөрөнгө оруулалт нь өндөр эрсдэлтэй бөгөөд оруулсан хөрөнгийн бүрэн алдагдал хүртэл хүрэх боломжтой. Өнгөрсөн үр дүн нь ирээдүйн үр дүнг баталгаажуулдаггүй.</p>
+
+        <h2 class="docs-h2" data-mn="Хариуцлагын хязгаарлалт" data-en="Limitation of Liability">Хариуцлагын хязгаарлалт</h2>
+        <p class="docs-p" data-mn="DeFiMongo болон түүний операторууд нь платформ эсвэл түүний хэрэгслийг ашигласнаас үүссэн аливаа хохирол, хөрөнгийн алдагдалд хариуцлага хүлээхгүй. Үүнд шууд, шууд бус, санамсаргүй, тусгай эсвэл үр дагаварт хохирол орно." data-en="DeFiMongo and its operators assume no liability for any losses or capital loss incurred through the use of this platform or its tools. This includes direct, indirect, incidental, special or consequential damages.">DeFiMongo болон түүний операторууд нь платформ эсвэл түүний хэрэгслийг ашигласнаас үүссэн аливаа хохирол, хөрөнгийн алдагдалд хариуцлага хүлээхгүй.</p>
+
+        <h2 class="docs-h2" data-mn="Гуравдагч этгээдийн мэдээлэл" data-en="Third-Party Data">Гуравдагч этгээдийн мэдээлэл</h2>
+        <p class="docs-p" data-mn="Манай платформ дээрх зах зээлийн үнийн мэдээлэл нь гуравдагч этгээдийн үйлчилгээнээс авсан бөгөөд бид тэдгээрийн нарийвчлал, иж бүрэн байдалд баталгаа гаргахгүй. Мэдээлэл цаг тухайд нь шинэчлэгдэхгүй байж болно." data-en="Market price data on our platform is sourced from third-party services and we make no guarantees regarding accuracy or completeness. Data may not update in real time.">Манай платформ дээрх зах зээлийн үнийн мэдээлэл нь гуравдагч этгээдийн үйлчилгээнээс авсан бөгөөд бид тэдгээрийн нарийвчлалд баталгаа гаргахгүй.</p>
+
+        <div class="docs-callout danger">🔴 <strong data-mn="Татгалзах мэдэгдэлийг зөвшөөрөх" data-en="Acceptance of Disclaimer">Татгалзах мэдэгдэлийг зөвшөөрөх</strong>: <span data-mn="DeFiMongo платформыг ашигласнаар та энэхүү татгалзах мэдэгдлийг бүрэн уншиж, ойлгож, зөвшөөрсөн болно." data-en="By using the DeFiMongo platform, you confirm that you have read, understood, and agreed to this disclaimer in full.">DeFiMongo платформыг ашигласнаар та энэхүү татгалзах мэдэгдлийг бүрэн уншиж, ойлгож, зөвшөөрсөн болно.</span></div>
+      </div>
+
+      <!-- ── PRIVACY ── -->
+      <div class="docs-section" id="docs-privacy">
+        <div class="docs-tag" data-mn="ХУУЛИЙН БАРИМТ БИЧИГ" data-en="LEGAL DOCUMENT">ХУУЛИЙН БАРИМТ БИЧИГ</div>
+        <h1 class="docs-h1" data-mn="Нууцлалын бодлого" data-en="Privacy Policy">Нууцлалын бодлого</h1>
+        <p class="docs-lead" data-mn="Сүүлийн шинэчлэл: 2025 он" data-en="Last updated: 2025">Сүүлийн шинэчлэл: 2025 он</p>
+
+        <h2 class="docs-h2" data-mn="Бид ямар мэдээлэл цуглуулдаг вэ?" data-en="What Data We Collect">Бид ямар мэдээлэл цуглуулдаг вэ?</h2>
+        <table class="docs-table">
+          <thead><tr><th data-mn="МЭДЭЭЛЭЛ" data-en="DATA">МЭДЭЭЛЭЛ</th><th data-mn="ЗОРИЛГО" data-en="PURPOSE">ЗОРИЛГО</th><th data-mn="ХАДГАЛАХ ХУГАЦАА" data-en="RETENTION">ХАДГАЛАХ ХУГАЦАА</th></tr></thead>
+          <tbody>
+            <tr><td data-mn="Имэйл хаяг" data-en="Email address">Имэйл хаяг</td><td data-mn="Бүртгэл, мэдэгдэл" data-en="Account, notifications">Бүртгэл, мэдэгдэл</td><td data-mn="Бүртгэл хаагдах хүртэл" data-en="Until account closed">Бүртгэл хаагдах хүртэл</td></tr>
+            <tr><td data-mn="TradingView хэрэглэгчийн нэр" data-en="TradingView username">TradingView хэрэглэгчийн нэр</td><td data-mn="Индикаторын хандалт" data-en="Indicator access">Индикаторын хандалт</td><td data-mn="Захиалга дуусах хүртэл" data-en="Until subscription ends">Захиалга дуусах хүртэл</td></tr>
+            <tr><td data-mn="Гүйлгээний мэдээлэл (TX Hash)" data-en="Transaction data (TX Hash)">Гүйлгээний мэдээлэл (TX Hash)</td><td data-mn="Төлбөр баталгаажуулах" data-en="Payment verification">Төлбөр баталгаажуулах</td><td data-mn="3 жил" data-en="3 years">3 жил</td></tr>
+            <tr><td data-mn="Вэбсайтын хэрэглээний логууд" data-en="Site usage logs">Вэбсайтын хэрэглээний логууд</td><td data-mn="Гүйцэтгэл, аюулгүй байдал" data-en="Performance, security">Гүйцэтгэл, аюулгүй байдал</td><td data-mn="90 хоног" data-en="90 days">90 хоног</td></tr>
+          </tbody>
+        </table>
+
+        <h2 class="docs-h2" data-mn="Бид мэдээллийг хэрхэн ашигладаг вэ?" data-en="How We Use Your Data">Бид мэдээллийг хэрхэн ашигладаг вэ?</h2>
+        <p class="docs-p" data-mn="Бид таны мэдээллийг зөвхөн дараах зорилгоор ашигладаг: (1) бүртгэл болон захиалга удирдах, (2) нээлт болон шинэчлэлийн мэдэгдэл илгээх, (3) платформын аюулгүй байдлыг хангах. Бид таны хувийн мэдээллийг гуравдагч этгээдэд зардаггүй, хуваалцдаггүй." data-en="We use your data only for: (1) managing your account and subscription, (2) sending launch and update notifications, (3) maintaining platform security. We do not sell or share your personal data with third parties.">Бид таны мэдээллийг зөвхөн бүртгэл удирдах, мэдэгдэл илгээх, аюулгүй байдлыг хангах зорилгоор ашигладаг. Бид таны хувийн мэдээллийг гуравдагч этгээдэд зардаггүй.</p>
+
+        <h2 class="docs-h2" data-mn="Таны эрхүүд" data-en="Your Rights">Таны эрхүүд</h2>
+        <p class="docs-p" data-mn="Та хэдийд ч өөрийн мэдээллийг харах, засах, устгах эрхтэй. Үүний тулд манай X хаягаар (@DeFiMongo) бидэнтэй холбогдоно уу." data-en="You have the right to access, correct, or delete your data at any time. Contact us via our X account (@DeFiMongo) to exercise these rights.">Та хэдийд ч өөрийн мэдээллийг харах, засах, устгах эрхтэй. Манай X хаягаар (@DeFiMongo) бидэнтэй холбогдоно уу.</p>
+      </div>
+
+      <!-- ── TERMS ── -->
+      <div class="docs-section" id="docs-terms">
+        <div class="docs-tag" data-mn="ХУУЛИЙН БАРИМТ БИЧИГ" data-en="LEGAL DOCUMENT">ХУУЛИЙН БАРИМТ БИЧИГ</div>
+        <h1 class="docs-h1" data-mn="Үйлчилгээний нөхцөл" data-en="Terms of Service">Үйлчилгээний нөхцөл</h1>
+        <p class="docs-lead" data-mn="Сүүлийн шинэчлэл: 2025 он" data-en="Last updated: 2025">Сүүлийн шинэчлэл: 2025 он</p>
+
+        <h2 class="docs-h2" data-mn="Платформыг ашиглах нөхцөл" data-en="Conditions of Use">Платформыг ашиглах нөхцөл</h2>
+        <p class="docs-p" data-mn="DeFiMongo платформыг ашиглахын тулд та 18 нас хүрсэн байх ёстой. Та платформыг зөвхөн хуульд нийцсэн зорилгоор ашиглахаа зөвшөөрнө. Платформыг буруу ашиглах, хакердах оролдлого, ямар нэгэн хортой үйлдэл хийхийг хатуу хориглоно." data-en="To use DeFiMongo you must be 18 years of age or older. You agree to use the platform only for lawful purposes. Misuse, hacking attempts, or any malicious activity is strictly prohibited.">DeFiMongo платформыг ашиглахын тулд та 18 нас хүрсэн байх ёстой. Та платформыг зөвхөн хуульд нийцсэн зорилгоор ашиглана.</p>
+
+        <h2 class="docs-h2" data-mn="Захиалга болон төлбөр" data-en="Subscriptions &amp; Payments">Захиалга болон төлбөр</h2>
+        <p class="docs-p" data-mn="Бүх төлбөр нь крипто хөрөнгө (USDT эсвэл SOL) ашиглан хийгддэг. Төлбөр хийсний дараа буцаах боломжгүй. Захиалга нь автоматаар сунгагдахгүй — та дахин захиалах шаардлагатай. Захиалгын хугацаа дуусмагц хандалт хязгаарлагдана." data-en="All payments are made using cryptocurrency (USDT or SOL). Payments are non-refundable once processed. Subscriptions do not auto-renew — you must resubscribe manually. Access will be restricted once the subscription period ends.">Бүх төлбөр нь крипто хөрөнгө (USDT эсвэл SOL) ашиглан хийгддэг. Төлбөр хийсний дараа буцаах боломжгүй. Захиалга автоматаар сунгагдахгүй.</p>
+
+        <h2 class="docs-h2" data-mn="Оюуны өмч" data-en="Intellectual Property">Оюуны өмч</h2>
+        <p class="docs-p" data-mn="DeFiMongo платформ дээрх бүх контент, индикаторын кодлогдсон логик, дизайн болон брэнд нь DeFiMongo-н өмч бөгөөд зөвшөөрлөөр хамгаалагдсан. Зөвшөөрөлгүй хуулбарлах, ашиглахыг хориглоно." data-en="All content, indicator logic, design, and branding on the DeFiMongo platform is the property of DeFiMongo and protected by copyright. Unauthorized copying or use is prohibited.">DeFiMongo платформ дээрх бүх контент, индикаторын логик, дизайн болон брэнд нь DeFiMongo-н өмч бөгөөд хамгаалагдсан.</p>
+
+        <h2 class="docs-h2" data-mn="Нөхцөл өөрчлөгдөх" data-en="Changes to Terms">Нөхцөл өөрчлөгдөх</h2>
+        <p class="docs-p" data-mn="Бид эдгээр нөхцөлийг хэдийд ч өөрчлөх эрхтэй. Томоохон өөрчлөлтийн үед бид платформоор дамжуулан мэдэгдэл илгээнэ. Өөрчлөлтийн дараа платформыг үргэлжлүүлэн ашигласнаар та шинэ нөхцөлийг зөвшөөрсөнд тооцогдоно." data-en="We reserve the right to modify these terms at any time. For significant changes we will send a notification through the platform. Continued use after changes constitutes acceptance of the new terms.">Бид эдгээр нөхцөлийг хэдийд ч өөрчлөх эрхтэй. Томоохон өөрчлөлтийн үед платформоор дамжуулан мэдэгдэл илгээнэ.</p>
+      </div>
+
+      <!-- ── INDICATOR ── -->
+      <div class="docs-section" id="docs-indicator">
+        <div class="docs-tag" data-mn="БҮТЭЭГДЭХҮҮНИЙ БАРИМТ БИЧИГ" data-en="PRODUCT DOCS">БҮТЭЭГДЭХҮҮНИЙ БАРИМТ БИЧИГ</div>
+        <h1 class="docs-h1" data-mn="DeFiMongo Индикатор" data-en="DeFiMongo Indicator">DeFiMongo Индикатор</h1>
+        <p class="docs-lead" data-mn="TradingView дээр ажилладаг захиалгат техникийн шинжилгээний индикатор" data-en="A custom technical analysis indicator running on TradingView">TradingView дээр ажилладаг захиалгат техникийн шинжилгээний индикатор</p>
+
+        <h2 class="docs-h2" data-mn="Индикатор юу хийдэг вэ?" data-en="What Does the Indicator Do?">Индикатор юу хийдэг вэ?</h2>
+        <p class="docs-p" data-mn="DeFiMongo индикатор нь хөдөлгөөнт дундаж, хэмжээний шинжилгээ, зах зээлийн хурдац болон дохионы алгоритмыг нэгтгэн BUY/SELL дохио гаргадаг. Крипто, хувьцаа, форекс зах зээл дээр ажиллана." data-en="The DeFiMongo indicator combines moving averages, volume analysis, market momentum, and signal algorithms to generate BUY/SELL signals. Works across crypto, stocks, and forex markets.">DeFiMongo индикатор нь хөдөлгөөнт дундаж, хэмжээний шинжилгээ, зах зээлийн хурдац болон дохионы алгоритмыг нэгтгэн BUY/SELL дохио гаргадаг.</p>
+
+        <h2 class="docs-h2" data-mn="Дэмжигддэг бирж, зах зээлүүд" data-en="Supported Exchanges &amp; Markets">Дэмжигддэг бирж, зах зээлүүд</h2>
+        <table class="docs-table">
+          <thead><tr><th data-mn="ЗАХ ЗЭЭЛ" data-en="MARKET">ЗАХ ЗЭЭЛ</th><th data-mn="ЖИШЭЭ" data-en="EXAMPLES">ЖИШЭЭ</th></tr></thead>
+          <tbody>
+            <tr><td data-mn="Крипто" data-en="Crypto">Крипто</td><td>Binance, Bybit, OKX, Coinbase, Kraken</td></tr>
+            <tr><td data-mn="Хувьцаа" data-en="Stocks">Хувьцаа</td><td>NYSE, NASDAQ, MSE (Монголын хөрөнгийн бирж)</td></tr>
+            <tr><td data-mn="Форекс" data-en="Forex">Форекс</td><td>EUR/USD, USD/MNT, GBP/USD болон бусад</td></tr>
+          </tbody>
+        </table>
+
+        <div class="docs-callout warn">⚠️ <span data-mn="Индикатор нь санхүүгийн зөвлөгөө биш. Дохионууд нь техникийн шинжилгээнд суурилсан бөгөөд баталгаатай үр дүн амлахгүй. Зах зээл өөрчлөгдөж болно." data-en="The indicator does not constitute financial advice. Signals are based on technical analysis and do not guarantee results. Markets can behave unexpectedly.">Индикатор нь санхүүгийн зөвлөгөө биш. Дохионууд нь техникийн шинжилгээнд суурилсан бөгөөд баталгаатай үр дүн амлахгүй.</span></div>
+      </div>
+
+      <!-- ── PREDICTION MARKET ── -->
+      <div class="docs-section" id="docs-prediction">
+        <div class="docs-tag" data-mn="БҮТЭЭГДЭХҮҮНИЙ БАРИМТ БИЧИГ" data-en="PRODUCT DOCS">БҮТЭЭГДЭХҮҮНИЙ БАРИМТ БИЧИГ</div>
+        <h1 class="docs-h1" data-mn="Таамаглалын зах зээл" data-en="Prediction Market">Таамаглалын зах зээл</h1>
+        <p class="docs-lead" data-mn="Монголын анхны мэдлэгт суурилсан таамаглалын зах зээл" data-en="Mongolia's first knowledge-based prediction market">Монголын анхны мэдлэгт суурилсан таамаглалын зах зээл</p>
+
+        <h2 class="docs-h2" data-mn="Хэрхэн ажилладаг вэ?" data-en="How It Works">Хэрхэн ажилладаг вэ?</h2>
+        <p class="docs-p" data-mn="Таамаглалын зах зээл нь хэрэглэгчдэд Монголын улс төр, спорт, бизнес болон нийгмийн үйл явдлуудын үр дүнг урьдчилан таамаглаж, ТИЙМ/ҮГҮЙ хувьцаа худалдаж авах боломж олгодог. Үйл явдал шийдвэрлэгдэхэд зөв хувьцаа эзэмшигчид ашиг олно." data-en="The prediction market allows users to forecast outcomes of Mongolian political, sports, business, and social events by buying YES/NO shares. When events resolve, holders of the correct shares profit.">Хэрэглэгчид Монголын үйл явдлуудын үр дүнг урьдчилан таамаглаж ТИЙМ/ҮГҮЙ хувьцаа худалдаж авна. Үйл явдал шийдвэрлэгдэхэд зөв хувьцаа эзэмшигчид ашиг олно.</p>
+
+        <h2 class="docs-h2" data-mn="Зах зээл хэрхэн шийдвэрлэгддэг вэ?" data-en="How Are Markets Resolved?">Зах зээл хэрхэн шийдвэрлэгддэг вэ?</h2>
+        <p class="docs-p" data-mn="Зах зээлийн шийдвэрлэлт нь нийтэд нээлттэй тодорхой мэдээллийн эх сурвалжид (мэдээний агентлаг, засгийн газрын мэдэгдэл гэх мэт) тулгуурлана. DeFiMongo оракл болж шийдвэрлэлтийг баталгаажуулна. Маргаантай тохиолдолд зах зээл нь шийдвэрлэлтгүйгээр буцаагдаж болно." data-en="Market resolution is based on clearly verifiable public information sources (news agencies, government announcements, etc.). DeFiMongo acts as the oracle to confirm resolution. In disputed cases a market may be voided and funds returned.">Зах зээлийн шийдвэрлэлт нь нийтэд нээлттэй тодорхой мэдээллийн эх сурвалжид тулгуурлана. Маргаантай тохиолдолд зах зээл нь шийдвэрлэлтгүйгээр буцаагдаж болно.</p>
+
+        <div class="docs-callout info">ℹ️ <span data-mn="Таамаглалын зах зээл одоо бета горимд байгаа бөгөөд хязгаарлагдмал оролцооны боломжтой. Бүрэн нээлт нь Solana ухаалаг гэрэг дэмжлэгтэйгээр хийгдэнэ." data-en="The prediction market is currently in beta mode with limited participation. Full launch will include Solana smart contract support for trustless escrow.">Таамаглалын зах зээл одоо бета горимд байна. Бүрэн нээлт нь Solana ухаалаг гэрэгтэйгээр хийгдэнэ.</span></div>
+
+        <h2 class="docs-h2" data-mn="Зах зээлийн хязгаарлалтууд" data-en="Market Limits">Зах зээлийн хязгаарлалтууд</h2>
+        <table class="docs-table">
+          <thead><tr><th data-mn="ПАРАМЕТР" data-en="PARAMETER">ПАРАМЕТР</th><th data-mn="УТГА" data-en="VALUE">УТГА</th></tr></thead>
+          <tbody>
+            <tr><td data-mn="Хамгийн бага байрлал" data-en="Minimum position">Хамгийн бага байрлал</td><td>$2 – $5 USD</td></tr>
+            <tr><td data-mn="Нэг зах зээлд хамгийн их байрлал" data-en="Maximum per market">Нэг зах зээлд хамгийн их байрлал</td><td>$50 – $200 USD</td></tr>
+            <tr><td data-mn="Дэмжигддэг хөрөнгүүд" data-en="Supported assets">Дэмжигддэг хөрөнгүүд</td><td>USDT (TRC20), SOL</td></tr>
+            <tr><td data-mn="Шийдвэрлэлтийн хугацаа" data-en="Resolution time">Шийдвэрлэлтийн хугацаа</td><td data-mn="Үйл явдал болсноос хойш 24–72 цаг" data-en="24–72 hours after event occurs">Үйл явдал болсноос хойш 24–72 цаг</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── FEES ── -->
+      <div class="docs-section" id="docs-fees">
+        <div class="docs-tag" data-mn="ХУРААМЖ &amp; ҮНЭ" data-en="FEES &amp; PRICING">ХУРААМЖ &amp; ҮНЭ</div>
+        <h1 class="docs-h1" data-mn="Хураамж ба үнийн бодлого" data-en="Fee &amp; Pricing Structure">Хураамж ба үнийн бодлого</h1>
+        <p class="docs-lead" data-mn="DeFiMongo-н бүх хураамж ил тод бөгөөд далд зардал байхгүй." data-en="All DeFiMongo fees are transparent. No hidden costs.">DeFiMongo-н бүх хураамж ил тод бөгөөд далд зардал байхгүй.</p>
+
+        <h2 class="docs-h2" data-mn="Индикаторын захиалгын үнэ" data-en="Indicator Subscription Pricing">Индикаторын захиалгын үнэ</h2>
+        <table class="docs-table">
+          <thead><tr><th data-mn="ТАРИФТ" data-en="PLAN">ТАРИФТ</th><th data-mn="ҮНЭ" data-en="PRICE">ҮНЭ</th><th data-mn="ХУГАЦАА" data-en="PERIOD">ХУГАЦАА</th><th data-mn="ХЭМНЭЛТ" data-en="SAVINGS">ХЭМНЭЛТ</th></tr></thead>
+          <tbody>
+            <tr><td data-mn="Сарын захиалга" data-en="Monthly">Сарын захиалга</td><td>$40 USDT</td><td data-mn="Сар бүр" data-en="Per month">Сар бүр</td><td>—</td></tr>
+            <tr><td data-mn="6 сарын захиалга" data-en="6-Month">6 сарын захиалга</td><td>$150 USDT</td><td data-mn="6 сар" data-en="6 months">6 сар</td><td><span class="docs-badge green">$90 OFF</span></td></tr>
+            <tr><td data-mn="Жилийн захиалга" data-en="Annual">Жилийн захиалга</td><td>$250 USDT</td><td data-mn="12 сар" data-en="12 months">12 сар</td><td><span class="docs-badge green">$230 OFF</span></td></tr>
+          </tbody>
+        </table>
+
+        <h2 class="docs-h2" data-mn="Таамаглалын зах зээлийн хураамж" data-en="Prediction Market Fees">Таамаглалын зах зээлийн хураамж</h2>
+        <div class="docs-callout info">ℹ️ <span data-mn="Таамаглалын зах зээлийн хураамж нь бета нээлтийн үед баталгаажиж тогтоогдоно. Дараах бүтэц нь төлөвлөгдсөн." data-en="Prediction market fees will be finalized at beta launch. The following structure is planned.">Таамаглалын зах зээлийн хураамж нь бета нээлтийн үед баталгаажиж тогтоогдоно.</span></div>
+        <table class="docs-table">
+          <thead><tr><th data-mn="ХУРААМЖИЙН ТӨРӨЛ" data-en="FEE TYPE">ХУРААМЖИЙН ТӨРӨЛ</th><th data-mn="ХЭМЖЭЭ" data-en="AMOUNT">ХЭМЖЭЭ</th><th data-mn="ТАЙЛБАР" data-en="DESCRIPTION">ТАЙЛБАР</th></tr></thead>
+          <tbody>
+            <tr><td data-mn="Шийдвэрлэлтийн хураамж" data-en="Resolution fee">Шийдвэрлэлтийн хураамж</td><td><span class="docs-badge yellow">2%</span></td><td data-mn="Зах зээл шийдвэрлэгдэхэд ялагчдын нийт санаас авна" data-en="Taken from the winners' pool when a market resolves">Зах зээл шийдвэрлэгдэхэд ялагчдын нийт санаас авна</td></tr>
+            <tr><td data-mn="Арилжааны хураамж" data-en="Trading fee">Арилжааны хураамж</td><td><span class="docs-badge yellow">1%</span></td><td data-mn="Хувьцаа худалдаж авах бүр дээр (смарт гэрэг нэвтрүүлсний дараа)" data-en="Per share purchase (after smart contract launch)">Хувьцаа худалдаж авах бүр дээр (смарт гэрэг нэвтрүүлсний дараа)</td></tr>
+            <tr><td data-mn="Хамгийн бага хураамж" data-en="Minimum fee">Хамгийн бага хураамж</td><td><span class="docs-badge blue">$0.10</span></td><td data-mn="Аливаа гүйлгээний хамгийн бага хураамж" data-en="Minimum fee on any transaction">Аливаа гүйлгээний хамгийн бага хураамж</td></tr>
+            <tr><td data-mn="Блокчэйны хийн хураамж" data-en="Blockchain gas fee">Блокчэйны хийн хураамж</td><td><span class="docs-badge blue">~$0.001</span></td><td data-mn="Solana сүлжээний хураамж — DeFiMongo-н хяналтанд байдаггүй" data-en="Solana network fee — outside DeFiMongo control">Solana сүлжээний хураамж — DeFiMongo-н хяналтанд байдаггүй</td></tr>
+          </tbody>
+        </table>
+
+        <h2 class="docs-h2" data-mn="Хураамжийн жишээ тооцоо" data-en="Fee Example Calculation">Хураамжийн жишээ тооцоо</h2>
+        <div class="docs-callout info">
+          <strong data-mn="Жишээ" data-en="Example">Жишээ</strong>:<br><br>
+          <span data-mn="Хэрэглэгч ТИЙМ хувьцаанд $100 оруулав. Зах зээл ТИЙМ-ээр шийдвэрлэгдэж, тэр хувьцаа нь $200 болов. Шийдвэрлэлтийн хураамж 2% = $4. Хэрэглэгч $196 хүлээн авна. Цэвэр ашиг: $96." data-en="User puts $100 in YES shares. Market resolves YES, their shares become $200. Resolution fee 2% = $4. User receives $196. Net profit: $96.">Хэрэглэгч ТИЙМ хувьцаанд $100 оруулав → Зах зээл ТИЙМ-ээр шийдвэрлэгдэв → $200 болов → Шийдвэрлэлтийн хураамж 2% = $4 → Хэрэглэгч <strong>$196</strong> хүлээн авна → Цэвэр ашиг: <strong style="color:#00e87a">$96</strong></span>
+        </div>
+      </div>
+
+      <!-- ── RISK ── -->
+      <div class="docs-section" id="docs-risk">
+        <div class="docs-tag" data-mn="ХУУЛИЙН БАРИМТ БИЧИГ" data-en="LEGAL DOCUMENT">ХУУЛИЙН БАРИМТ БИЧИГ</div>
+        <h1 class="docs-h1" data-mn="Эрсдэлийн мэдэгдэл" data-en="Risk Disclosure">Эрсдэлийн мэдэгдэл</h1>
+        <p class="docs-lead" data-mn="Платформыг ашиглахаасаа өмнө эрсдэлүүдийг бүрэн ойлгоорой." data-en="Understand all risks fully before using the platform.">Платформыг ашиглахаасаа өмнө эрсдэлүүдийг бүрэн ойлгоорой.</p>
+
+        <h2 class="docs-h2" data-mn="Зах зээлийн эрсдэл" data-en="Market Risk">Зах зээлийн эрсдэл</h2>
+        <p class="docs-p" data-mn="Крипто зах зээл нь маш хэлбэлзэлтэй. Үнэ богино хугацаанд эрс өөрчлөгдөж болно. Та оруулсан мөнгөө бүхэлд нь алдах боломжтой." data-en="Crypto markets are highly volatile. Prices can change dramatically in short periods. You can lose your entire investment.">Крипто зах зээл нь маш хэлбэлзэлтэй. Та оруулсан мөнгөө бүхэлд нь алдах боломжтой.</p>
+
+        <h2 class="docs-h2" data-mn="Таамаглалын зах зээлийн эрсдэл" data-en="Prediction Market Risk">Таамаглалын зах зээлийн эрсдэл</h2>
+        <p class="docs-p" data-mn="Таамаглалын зах зээл нь мэдлэг болон ур чадварт суурилсан тоглоом юм. Гэхдээ хамгийн мэдлэгтэй хүн ч буруу байж болно. Та таамаглалын зах зээлд ашигласан хөрөнгөө бүхэлд нь алдаж болно." data-en="Prediction markets are knowledge and skill-based. However, even the most informed participant can be wrong. You can lose all funds used in prediction markets.">Таамаглалын зах зээл нь мэдлэг болон ур чадварт суурилсан тоглоом юм. Та таамаглалын зах зээлд ашигласан хөрөнгөө бүхэлд нь алдаж болно.</p>
+
+        <h2 class="docs-h2" data-mn="Технологийн эрсдэл" data-en="Technology Risk">Технологийн эрсдэл</h2>
+        <p class="docs-p" data-mn="Блокчэйн технологи, смарт гэрэг болон крипто сүлжээ нь техникийн алдаа, хакердалт, дахин давтагдах халдлагад өртөж болзошгүй. DeFiMongo нь гуравдагч этгээдийн протоколд тулгуурласан учир тэдгээрийн алдааны хариуцлагыг хүлээхгүй." data-en="Blockchain technology, smart contracts, and crypto networks can be subject to technical errors, hacks, or other attacks. DeFiMongo relies on third-party protocols and assumes no liability for their failures.">Блокчэйн технологи болон смарт гэрэг нь техникийн алдаа, хакердалтад өртөж болзошгүй. DeFiMongo нь гуравдагч этгээдийн протоколын алдааны хариуцлагыг хүлээхгүй.</p>
+
+        <div class="docs-callout danger">🔴 <strong data-mn="Чухал анхааруулга" data-en="Critical Warning">Чухал анхааруулга</strong>: <span data-mn="Та алдаж болох мөнгөнөөсөө илүүг хэзээ ч оруулж болохгүй. Энэ нь санхүүгийн зөвлөгөө биш. Хөрөнгө оруулалтын шийдвэрийнхээ хувьд бие даасан мэргэжилтэнтэй зөвлөлдөнө үү." data-en="Never invest more than you can afford to lose. This is not financial advice. Consult an independent professional for your investment decisions.">Та алдаж болох мөнгөнөөсөө илүүг хэзээ ч оруулж болохгүй. Энэ нь санхүүгийн зөвлөгөө биш.</span></div>
+      </div>
+
+      <!-- ── CONTACT ── -->
+      <div class="docs-section" id="docs-contact">
+        <div class="docs-tag" data-mn="ХОЛБОО БАРИХ" data-en="CONTACT">ХОЛБОО БАРИХ</div>
+        <h1 class="docs-h1" data-mn="Холбоо барих" data-en="Contact Us">Холбоо барих</h1>
+        <p class="docs-lead" data-mn="Бидэнтэй холбогдох хамгийн хурдан арга бол X (Twitter) дээр бидэнтэй мессеж солилцох юм." data-en="The fastest way to reach us is via direct message on X (Twitter).">Бидэнтэй холбогдох хамгийн хурдан арга бол X (Twitter) дээр бидэнтэй мессеж солилцох юм.</p>
+
+        <div style="display:grid;gap:14px;max-width:500px">
+          <div style="background:#0c1014;border:1px solid #1c2d38;border-radius:10px;padding:20px;display:flex;align-items:center;gap:16px">
+            <div style="width:40px;height:40px;border-radius:50%;background:#000;border:1px solid #333;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.737-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+            </div>
+            <div>
+              <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px" data-mn="X (TWITTER)" data-en="X (TWITTER)">X (TWITTER)</div>
+              <a href="https://x.com/DeFiMongo" target="_blank" style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#ccd8df;text-decoration:none">@DeFiMongo</a>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--muted);margin-top:2px" data-mn="Захиалга, таамаглалын зах зээл, ерөнхий асуултууд" data-en="Subscriptions, prediction markets, general inquiries">Захиалга, таамаглалын зах зээл, ерөнхий асуултууд</div>
+            </div>
+          </div>
+
+          <div style="background:#0c1014;border:1px solid #1c2d38;border-radius:10px;padding:20px">
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:10px;letter-spacing:1.5px" data-mn="ХАРИУ ӨГӨХ ХУГАЦАА" data-en="RESPONSE TIMES">ХАРИУ ӨГӨХ ХУГАЦАА</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;justify-content:space-between;font-family:'Space Grotesk',sans-serif;font-size:13px">
+                <span style="color:var(--muted)" data-mn="Захиалгын асуудлууд" data-en="Subscription issues">Захиалгын асуудлууд</span>
+                <span style="color:#00e87a" data-mn="24 цагийн дотор" data-en="Within 24 hours">24 цагийн дотор</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-family:'Space Grotesk',sans-serif;font-size:13px">
+                <span style="color:var(--muted)" data-mn="Таамаглалын зах зээлийн байрлалууд" data-en="Prediction market positions">Таамаглалын зах зээлийн байрлалууд</span>
+                <span style="color:#00e87a" data-mn="24 цагийн дотор" data-en="Within 24 hours">24 цагийн дотор</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-family:'Space Grotesk',sans-serif;font-size:13px">
+                <span style="color:var(--muted)" data-mn="Ерөнхий асуултууд" data-en="General inquiries">Ерөнхий асуултууд</span>
+                <span style="color:#f4c542" data-mn="1–3 хоногийн дотор" data-en="1–3 business days">1–3 хоногийн дотор</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /docs-content -->
+  </div><!-- /docs-shell -->
+</div><!-- /docs-overlay -->
 
 </body>
 </html>
