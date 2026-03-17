@@ -92,6 +92,12 @@ async function loadBtcDailyHistory() {
     window.BTC_DAILY_HISTORY = d.daily; // [{ts, date, price}]
     window._btcDailyLoaded   = true;
 
+    // Keep BTC_CURRENT as the live price — don't overwrite with historical last point
+    // Only set if we don't already have a live price from Binance
+    if (!window.BTC_CURRENT || window.BTC_CURRENT < 1000) {
+      window.BTC_CURRENT = d.daily[d.daily.length-1].price;
+    }
+
     // Also populate monthly for backward compat with older chart code
     const seen = {};
     window.BTC_MONTHLY_HISTORY = d.daily.filter(function(p) {
@@ -259,7 +265,6 @@ async function init(){
     BTC_CURRENT = liveBTC;
     console.log('[DeFiMongo] Live BTC set early:', BTC_CURRENT);
   }
-
   // 1. Fetch all live data — Railway first, direct CoinGecko as fallback
   const [markets, global, fg, btcChart] = await Promise.all([
     fetchWithFallback(
@@ -321,8 +326,8 @@ async function init(){
   if(!window._chartsDrawn){
     window._chartsDrawn=true;
     drawAllCharts();
-    // After charts draw, immediately fire all refresh hooks so live BTC price
-    // replaces any hardcoded fallback values used during initial render
+    // After charts draw, fire refresh hooks so live BTC price replaces fallback
+    // Pass 1: after 500ms (charts should be initialized)
     setTimeout(function() {
       if (window['_halvingRefresh'])  window['_halvingRefresh']();
       if (window['_epochRefresh'])    window['_epochRefresh']();
@@ -331,7 +336,20 @@ async function init(){
       if (window['_liqRefresh'])      window['_liqRefresh']();
       if (window['_ismRefresh'])      window['_ismRefresh']();
       if (window['_socialRefresh'])   window['_socialRefresh']();
-    }, 100); // small delay to let chart series initialize first
+    }, 500);
+    // Pass 2: after 3s — by now Binance fetch has definitely completed
+    setTimeout(function() {
+      if (!window.BTC_CURRENT || window.BTC_CURRENT < 1000) return;
+      if (window['_fedRefresh'])      window['_fedRefresh']();
+      if (window['_dxyRefresh'])      window['_dxyRefresh']();
+      if (window['_liqRefresh'])      window['_liqRefresh']();
+      if (window['_ismRefresh'])      window['_ismRefresh']();
+      if (window['_socialRefresh'])   window['_socialRefresh']();
+      if (window['_halvingRefresh'])  window['_halvingRefresh']();
+      if (window['_epochRefresh'])    window['_epochRefresh']();
+      updateAllPriceCards();
+      console.log('[DeFiMongo] Chart refresh pass 2 — BTC:', window.BTC_CURRENT);
+    }, 3000);
     // Load full BTC daily history for accurate overlay charts
     loadBtcDailyHistory();
     // Pre-load halving cycle data for halving chart
