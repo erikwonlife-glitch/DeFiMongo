@@ -42,6 +42,19 @@ function setSiteLang(lang) {
     }
   }
 
+  // Sync predict page language toggle
+  const pmMnBtn = document.getElementById('pm-lang-mn');
+  const pmEnBtn = document.getElementById('pm-lang-en');
+  if (pmMnBtn && pmEnBtn) {
+    if (lang === 'mn') {
+      pmMnBtn.style.background = '#e84040'; pmMnBtn.style.color = '#fff';
+      pmEnBtn.style.background = 'transparent'; pmEnBtn.style.color = 'var(--muted)';
+    } else {
+      pmEnBtn.style.background = '#e84040'; pmEnBtn.style.color = '#fff';
+      pmMnBtn.style.background = 'transparent'; pmMnBtn.style.color = 'var(--muted)';
+    }
+  }
+
   // ── DYNAMIC CONTENT TRANSLATIONS ────────────────────────────────────────────
   const T = {
     mn: {
