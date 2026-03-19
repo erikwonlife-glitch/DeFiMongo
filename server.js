@@ -945,6 +945,113 @@ app.get('/api/overview/:type', async function(req, res) {
   res.json(out);
 });
 
+// ── FRED: WALCL — Federal Reserve Total Assets (weekly → monthly) ─────────────
+// Returns {series:[{date:'YYYY-MM',value:$T}], latest:{date,value}, updated:ms}
+app.get('/api/fred/walcl', async function(req, res) {
+  const cacheKey = 'fred/walcl';
+  const cached = getCache(cacheKey);
+  if (cached) return res.json(cached);
+  try {
+    const r = await fetchT(
+      'https://fred.stlouisfed.org/graph/fredgraph.csv?id=WALCL',
+      { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'text/csv,*/*' } },
+      20000
+    );
+    if (!r.ok) throw new Error('FRED ' + r.status);
+    const csv = await r.text();
+    const monthly = {};
+    csv.trim().split('\n').slice(1).forEach(function(ln) {
+      const p = ln.split(',');
+      if (p.length < 2) return;
+      const v = p[1].trim();
+      if (!v || v === '.') return;
+      const val = parseFloat(v);
+      if (isNaN(val) || val <= 0) return;
+      // Keep last reading per month; value in millions USD → convert to $T
+      monthly[p[0].slice(0, 7)] = +(val / 1e6).toFixed(3);
+    });
+    const series = Object.entries(monthly)
+      .sort(function(a, b) { return a[0] < b[0] ? -1 : 1; })
+      .map(function(e) { return { date: e[0], value: e[1] }; });
+    if (!series.length) throw new Error('No valid WALCL data');
+    const result = { series: series, latest: series[series.length - 1], updated: Date.now() };
+    setCache(cacheKey, result, 6 * 60 * 60 * 1000);
+    res.json(result);
+  } catch(e) { res.status(502).json({ error: e.message }); }
+});
+
+// ── FRED: Liquidity — Fed (WALCL) + ECB (ECBASSETSW in EUR→USD) ───────────────
+// Returns {fed:[{date,value}], ecb:[{date,value}], eurusd, latestFed, latestEcb, updated}
+// BOJ is kept as hardcoded fallback in charts.js (no clean FRED USD series)
+app.get('/api/fred/liquidity', async function(req, res) {
+  const cacheKey = 'fred/liquidity';
+  const cached = getCache(cacheKey);
+  if (cached) return res.json(cached);
+
+  function parseFredMonthly(csv, divisor) {
+    const monthly = {};
+    csv.trim().split('\n').slice(1).forEach(function(ln) {
+      const p = ln.split(',');
+      if (p.length < 2) return;
+      const v = p[1].trim();
+      if (!v || v === '.') return;
+      const val = parseFloat(v);
+      if (isNaN(val) || val <= 0) return;
+      monthly[p[0].slice(0, 7)] = val / divisor;
+    });
+    return monthly;
+  }
+
+  try {
+    const opts = { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'text/csv,*/*' } };
+    const [walclRes, ecbRes, eurusdRes] = await Promise.allSettled([
+      fetchT('https://fred.stlouisfed.org/graph/fredgraph.csv?id=WALCL', opts, 20000).then(function(r) { return r.text(); }),
+      fetchT('https://fred.stlouisfed.org/graph/fredgraph.csv?id=ECBASSETSW', opts, 20000).then(function(r) { return r.text(); }),
+      fetchT('https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXUSEU', opts, 15000).then(function(r) { return r.text(); })
+    ]);
+
+    // Get latest EUR/USD spot rate
+    let eurusd = 1.08;
+    if (eurusdRes.status === 'fulfilled') {
+      const lines = eurusdRes.value.trim().split('\n').slice(1).filter(Boolean);
+      for (let i = lines.length - 1; i >= 0; i--) {
+        const p = lines[i].split(',');
+        const v = parseFloat(p[1]);
+        if (!isNaN(v) && v > 0) { eurusd = v; break; }
+      }
+    }
+
+    // Fed: millions USD → $T
+    const fedMonthly = walclRes.status === 'fulfilled' ? parseFredMonthly(walclRes.value, 1e6) : {};
+
+    // ECB: millions EUR → $T (convert with EUR/USD rate)
+    const ecbMonthly = {};
+    if (ecbRes.status === 'fulfilled') {
+      const rawEcb = parseFredMonthly(ecbRes.value, 1e6); // millions EUR → $T EUR
+      Object.entries(rawEcb).forEach(function(e) {
+        ecbMonthly[e[0]] = +(e[1] * eurusd).toFixed(3);
+      });
+    }
+
+    const toSeries = function(map) {
+      return Object.entries(map)
+        .sort(function(a, b) { return a[0] < b[0] ? -1 : 1; })
+        .map(function(e) { return { date: e[0], value: +e[1].toFixed(3) }; });
+    };
+
+    const fedSeries = toSeries(fedMonthly);
+    const ecbSeries = toSeries(ecbMonthly);
+    const result = {
+      fed: fedSeries, ecb: ecbSeries, eurusd: eurusd,
+      latestFed: fedSeries.length ? fedSeries[fedSeries.length - 1] : null,
+      latestEcb: ecbSeries.length ? ecbSeries[ecbSeries.length - 1] : null,
+      updated: Date.now()
+    };
+    setCache(cacheKey, result, 6 * 60 * 60 * 1000);
+    res.json(result);
+  } catch(e) { res.status(502).json({ error: e.message }); }
+});
+
 // ── HEALTH & ROOT ─────────────────────────────────────────────────────────────
 app.get('/health', function(req, res) {
   res.json({status:'ok', server:'DeFiMongo API', version:'3.0.0',

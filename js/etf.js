@@ -185,8 +185,9 @@
   var updEl = document.getElementById('etfUpdated');
   if (netEl) { var v=latest[1]; netEl.textContent=(v>=0?'+$':'−$')+Math.abs(v).toFixed(1)+'M'; netEl.className='phsv '+(v>=0?'up':'dn'); }
   if (n7El)  { n7El.textContent=(net7d>=0?'+$':'−$')+Math.abs(net7d).toFixed(0)+'M'; n7El.className='phsv '+(net7d>=0?'up':'dn'); }
-  if (aumEl) aumEl.textContent = '$122.4B';
-  if (updEl) updEl.textContent = '↻ Updated ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+  if (aumEl) aumEl.textContent = '~$122B est.';
+  // Show clearly that data is delayed — live ETF flows require a paid CoinGlass API key
+  if (updEl) updEl.textContent = '⚠ Data as of ' + fmtDate(latest[0]) + ' · Live feed unavailable';
 
 })();
 

@@ -357,15 +357,16 @@ async function drawAllCharts(){
 
     window._fedBtcChart  = chart;
     window._fedBtcSeries = btcSeries;
+    window._fedLineSeries = fedSeries; // store for live WALCL updates
 
-    // Update stat cards
+    // Update stat cards (fallback values while live data loads)
     var fedBalEl = document.getElementById('fedBalVal');
     var fedBtcEl = document.getElementById('fedBtcVal');
     if (fedBalEl) fedBalEl.textContent = '$' + FED_DATA[FED_DATA.length-1][1].toFixed(2) + 'T';
     if (fedBtcEl && window.BTC_CURRENT) fedBtcEl.textContent = '$' + Math.round(window.BTC_CURRENT).toLocaleString();
 
     var upd = document.getElementById('fedUpdated');
-    if (upd) upd.textContent = '↻ Updated ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+    if (upd) upd.textContent = '↻ Loading FRED data…';
 
     // Refresh — update live BTC point
     window._fedRefresh = function() {
@@ -374,9 +375,28 @@ async function drawAllCharts(){
       window._fedBtcSeries.setData(data);
       var el = document.getElementById('fedBtcVal');
       if (el && window.BTC_CURRENT) el.textContent = '$' + Math.round(window.BTC_CURRENT).toLocaleString();
-      var upd2 = document.getElementById('fedUpdated');
-      if (upd2) upd2.textContent = '↻ Updated ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
     };
+
+    // Fetch live WALCL data from FRED via Railway — updates Fed line + stat card
+    (async function fetchWalcl() {
+      try {
+        var r = await fetch(CR_API + '/api/fred/walcl', {signal: AbortSignal.timeout(25000)});
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        var d = await r.json();
+        if (!d || !d.series || !d.series.length) throw new Error('No data');
+        window._fedLineSeries.setData(d.series.map(function(p) {
+          return { time: new Date(p.date + '-01').getTime() / 1000, value: p.value };
+        }));
+        var balEl = document.getElementById('fedBalVal');
+        if (balEl) balEl.textContent = '$' + d.latest.value.toFixed(2) + 'T';
+        var updEl = document.getElementById('fedUpdated');
+        if (updEl) updEl.textContent = '↻ FRED live · ' + new Date(d.updated).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+      } catch(e) {
+        console.warn('[DeFiMongo] WALCL fetch failed, using fallback data:', e.message);
+        var updEl2 = document.getElementById('fedUpdated');
+        if (updEl2) updEl2.textContent = '↻ Fallback data · ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+      }
+    })();
   })();
 
   // ── DOLLAR INDEX vs BITCOIN — TradingView dual-axis since 2013 ───────────────
@@ -468,8 +488,9 @@ async function drawAllCharts(){
 
     window._dxyBtcChart  = chart;
     window._dxyBtcSeries = btcSeries;
+    window._dxyLineSeries = dxySeries; // store for live Stooq updates
 
-    // Update stat cards
+    // Update stat cards (fallback values while live data loads)
     var dxyValEl = document.getElementById('dxyValNew');
     var dxyBtcEl = document.getElementById('dxyBtcNew');
     var dxyLatest = DXY_DATA[DXY_DATA.length-1][1];
@@ -477,7 +498,7 @@ async function drawAllCharts(){
     if (dxyBtcEl && window.BTC_CURRENT) dxyBtcEl.textContent = '$' + Math.round(window.BTC_CURRENT).toLocaleString();
 
     var upd = document.getElementById('dxyUpdated');
-    if (upd) upd.textContent = '↻ Updated ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+    if (upd) upd.textContent = '↻ Loading Stooq data…';
 
     // Daily refresh — update live BTC endpoint
     window._dxyRefresh = function() {
@@ -486,9 +507,35 @@ async function drawAllCharts(){
       window._dxyBtcSeries.setData(data);
       var el = document.getElementById('dxyBtcNew');
       if (el && window.BTC_CURRENT) el.textContent = '$' + Math.round(window.BTC_CURRENT).toLocaleString();
-      var upd2 = document.getElementById('dxyUpdated');
-      if (upd2) upd2.textContent = '↻ Updated ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
     };
+
+    // Fetch live DXY daily data from Stooq via Railway — updates DXY line + stat card
+    (async function fetchDxy() {
+      try {
+        var r = await fetch(CR_API + '/api/market/dxy', {signal: AbortSignal.timeout(20000)});
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        var d = await r.json();
+        if (!d || !d.daily || !d.daily.length) throw new Error('No data');
+        // Sample to monthly (last closing price per month) for chart density
+        var monthly = {};
+        d.daily.forEach(function(p) { monthly[p.date.slice(0, 7)] = p.price; });
+        var series = Object.entries(monthly)
+          .sort(function(a, b) { return a[0] < b[0] ? -1 : 1; })
+          .map(function(e) { return { time: new Date(e[0] + '-01').getTime() / 1000, value: e[1] }; });
+        if (!series.length) throw new Error('Empty series');
+        window._dxyLineSeries.setData(series);
+        // Stat card uses last daily value (most precise)
+        var lastDaily = d.daily[d.daily.length - 1].price;
+        var valEl = document.getElementById('dxyValNew');
+        if (valEl) valEl.textContent = lastDaily.toFixed(2);
+        var updEl = document.getElementById('dxyUpdated');
+        if (updEl) updEl.textContent = '↻ Stooq live · ' + new Date(d.updated).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+      } catch(e) {
+        console.warn('[DeFiMongo] DXY fetch failed, using fallback data:', e.message);
+        var updEl2 = document.getElementById('dxyUpdated');
+        if (updEl2) updEl2.textContent = '↻ Fallback data · ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+      }
+    })();
   })();
 
   // ── GLOBAL LIQUIDITY — BTC line = REAL 12-month prices ─────────────────────
@@ -611,10 +658,14 @@ async function drawAllCharts(){
     chart.timeScale().fitContent();
     new ResizeObserver(function(){ chart.applyOptions({width:wrap.offsetWidth}); }).observe(wrap);
 
-    window._liqChart   = chart;
-    window._liqSeries  = seriesMap;
-    window._liqVisible = visibleMap;
-    window._liqBtcData = BTC;
+    window._liqChart      = chart;
+    window._liqSeries     = seriesMap;
+    window._liqVisible    = visibleMap;
+    window._liqBtcData    = BTC;
+    window._liqBojLatest  = BOJ[BOJ.length-1][1]; // BOJ kept as fallback (no clean FRED USD series)
+    window._liqFedSeries  = seriesMap.fed;
+    window._liqEcbSeries  = seriesMap.ecb;
+    window._liqTotalSeries= seriesMap.total;
 
     // Toggle handler
     window.liqToggle = function(key) {
@@ -624,7 +675,7 @@ async function drawAllCharts(){
       if (seriesMap[key]) seriesMap[key].applyOptions({visible: visibleMap[key]});
     };
 
-    // Update stat cards
+    // Update stat cards (fallback values while live data loads)
     var totalLatest = TOTAL[TOTAL.length-1][1];
     var fedLatest   = FED[FED.length-1][1];
     var ecbLatest   = ECB[ECB.length-1][1];
@@ -635,16 +686,65 @@ async function drawAllCharts(){
     var el4= document.getElementById('liqBoj');   if(el4) el4.textContent = '$'+bojLatest.toFixed(1)+'T';
 
     var upd = document.getElementById('liqUpdated');
-    if (upd) upd.textContent = '↻ Updated ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+    if (upd) upd.textContent = '↻ Loading FRED data…';
 
     // Refresh — update live BTC endpoint
     window._liqRefresh = function() {
       if (!window._liqSeries || !window._liqSeries.btc) return;
       var data = getBtcOverlayData(window._liqBtcData);
       window._liqSeries.btc.setData(data);
-      var upd2 = document.getElementById('liqUpdated');
-      if (upd2) upd2.textContent = '↻ Updated ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
     };
+
+    // Fetch live Fed+ECB from FRED via Railway — updates series and stat cards
+    (async function fetchLiquidity() {
+      try {
+        var r = await fetch(CR_API + '/api/fred/liquidity', {signal: AbortSignal.timeout(30000)});
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        var d = await r.json();
+
+        // Update Fed series
+        if (d.fed && d.fed.length && window._liqFedSeries) {
+          window._liqFedSeries.setData(d.fed.map(function(p) {
+            return { time: new Date(p.date + '-01').getTime() / 1000, value: p.value };
+          }));
+          var fedEl = document.getElementById('liqFed');
+          if (fedEl && d.latestFed) fedEl.textContent = '$' + d.latestFed.value.toFixed(1) + 'T';
+        }
+
+        // Update ECB series
+        if (d.ecb && d.ecb.length && window._liqEcbSeries) {
+          window._liqEcbSeries.setData(d.ecb.map(function(p) {
+            return { time: new Date(p.date + '-01').getTime() / 1000, value: p.value };
+          }));
+          var ecbEl = document.getElementById('liqEcb');
+          if (ecbEl && d.latestEcb) ecbEl.textContent = '$' + d.latestEcb.value.toFixed(1) + 'T';
+        }
+
+        // Recompute and update total (Fed + ECB + BOJ hardcoded fallback)
+        if (d.latestFed && d.latestEcb && window._liqTotalSeries) {
+          var boj = window._liqBojLatest || 4.4;
+          var newTotal = d.latestFed.value + d.latestEcb.value + boj;
+          var totEl = document.getElementById('liqTotal');
+          if (totEl) totEl.textContent = '$' + newTotal.toFixed(1) + 'T';
+          // Rebuild total series aligned with Fed dates
+          if (d.fed.length && d.ecb.length) {
+            var ecbMap = {};
+            d.ecb.forEach(function(p) { ecbMap[p.date] = p.value; });
+            var totalData = d.fed.map(function(p) {
+              return { time: new Date(p.date+'-01').getTime()/1000, value: +(p.value + (ecbMap[p.date]||0) + boj).toFixed(2) };
+            });
+            window._liqTotalSeries.setData(totalData);
+          }
+        }
+
+        var updEl = document.getElementById('liqUpdated');
+        if (updEl) updEl.textContent = '↻ FRED live · ' + new Date(d.updated).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+      } catch(e) {
+        console.warn('[DeFiMongo] Liquidity FRED fetch failed, using fallback data:', e.message);
+        var updEl2 = document.getElementById('liqUpdated');
+        if (updEl2) updEl2.textContent = '↻ Fallback data · ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+      }
+    })();
   })();
 
   // ── ISM CHARTS ──────────────────────────────────────────────────────────────
