@@ -52,6 +52,15 @@ const TL = (function(){
       </div>`;
   }
 
+  // ── TAB DISCLAIMER HELPER ────────────────────────────────────────────────
+
+  function tlDisclaimer(mn, docsId){
+    return `<div style="background:rgba(0,180,216,0.05);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:12px 16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="font-size:12px;color:#4a6070;line-height:1.6;flex:1">${mn}</div>
+      <button onclick="openDocsPage('${docsId}')" style="flex-shrink:0;background:transparent;border:1px solid rgba(0,180,216,0.25);border-radius:5px;padding:6px 14px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#00b4d8;cursor:pointer;white-space:nowrap" onmouseover="this.style.borderColor='#00b4d8';this.style.background='rgba(0,180,216,0.08)'" onmouseout="this.style.borderColor='rgba(0,180,216,0.25)';this.style.background='transparent'">📖 ДЭЛГЭРЭНГҮЙ</button>
+    </div>`;
+  }
+
   // ── TAB CONTENT BUILDERS ─────────────────────────────────────────────────
 
   // ── TV ACCESS: CONTENT & LOGIC ────────────────────────────────────────────
@@ -65,6 +74,8 @@ const TL = (function(){
           <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px">📺 MONGO PULSE ACCESS</div>
           <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;letter-spacing:1px">Register your details to receive Mongo Pulse indicator access</div>
         </div>
+
+        ${tlDisclaimer('Pro эсвэл Elite гишүүнчлэл авсны дараа энд имэйл болон TradingView хэрэглэгчийн нэрээ оруулна уу. Бид 24 цагийн дотор таны TradingView дансанд Mongo Pulse индикатор руу хандах эрх олгоно.', 'tradelab-access')}
 
         <!-- How it works -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px">
@@ -280,6 +291,7 @@ const TL = (function(){
     const TAGS  = ['Scalp', 'Swing', 'Position', 'Signal-Based'];
 
     return `
+      ${tlDisclaimer('Арилжаа бүрийг бичиж тэмдэглэх нь таны алдаа, ялалтаас суралцах хамгийн үр дүнтэй арга юм. P&L, win rate болон хэв маягаа хянаж, арилжааны ур чадварыг тасралтгүй сайжруулаарай.', 'tradelab-journal')}
       <!-- ── FORM CARD ── -->
       <div style="background:#0a1520;border:1px solid rgba(0,180,216,0.12);border-radius:12px;padding:24px;margin-bottom:20px">
 
@@ -601,6 +613,8 @@ const TL = (function(){
           <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px">🧮 RISK CALCULATOR</div>
           <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;letter-spacing:1px">Always free · All tiers</div>
         </div>
+
+        ${tlDisclaimer('Арилжаа бүрт хөрөнгийнхөө 1–2%-иас ихгүй эрсдэлд орно гэсэн зарчмыг баримтла. Энэ тооцоолуур позицын хэмжээ, stop-loss болон take-profit байрлалыг тодорхойлоход тусалдаг.', 'tradelab-risk')}
 
         <!-- Inputs grid -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
@@ -1091,8 +1105,9 @@ const TL = (function(){
 
   function statsContent(){
     const t = tier();
+    const disc = tlDisclaimer('Арилжааны тэмдэглэлийн дагуу тооцоологдсон гүйцэтгэлийн үзүүлэлтүүд. Win rate, expectancy болон streak-ийг ойлгоснаар стратегиа сайжруулж, ашигтай арилжааны хэв маяг бүрдүүлэх боломжтой.', 'tradelab-stats');
     if(t < 2){
-      return lockedCard(
+      return disc + lockedCard(
         'Performance Stats',
         'Upgrade to PRO to unlock advanced performance analytics — win rate, expectancy, drawdown, Sharpe ratio, and more.',
         'UPGRADE TO PRO'
@@ -1104,14 +1119,16 @@ const TL = (function(){
           <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px">📊 PERFORMANCE STATS</div>
           <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;letter-spacing:1px">Calculated from your trade journal · Updates automatically</div>
         </div>
+        ${disc}
         <div id="tl-stats-body"></div>
       </div>`;
   }
 
   function calendarContent(){
     const t = tier();
+    const disc = tlDisclaimer('Өдөр бүрийн P&L-ийг харагдуулсан хуанли. Аль өдөр, аль долоо хоногт хамгийн сайн арилжаадаг болохоо ойлгож, давталтыг олж, стратегиа цаг хугацаатай уялдуулан сайжруулаарай.', 'tradelab-calendar');
     if(t < 2){
-      return lockedCard(
+      return disc + lockedCard(
         'Trade Calendar',
         'Upgrade to PRO to unlock your trading calendar — visualize your performance by day, week, and month.',
         'UPGRADE TO PRO'
@@ -1123,6 +1140,7 @@ const TL = (function(){
           <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px">📅 TRADE CALENDAR</div>
           <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;letter-spacing:1px">Daily P&amp;L heatmap from your trade journal</div>
         </div>
+        ${disc}
         <div id="tl-cal-body"></div>
       </div>`;
   }
@@ -1304,14 +1322,15 @@ const TL = (function(){
 
   function aiReviewContent(){
     const t = tier();
+    const disc = tlDisclaimer('Хиймэл оюун ухаан таны арилжааны тэмдэглэлийг шинжилж, алдаа болон давуу талыг тодорхойлно. Арилжаа бүрийн эрсдэл, орох цэг, гарах цэгийн зөв байдлыг AI-аар үнэлүүлж, хурдан хугацаанд дэвших боломжтой. Elite гишүүнчлэл шаардлагатай.', 'tradelab-ai');
     if(t < 3){
-      return lockedCard(
+      return disc + lockedCard(
         'AI Trade Review',
         'Elite tier exclusive. Get AI-powered analysis of every trade — what went right, what went wrong, risk scoring.',
         'UPGRADE TO ELITE'
       );
     }
-    return placeholderCard('🤖', 'AI Trade Review', 'AI analysis coming soon.');
+    return disc + placeholderCard('🤖', 'AI Trade Review', 'AI analysis coming soon.');
   }
 
   // ── TAB CONFIG ────────────────────────────────────────────────────────────
