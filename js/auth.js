@@ -4,7 +4,11 @@
 
 // ── AUTH STATE ────────────────────────────────────────────────────────────────
 let aTab = 'register';
-let CR_USER = null; // { email, displayName, walletAddress, joinedAt, portfolio:[] }
+let CR_USER = null; // { email, displayName, walletAddress, joinedAt, portfolio:[], tier:0 }
+
+function getTier(){ return CR_USER?.tier ?? 0; }
+function getTierName(){ return ['FREE','EXPLORER','PRO','ELITE'][getTier()]||'FREE'; }
+function getTierColor(){ return ['#4a6070','#00b4d8','#9945FF','#f4c542'][getTier()]||'#4a6070'; }
 
 // ── SIMPLE LOCAL STORAGE USER DB (frontend-only until backend is wired) ───────
 const DB = {
@@ -196,7 +200,7 @@ async function doRegister(){
   }
   const hash = await hashPw(pw);
   DB.addUser(email, hash, name);
-  const user = { email, displayName:name, walletAddress:null, joinedAt:Date.now(), portfolio:[], type:'email' };
+  const user = { email, displayName:name, walletAddress:null, joinedAt:Date.now(), portfolio:[], type:'email', tier:0 };
   DB.save(user);
   CR_USER = user;
   showAuthSuccess(name, email, null);
@@ -234,7 +238,7 @@ async function doLogin(){
     document.getElementById('err-log-pw').classList.add('on');
     return;
   }
-  const user = { email, displayName:stored.display, walletAddress:stored.walletAddress||null, joinedAt:stored.joinedAt, portfolio:stored.portfolio||[], type:'email' };
+  const user = { email, displayName:stored.display, walletAddress:stored.walletAddress||null, joinedAt:stored.joinedAt, portfolio:stored.portfolio||[], type:'email', tier: stored.tier||0 };
   DB.save(user);
   CR_USER = user;
   showAuthSuccess(stored.display, email, null);
@@ -287,10 +291,10 @@ function finishWalletAuth(type, addr, btn){
   if(btn){btn.classList.remove('connecting');btn.classList.add('connected');btn.querySelector('.w3-name').textContent=addr.slice(0,6)+'…'+addr.slice(-4);}
   const short = addr.slice(0,6)+'…'+addr.slice(-4);
   const existing = Object.values(DB.getUsers()).find(u=>u.walletAddress===addr);
-  const user = { email: existing?.email||null, displayName: existing?.display||short, walletAddress:addr, joinedAt:existing?.joinedAt||Date.now(), portfolio:existing?.portfolio||[], type:'wallet', walletType:type };
+  const user = { email: existing?.email||null, displayName: existing?.display||short, walletAddress:addr, joinedAt:existing?.joinedAt||Date.now(), portfolio:existing?.portfolio||[], type:'wallet', walletType:type, tier: existing?.tier||0 };
   if(!existing){
     const users=DB.getUsers();
-    users['wallet_'+addr]={hash:'',display:short,joinedAt:Date.now(),portfolio:[],walletAddress:addr};
+    users['wallet_'+addr]={hash:'',display:short,joinedAt:Date.now(),portfolio:[],walletAddress:addr,tier:0};
     try{localStorage.setItem('cr_users',JSON.stringify(users));}catch(e){}
   }
   DB.save(user);
@@ -518,6 +522,10 @@ function go(id, el){
   if(id==='portfolio') {
     if(!CR_USER){ openAuth('register'); return; }
     if(typeof window.initPortfolioDashboard==='function') window.initPortfolioDashboard();
+  }
+  // Init Trade Lab
+  if(id==='trade-lab') {
+    if(typeof TL !== 'undefined') TL.init();
   }
   // Trigger TradingView chart inits for macro panels (lazy load)
   const tvMap = {
