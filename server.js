@@ -263,6 +263,11 @@ app.get('/api/scanner/status', function(req, res) {
   res.json(SCANNER_META);
 });
 
+app.get('/api/scanner/run-now', async function(req, res) {
+  res.json({ message: 'Scanner triggered', time: new Date().toISOString() });
+  runScanner();
+});
+
 app.get('/api/scanner', function(req, res) {
   var now = Date.now();
   if (_scannerCache && now - _scannerCacheAt < 5 * 60 * 1000) return res.json(_scannerCache);
@@ -1599,11 +1604,6 @@ load();
 </script>
 </body>
 </html>`);
-});
-
-app.get('/api/scanner/run-now', async function(req, res) {
-  res.json({ message: 'Scanner triggered', time: new Date().toISOString() });
-  runScanner();
 });
 
 // ── HEALTH & ROOT ─────────────────────────────────────────────────────────────
