@@ -1329,6 +1329,105 @@ const TL = (function(){
       ${rows}`;
   }
 
+  // ── AI REVIEW: HELPERS ────────────────────────────────────────────────────
+
+  const AI_KEY_LS = 'dfm_ai_key';
+
+  function aiErrCard(msg){
+    return `<div style="background:rgba(255,60,60,0.08);border:1px solid rgba(255,60,60,0.2);border-radius:8px;padding:16px;font-family:'Space Mono',monospace;font-size:12px;color:#ff6b6b">${msg}</div>`;
+  }
+
+  function aiRenderSections(text){
+    const SECS = [
+      { key: 'ASSESSMENT',      color: '#00b4d8', bg: 'rgba(0,180,216,0.06)',  border: 'rgba(0,180,216,0.2)'  },
+      { key: 'ENTRY QUALITY',   color: '#00e87a', bg: 'rgba(0,232,122,0.06)',  border: 'rgba(0,232,122,0.2)'  },
+      { key: 'RISK MANAGEMENT', color: '#ff9f43', bg: 'rgba(255,159,67,0.06)', border: 'rgba(255,159,67,0.2)' },
+      { key: 'KEY TAKEAWAY',    color: '#ffd700', bg: 'rgba(255,215,0,0.06)',  border: 'rgba(255,215,0,0.2)'  },
+    ];
+    const parsed = {};
+    SECS.forEach(function(sec, i){
+      var nextKey = SECS[i+1] ? SECS[i+1].key : null;
+      var re = new RegExp(sec.key + '[:\\s*]*([\\s\\S]*?)' + (nextKey ? '(?=' + nextKey + ')' : '$'), 'i');
+      var m = text.match(re);
+      parsed[sec.key] = m ? m[1].trim() : '';
+    });
+    if(!SECS.some(function(s){ return parsed[s.key]; })){
+      return `<div style="background:#0a1520;border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:16px;font-family:'Space Mono',monospace;font-size:12px;color:#ccd8df;white-space:pre-wrap">${text}</div>`;
+    }
+    return SECS.map(function(sec){
+      return `<div style="background:${sec.bg};border:1px solid ${sec.border};border-radius:8px;padding:16px;margin-bottom:12px">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:${sec.color};margin-bottom:8px">${sec.key}</div>
+        <div style="font-size:13px;color:#ccd8df;line-height:1.7">${parsed[sec.key] || '—'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function aiAnalyze(){
+    var trades = jLoadTrades();
+    var selEl  = document.getElementById('tl-ai-select');
+    var keyEl  = document.getElementById('tl-ai-key');
+    var btnEl  = document.getElementById('tl-ai-btn');
+    var resEl  = document.getElementById('tl-ai-results');
+    if(!selEl || !keyEl || !resEl) return;
+
+    var apiKey = keyEl.value.trim();
+    if(!apiKey){ resEl.innerHTML = aiErrCard('Enter your Anthropic API key.'); return; }
+
+    var idx = parseInt(selEl.value, 10);
+    if(isNaN(idx) || !trades[idx]){ resEl.innerHTML = aiErrCard('Select a trade to analyze.'); return; }
+
+    var tr = trades[idx];
+    try { localStorage.setItem(AI_KEY_LS, apiKey); } catch(e){}
+
+    var summary = [
+      'Symbol: '        + (tr.symbol    || 'Unknown'),
+      'Direction: '     + tr.direction,
+      'Date: '          + tr.date,
+      'Entry Price: '   + (tr.entry     || 'N/A'),
+      'Exit Price: '    + (tr.exit      || 'N/A'),
+      'Position Size: ' + (tr.size      || 'N/A'),
+      'P&L: '           + (tr.pnl !== undefined ? tr.pnl.toFixed(2) + '%' : 'N/A'),
+      'Trade Type: '    + (tr.tag       || 'N/A'),
+      tr.notes ? 'Notes: ' + tr.notes : null,
+    ].filter(Boolean).join('\n');
+
+    btnEl.disabled    = true;
+    btnEl.textContent = 'ANALYZING...';
+    resEl.innerHTML   = '';
+
+    fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type':                              'application/json',
+        'x-api-key':                                 apiKey,
+        'anthropic-version':                         '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model:      'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system:     'You are an expert crypto trading coach. Structure response with: ASSESSMENT, ENTRY QUALITY, RISK MANAGEMENT, KEY TAKEAWAY. Each section 2-3 sentences max.',
+        messages:   [{ role: 'user', content: 'Analyze this trade:\n\n' + summary }],
+      }),
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      btnEl.disabled    = false;
+      btnEl.textContent = 'ANALYZE TRADE';
+      if(data.error){ resEl.innerHTML = aiErrCard(data.error.message); return; }
+      var text = data.content && data.content[0] && data.content[0].text;
+      if(!text){ resEl.innerHTML = aiErrCard('No response received.'); return; }
+      resEl.innerHTML = aiRenderSections(text);
+    })
+    .catch(function(err){
+      btnEl.disabled    = false;
+      btnEl.textContent = 'ANALYZE TRADE';
+      resEl.innerHTML   = aiErrCard(err.message || 'Request failed.');
+    });
+  }
+
+  // ── AI REVIEW: CONTENT ────────────────────────────────────────────────────
+
   function aiReviewContent(){
     const tlvl = tier();
     const disc = tlDisclaimer('Хиймэл оюун ухаан таны арилжааны тэмдэглэлийг шинжилж, алдаа болон давуу талыг тодорхойлно. Арилжаа бүрийн эрсдэл, орох цэг, гарах цэгийн зөв байдлыг AI-аар үнэлүүлж, хурдан хугацаанд дэвших боломжтой. Elite гишүүнчлэл шаардлагатай.', 'tradelab-ai');
@@ -1339,7 +1438,43 @@ const TL = (function(){
         '<span data-mn="ELITE РУУ ШИНЭЧЛЭХ" data-en="UPGRADE TO ELITE">ELITE РУУ ШИНЭЧЛЭХ</span>'
       );
     }
-    return disc + placeholderCard('🤖', '<span data-mn="AI Арилжааны Шинжилгээ" data-en="AI Trade Review">AI Арилжааны Шинжилгээ</span>', '<span data-mn="AI шинжилгээ удахгүй гарна." data-en="AI analysis coming soon.">AI шинжилгээ удахгүй гарна.</span>');
+
+    const trades = jLoadTrades();
+    const inp = `width:100%;box-sizing:border-box;background:#060d12;border:1px solid rgba(0,180,216,0.2);border-radius:6px;padding:10px 14px;color:#ccd8df;font-size:13px;font-family:'Space Mono',monospace;outline:none`;
+    const lbl = `display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px`;
+
+    const tradeOptions = trades.length === 0
+      ? `<option value="">— No trades in journal —</option>`
+      : trades.slice().reverse().map(function(tr, i){
+          var idx    = trades.length - 1 - i;
+          var pnlStr = tr.pnl >= 0 ? '+' + tr.pnl.toFixed(2) + '%' : tr.pnl.toFixed(2) + '%';
+          return `<option value="${idx}">${tr.date} · ${tr.symbol || '?'} · ${tr.direction} · ${pnlStr}</option>`;
+        }).join('');
+
+    var savedKey = '';
+    try { savedKey = localStorage.getItem(AI_KEY_LS) || ''; } catch(e){}
+
+    return `${disc}
+      <div style="background:#0a1520;border:1px solid rgba(0,180,216,0.12);border-radius:12px;padding:24px;margin-bottom:20px">
+        <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px">🤖 AI TRADE REVIEW</div>
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:#9945FF;letter-spacing:1px;margin-bottom:20px">ELITE · POWERED BY CLAUDE</div>
+
+        <div style="margin-bottom:16px">
+          <label style="${lbl}">Select Trade</label>
+          <select id="tl-ai-select" style="${inp};background:#060d12">${tradeOptions}</select>
+        </div>
+
+        <div style="margin-bottom:20px">
+          <label style="${lbl}">Anthropic API Key</label>
+          <input id="tl-ai-key" type="password" placeholder="sk-ant-..." style="${inp}" value="${savedKey}">
+          <div style="font-size:10px;color:#4a6070;margin-top:5px">Stored locally in your browser only.</div>
+        </div>
+
+        <button id="tl-ai-btn" onclick="TL.aiAnalyze()" style="background:linear-gradient(135deg,#9945FF,#7c3aed);color:#fff;border:none;border-radius:8px;padding:12px 24px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;width:100%"
+          onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">ANALYZE TRADE</button>
+      </div>
+
+      <div id="tl-ai-results"></div>`;
   }
 
   // ── TAB CONFIG ────────────────────────────────────────────────────────────
@@ -1454,6 +1589,7 @@ const TL = (function(){
     tvReset:      tvReset,
     _calNav:      cNavMonth,
     _calDay:      cDayClick,
+    aiAnalyze:    aiAnalyze,
   };
 
 })();
