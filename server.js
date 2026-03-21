@@ -1060,8 +1060,9 @@ app.get('/api/fred/liquidity', async function(req, res) {
 
 // POST /api/signals/webhook — receives alerts from TradingView Pine Script
 app.post('/api/signals/webhook', function(req, res) {
-  const secret = req.headers['x-webhook-secret'];
-  if (!secret || secret !== process.env.WEBHOOK_SECRET) {
+  const secret   = req.headers['x-webhook-secret'];
+  const expected = process.env.WEBHOOK_SECRET || 'defimongo_webhook_2026';
+  if (!secret || secret !== expected) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   const { type, symbol, price, tf, time } = req.body || {};
