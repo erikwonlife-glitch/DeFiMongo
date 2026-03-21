@@ -1206,22 +1206,39 @@ async function fetchBinanceKlines(symbol, interval, limit) {
   }
 }
 
+// Hardcoded top 200 USDT pairs by market cap (avoids Binance ticker endpoint which may be blocked)
+const SCANNER_SYMBOLS = [
+  'BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT','SHIBUSDT','DOTUSDT',
+  'LINKUSDT','LTCUSDT','BCHUSDT','XLMUSDT','UNIUSDT','ATOMUSDT','ETCUSDT','XMRUSDT','FILUSDT','APTUSDT',
+  'ARBUSDT','OPUSDT','NEARUSDT','INJUSDT','RUNEUSDT','AAVEUSDT','MKRUSDT','SNXUSDT','COMPUSDT','CRVUSDT',
+  'LDOUSDT','STXUSDT','EGLDUSDT','FLOWUSDT','XTZUSDT','ALGOUSDT','VETUSDT','ICPUSDT','HBARUSDT','SANDUSDT',
+  'MANAUSDT','AXSUSDT','GALAUSDT','CHZUSDT','APEUSDT','GMTUSDT','SPELLUSDT','PEOPLEUSDT','WOOUSDT','RLCUSDT',
+  'FTMUSDT','KLAYUSDT','ZILUSDT','WAVESUSDT','BATUSDT','ENJUSDT','COTIUSDT','CELRUSDT','SKLUSDT','CVCUSDT',
+  'STORJUSDT','DENTUSDT','HOTUSDT','REEFUSDT','XVGUSDT','WANUSDT','IOTAUSDT','NKNUSDT','CTKUSDT',
+  'SUPERUSDT','CFXUSDT','PROSUSDT','POLYXUSDT','SXPUSDT','MDTUSDT','DOCKUSDT','AGLDUSDT','RADUSDT',
+  'RAREUSDT','CHESSUSDT','ADXUSDT','AUCTIONUSDT','DARUSDT','BNXUSDT','CITYUSDT','LOOKSUSDT','FLUXUSDT',
+  'VOXELUSDT','ACHUSDT','IMXUSDT','STGUSDT','XECUSDT','GMXUSDT','FIDAUSDT','FRONTUSDT','CTSIUSDT',
+  'TRUUSDT','LQTYUSDT','SSVUSDT','EDUUSDT','IDUSDT','SUIUSDT','PEPEUSDT','FLOKIUSDT','TURBOUSDT',
+  'CYBERUSDT','ARKUSDT','IQUSDT','WLDUSDT','SEIUSDT','TIAUSDT','MNTUSDT','PYTHUSDT','JTOUSDT',
+  'ACEUSDT','NFPUSDT','AIUSDT','XAIUSDT','MANTAUSDT','ALTUSDT','JUPUSDT','ZETAUSDT','RONINUSDT',
+  'DYMUSDT','PIXELUSDT','PORTALUSDT','AXLUSDT','STRKUSDT','ETHFIUSDT','AEVOUSDT','VANRYUSDT',
+  'BONDUSDT','TAOUSDT','NOTUSDT','IOUSDT','ZKUSDT','LISTAUSDT','ZROUSDT','RENDERUSDT','WUSDT',
+  'SAGAUSDT','REZUSDT','BBUSDT','ENAUSDT','EIGENUSDT','SCRUSDT','CATIUSDT','HMSTRUSDT','REIUSDT',
+  'IOSTUSDT','COWUSDT','AKTUSDT','POLUSDT','MOODENGUSDT','KAIAUSDT','ACTUSDT','PNUTUSDT',
+  'GRASSUSDT','MOVEUSDT','MEUSDT','VIRTUALUSDT','PENGUUSDT','ONDOUSDT','TRUMPUSDT','MELANIAUSDT',
+  'UXLINKUSDT','HYPERUSDT','BRUSDT','BEAMXUSDT','STEEMUSDT','OSMOUSDT','LUNCUSDT','USTCUSDT',
+  'AMBUSDT','PHBUSDT','BLUEBIRDUSDT','LEVERUSDT','LDOUSDT','PIVXUSDT','FORTHUSDT','BURGERUSDT',
+];
+
 async function runScanner() {
   if (SCANNER_META.running) return;
   SCANNER_META.running = true;
   console.log('[Scanner] Starting scan...');
 
   try {
-    // Step 1 — top 200 USDT pairs by volume
-    var tickerRes = await fetchT('https://api.binance.com/api/v3/ticker/24hr', {}, 15000);
-    var tickers   = await tickerRes.json();
-    var usdt = tickers
-      .filter(function(t) { return t.symbol.endsWith('USDT') && parseFloat(t.quoteVolume) > 0; })
-      .sort(function(a, b) { return parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume); })
-      .slice(0, 200)
-      .map(function(t) { return t.symbol; });
+    var usdt = SCANNER_SYMBOLS;
 
-    // Step 2 — process in batches of 10
+    // Process in batches of 10 with 500ms delay between batches
     var BATCH = 10;
     for (var i = 0; i < usdt.length; i += BATCH) {
       var batch = usdt.slice(i, i + BATCH);
@@ -1232,6 +1249,12 @@ async function runScanner() {
             fetchBinanceKlines(sym, '1D', 250),
             fetchBinanceKlines(sym, '1W', 250),
           ]);
+
+          // Skip symbol if all timeframes failed
+          if (!closes4h && !closes1d && !closes1w) {
+            console.log('[Scanner] symbol failed:', sym);
+            return;
+          }
 
           var existing = SCANNER_STATE[sym] || {};
           var entry = { symbol: sym, price: null, trend4h: null, trend1d: null, trend1w: null,
@@ -1245,8 +1268,8 @@ async function runScanner() {
             entry.price = closes[closes.length - 1];
             var sma50  = calculateSMA(closes, 50);
             var sma200 = calculateSMA(closes, 200);
-            entry[trendKey]   = getCurrentTrend(sma50, sma200);
-            var cross         = detectCross(sma50, sma200);
+            entry[trendKey] = getCurrentTrend(sma50, sma200);
+            var cross = detectCross(sma50, sma200);
             if (cross) entry[flippedKey] = Date.now();
           }
 
@@ -1255,7 +1278,9 @@ async function runScanner() {
           processTF(closes1w, 'trend1w', 'flippedAt1w');
 
           SCANNER_STATE[sym] = entry;
-        } catch (e) { /* skip symbol on error */ }
+        } catch (e) {
+          console.log('[Scanner] symbol failed:', sym, e.message);
+        }
       }));
 
       if (i + BATCH < usdt.length) await new Promise(function(r) { setTimeout(r, 500); });
