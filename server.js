@@ -1210,8 +1210,8 @@ app.get('/api/fred/walcl', async function(req, res) {
   try {
     const r = await fetchT(
       'https://fred.stlouisfed.org/graph/fredgraph.csv?id=WALCL',
-      { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'text/csv,*/*' } },
-      20000
+      { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'text/csv,text/plain,*/*' } },
+      40000
     );
     if (!r.ok) throw new Error('FRED ' + r.status);
     const csv = await r.text();
@@ -1270,13 +1270,13 @@ app.get('/api/fred/liquidity', async function(req, res) {
   }
 
   try {
-    const opts = { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'text/csv,*/*' } };
+    const opts = { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'text/csv,text/plain,*/*' } };
     const [walclRes, ecbRes, eurusdRes, bojRes, jpyusdRes] = await Promise.allSettled([
-      fetchT('https://fred.stlouisfed.org/graph/fredgraph.csv?id=WALCL', opts, 20000).then(function(r) { return r.text(); }),
-      fetchT('https://fred.stlouisfed.org/graph/fredgraph.csv?id=ECBASSETSW', opts, 20000).then(function(r) { return r.text(); }),
-      fetchT('https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXUSEU', opts, 15000).then(function(r) { return r.text(); }),
-      fetchT('https://fred.stlouisfed.org/graph/fredgraph.csv?id=JPNASSETS', opts, 20000).then(function(r) { return r.text(); }),
-      fetchT('https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXJPUS', opts, 15000).then(function(r) { return r.text(); })
+      fetchT('https://fred.stlouisfed.org/graph/fredgraph.csv?id=WALCL', opts, 40000).then(function(r) { return r.text(); }),
+      fetchT('https://fred.stlouisfed.org/graph/fredgraph.csv?id=ECBASSETSW', opts, 40000).then(function(r) { return r.text(); }),
+      fetchT('https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXUSEU', opts, 25000).then(function(r) { return r.text(); }),
+      fetchT('https://fred.stlouisfed.org/graph/fredgraph.csv?id=JPNASSETS', opts, 40000).then(function(r) { return r.text(); }),
+      fetchT('https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXJPUS', opts, 25000).then(function(r) { return r.text(); })
     ]);
 
     let eurusd = 1.08;
@@ -1320,6 +1320,7 @@ app.get('/api/fred/liquidity', async function(req, res) {
       latestBoj: bojSeries.length ? bojSeries[bojSeries.length-1] : null,
       updated: Date.now()
     };
+    if (!fedSeries.length) throw new Error('FRED WALCL returned no data — may be blocked or timed out');
     setCache(cacheKey, result, 6 * 60 * 60 * 1000);
     console.log('[DataFix] liquidity: fed=' + (result.latestFed&&result.latestFed.value) + 'T ecb=' + (result.latestEcb&&result.latestEcb.value) + 'T boj=' + (result.latestBoj&&result.latestBoj.value) + 'T');
     res.json(result);
