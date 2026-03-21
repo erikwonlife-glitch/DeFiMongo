@@ -1241,6 +1241,7 @@ async function runScanner() {
 
   try {
     var usdt = SCANNER_SYMBOLS;
+    console.log('[Scanner] Symbol count:', usdt.length);
 
     // Process in batches of 10 with 500ms delay between batches
     var BATCH = 10;
@@ -1253,6 +1254,10 @@ async function runScanner() {
             fetchBinanceKlines(sym, '1D', 250),
             fetchBinanceKlines(sym, '1W', 250),
           ]);
+
+          if (sym === 'BTCUSDT') {
+            console.log('[Scanner] BTCUSDT 1d sample:', JSON.stringify(closes1d).slice(0, 200));
+          }
 
           // Skip symbol if all timeframes failed
           if (!closes4h && !closes1d && !closes1w) {
@@ -1287,6 +1292,7 @@ async function runScanner() {
         }
       }));
 
+      console.log('[Scanner] Batch done, scanned so far:', Object.keys(SCANNER_STATE).length);
       if (i + BATCH < usdt.length) await new Promise(function(r) { setTimeout(r, 500); });
     }
   } catch (e) {
@@ -1593,6 +1599,11 @@ load();
 </script>
 </body>
 </html>`);
+});
+
+app.get('/api/scanner/run-now', async function(req, res) {
+  res.json({ message: 'Scanner triggered', time: new Date().toISOString() });
+  runScanner();
 });
 
 // ── HEALTH & ROOT ─────────────────────────────────────────────────────────────
