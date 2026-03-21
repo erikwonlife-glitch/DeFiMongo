@@ -1202,19 +1202,33 @@ app.get('/api/etf/flows', async function(req, res) {
 });
 
 // ── FRED helpers ──────────────────────────────────────────────────────────────
-const FRED_KEY = process.env.FRED_API_KEY || 'DEMO_KEY'; // set FRED_API_KEY in Railway env for higher limits
+// Requires FRED_API_KEY env var — get a free key at https://fred.stlouisfed.org/docs/api/api_key.html
+const FRED_KEY = process.env.FRED_API_KEY || '';
 
 async function fetchFredSeries(seriesId, limit) {
-  limit = limit || 200;
+  if (!FRED_KEY) throw new Error('FRED_API_KEY not set');
+  limit = limit || 500;
   const url = 'https://api.stlouisfed.org/fred/series/observations?series_id=' + seriesId
     + '&api_key=' + FRED_KEY + '&file_type=json&sort_order=asc&limit=' + limit
     + '&observation_start=2000-01-01';
-  const r = await fetchT(url, { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }, 25000);
+  const r = await fetchT(url, { headers: { 'Accept': 'application/json' } }, 25000);
   if (!r.ok) throw new Error('FRED API ' + seriesId + ' ' + r.status);
   const body = await r.json();
   if (body.error_code) throw new Error('FRED API error: ' + body.error_message);
   return (body.observations || []).filter(function(o) { return o.value !== '.'; });
 }
+
+// Hardcoded WALCL baseline (Fed balance sheet $T) — used when FRED_API_KEY not set
+// Source: FRED WALCL, monthly sampled. Updated to ~early 2025.
+const WALCL_FALLBACK = [
+  {date:'2020-01',value:4.17},{date:'2020-04',value:6.57},{date:'2020-07',value:7.01},
+  {date:'2020-10',value:7.18},{date:'2021-01',value:7.41},{date:'2021-04',value:7.79},
+  {date:'2021-07',value:8.22},{date:'2021-10',value:8.57},{date:'2022-01',value:8.87},
+  {date:'2022-04',value:8.96},{date:'2022-07',value:8.89},{date:'2022-10',value:8.76},
+  {date:'2023-01',value:8.55},{date:'2023-04',value:8.61},{date:'2023-07',value:8.34},
+  {date:'2023-10',value:7.97},{date:'2024-01',value:7.68},{date:'2024-04',value:7.41},
+  {date:'2024-07',value:7.21},{date:'2024-10',value:6.97},{date:'2025-01',value:6.84},
+];
 
 // ── FRED: WALCL — Federal Reserve Total Assets ────────────────────────────────
 app.get('/api/fred/walcl', async function(req, res) {
@@ -1234,11 +1248,13 @@ app.get('/api/fred/walcl', async function(req, res) {
     if (!series.length) throw new Error('No valid WALCL data');
     const result = { series: series, latest: series[series.length - 1], updated: Date.now() };
     setCache(cacheKey, result, 6 * 60 * 60 * 1000);
-    console.log('[DataFix] walcl: ok, latest', result.latest);
+    console.log('[DataFix] walcl: FRED API ok, latest', result.latest);
     res.json(result);
   } catch(e) {
-    console.log('[DataFix] walcl: failed:', e.message);
-    res.status(502).json({ error: e.message });
+    console.log('[DataFix] walcl: FRED unavailable (' + e.message + ') — serving fallback data');
+    const result = { series: WALCL_FALLBACK, latest: WALCL_FALLBACK[WALCL_FALLBACK.length-1], fallback: true, updated: Date.now() };
+    setCache(cacheKey, result, 6 * 60 * 60 * 1000);
+    res.json(result);
   }
 });
 
@@ -1318,7 +1334,22 @@ app.get('/api/fred/liquidity', async function(req, res) {
       latestBoj: bojSeries.length ? bojSeries[bojSeries.length-1] : null,
       updated: Date.now()
     };
-    if (!fedSeries.length) throw new Error('FRED WALCL returned no data — may be blocked or timed out');
+    // If FRED failed, use fallback for Fed series
+    const usedFallback = !fedSeries.length;
+    const finalFedSeries = usedFallback ? WALCL_FALLBACK : fedSeries;
+    if (usedFallback) console.log('[DataFix] liquidity: FRED unavailable, using fallback Fed data');
+    const finalFedMonthly = {};
+    finalFedSeries.forEach(function(p) { finalFedMonthly[p.date] = p.value; });
+
+    // Rebuild total with final Fed
+    const allDates2 = [...new Set([...Object.keys(finalFedMonthly),...Object.keys(ecbMonthly),...Object.keys(bojMonthly)])].sort();
+    const totalSeries2 = allDates2.map(function(d){return {date:d,value:+((finalFedMonthly[d]||0)+(ecbMonthly[d]||0)+(bojMonthly[d]||0)).toFixed(3)};});
+
+    result.fed   = finalFedSeries;
+    result.total = totalSeries2;
+    result.latestFed = finalFedSeries[finalFedSeries.length-1];
+    result.fallback  = usedFallback;
+
     setCache(cacheKey, result, 6 * 60 * 60 * 1000);
     console.log('[DataFix] liquidity: fed=' + (result.latestFed&&result.latestFed.value) + 'T ecb=' + (result.latestEcb&&result.latestEcb.value) + 'T boj=' + (result.latestBoj&&result.latestBoj.value) + 'T');
     res.json(result);
