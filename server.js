@@ -1617,6 +1617,17 @@ load();
 </html>`);
 });
 
+app.get('/api/scanner/test', async function(req, res) {
+  try {
+    var url = 'https://api.bybit.com/v5/market/kline?category=spot&symbol=BTCUSDT&interval=D&limit=10';
+    var r = await fetchT(url, {}, 10000);
+    var text = await r.text();
+    res.json({ status: r.status, body: text.slice(0, 500) });
+  } catch(e) {
+    res.json({ error: e.message });
+  }
+});
+
 // ── HEALTH & ROOT ─────────────────────────────────────────────────────────────
 app.get('/health', function(req, res) {
   res.json({status:'ok', server:'DeFiMongo API', version:'3.0.0',
