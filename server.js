@@ -1193,14 +1193,18 @@ function getCurrentTrend(smaShort, smaLong) {
 }
 
 async function fetchBinanceKlines(symbol, interval, limit) {
-  var ivMap = { '4H': '4h', '1D': '1d', '1W': '1w' };
-  var iv = ivMap[interval] || interval;
-  var url = 'https://api.binance.com/api/v3/klines?symbol=' + symbol + '&interval=' + iv + '&limit=' + (limit || 250);
+  // Bybit V5 spot — same symbol format as Binance, not geo-blocked
+  var ivMap = { '4H': '240', '1D': 'D', '1W': 'W' };
+  var iv  = ivMap[interval] || interval;
+  var lim = limit || 250;
+  var url = 'https://api.bybit.com/v5/market/kline?category=spot&symbol=' + symbol + '&interval=' + iv + '&limit=' + lim;
   try {
-    var r = await fetchT(url, {}, 10000);
-    var data = await r.json();
-    if (!Array.isArray(data)) return null;
-    return data.map(function(k) { return parseFloat(k[4]); }); // close prices
+    var r    = await fetchT(url, {}, 10000);
+    var body = await r.json();
+    var list = body && body.result && body.result.list;
+    if (!Array.isArray(list) || list.length === 0) return null;
+    // Bybit returns newest-first; reverse and extract close (index 4)
+    return list.slice().reverse().map(function(k) { return parseFloat(k[4]); });
   } catch (e) {
     return null;
   }
