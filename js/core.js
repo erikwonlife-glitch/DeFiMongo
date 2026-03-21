@@ -264,6 +264,17 @@ async function init(){
   if (liveBTC) {
     BTC_CURRENT = liveBTC;
     console.log('[DeFiMongo] Live BTC set early:', BTC_CURRENT);
+    // Trigger chart refresh after a short delay so charts.js has time to build
+    setTimeout(function() {
+      updateAllPriceCards();
+      if (window._fedRefresh)     window._fedRefresh();
+      if (window._dxyRefresh)     window._dxyRefresh();
+      if (window._liqRefresh)     window._liqRefresh();
+      if (window._socialRefresh)  window._socialRefresh();
+      if (window._ismRefresh)     window._ismRefresh();
+      if (window._halvingRefresh) window._halvingRefresh();
+      if (window._epochRefresh)   window._epochRefresh();
+    }, 500);
   }
   // 1. Fetch all live data — Railway first, direct CoinGecko as fallback
   const [markets, global, fg, btcChart] = await Promise.all([
@@ -416,7 +427,7 @@ function updateAllPriceCards(){
   const fmtPrice='$'+p.toLocaleString(undefined,{maximumFractionDigits:0});
 
   // All elements that should show live BTC price
-  ['dxyBtc','smaCurrentPrice'].forEach(id=>{
+  ['dxyBtc','smaCurrentPrice','fedBtcVal','dxyBtcNew','socialBtcPrice'].forEach(id=>{
     const el=document.getElementById(id);
     if(el)el.textContent=fmtPrice;
   });

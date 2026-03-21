@@ -384,6 +384,12 @@ async function drawAllCharts(){
         if (!r.ok) throw new Error('HTTP ' + r.status);
         var d = await r.json();
         if (!d || !d.series || !d.series.length) throw new Error('No data');
+        if (d.btcPrice && d.btcPrice > 1000) {
+          window.BTC_CURRENT = d.btcPrice;
+          var btcStatEl = document.getElementById('fedBtcVal');
+          if (btcStatEl) btcStatEl.textContent = '$' + Math.round(d.btcPrice).toLocaleString();
+          if (window._fedRefresh) window._fedRefresh();
+        }
         window._fedLineSeries.setData(d.series.map(function(p) {
           return { time: new Date(p.date + '-01').getTime() / 1000, value: p.value };
         }));
@@ -516,6 +522,12 @@ async function drawAllCharts(){
         if (!r.ok) throw new Error('HTTP ' + r.status);
         var d = await r.json();
         if (!d || !d.daily || !d.daily.length) throw new Error('No data');
+        if (d.btcPrice && d.btcPrice > 1000) {
+          window.BTC_CURRENT = d.btcPrice;
+          var btcStatEl2 = document.getElementById('dxyBtcNew');
+          if (btcStatEl2) btcStatEl2.textContent = '$' + Math.round(d.btcPrice).toLocaleString();
+          if (window._dxyRefresh) window._dxyRefresh();
+        }
         // Sample to monthly (last closing price per month) for chart density
         var monthly = {};
         d.daily.forEach(function(p) { monthly[p.date.slice(0, 7)] = p.price; });
@@ -701,6 +713,10 @@ async function drawAllCharts(){
         var r = await fetch(CR_API + '/api/fred/liquidity', {signal: AbortSignal.timeout(30000)});
         if (!r.ok) throw new Error('HTTP ' + r.status);
         var d = await r.json();
+        if (d.btcPrice && d.btcPrice > 1000) {
+          window.BTC_CURRENT = d.btcPrice;
+          if (window._liqRefresh) window._liqRefresh();
+        }
 
         // Update Fed series
         if (d.fed && d.fed.length && window._liqFedSeries) {
@@ -1096,7 +1112,17 @@ async function drawAllCharts(){
     if (scoreEl)  { scoreEl.textContent = latestScore; scoreEl.style.color = trendColor(latestScore); }
     if (signalEl) { signalEl.textContent = sig.txt; signalEl.style.color = sig.col; }
     if (trendEl)  { trendEl.textContent = latestScore + '/100'; trendEl.style.color = trendColor(latestScore); }
-    if (btcEl && window.BTC_CURRENT) btcEl.textContent = '$' + Math.round(window.BTC_CURRENT).toLocaleString();
+    if (btcEl) {
+      if (window.BTC_CURRENT && window.BTC_CURRENT > 1000) {
+        btcEl.textContent = '$' + Math.round(window.BTC_CURRENT).toLocaleString();
+      } else {
+        // Fetch live price now since BTC_CURRENT not ready yet
+        fetch((typeof CR_API !== 'undefined' ? CR_API : '') + '/api/btc/price', {signal: AbortSignal.timeout(6000)})
+          .then(function(r){ return r.json(); })
+          .then(function(d){ if (d && d.price > 1000) { window.BTC_CURRENT = d.price; btcEl.textContent = '$' + Math.round(d.price).toLocaleString(); } })
+          .catch(function(){});
+      }
+    }
 
     var upd = document.getElementById('socialUpdated');
     if (upd) upd.textContent = '↻ Updated ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
@@ -2213,6 +2239,7 @@ async function drawAllCharts(){
       // BTC on-chain stats — update stat cards
       if(onchainData.status==='fulfilled' && onchainData.value){
         const oc=onchainData.value;
+        if (oc.btcPrice && oc.btcPrice > 1000) { window.BTC_CURRENT = oc.btcPrice; }
         const addrEl=document.getElementById('ocActiveAddr');
         if(addrEl && oc.activeAddr) addrEl.textContent=(oc.activeAddr/1000).toFixed(0)+'K';
         // Address chart
