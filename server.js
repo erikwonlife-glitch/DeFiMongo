@@ -1084,22 +1084,11 @@ app.get('/api/signals', function(req, res) {
   res.json({ signals: filtered.slice(0, 50), total: SIGNALS.length });
 });
 
-// ── TEMP DEBUG ────────────────────────────────────────────────────────────────
-app.get('/debug-secret', function(req, res) {
-  res.json({
-    raw: JSON.stringify(process.env.WEBHOOK_SECRET),
-    len: (process.env.WEBHOOK_SECRET||'').length,
-    chars: (process.env.WEBHOOK_SECRET||'').split('').map(function(c){ return c.charCodeAt(0); })
-  });
-});
-
 // ── HEALTH & ROOT ─────────────────────────────────────────────────────────────
 app.get('/health', function(req, res) {
   res.json({status:'ok', server:'DeFiMongo API', version:'3.0.0',
     cached:Object.keys(CACHE).length, instruments:Object.keys(INSTRUMENTS).length,
-    uptime:Math.floor(process.uptime())+'s',
-    webhookSecretSet: !!process.env.WEBHOOK_SECRET,
-    webhookSecretLen: (process.env.WEBHOOK_SECRET||'').length});
+    uptime:Math.floor(process.uptime())+'s'});
 });
 app.get('/', function(req, res) {
   res.json({name:'DeFiMongo Market Data API v3.0', health:'/health'});
