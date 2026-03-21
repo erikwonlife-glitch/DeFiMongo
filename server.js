@@ -1086,7 +1086,9 @@ app.get('/api/signals', function(req, res) {
 app.get('/health', function(req, res) {
   res.json({status:'ok', server:'DeFiMongo API', version:'3.0.0',
     cached:Object.keys(CACHE).length, instruments:Object.keys(INSTRUMENTS).length,
-    uptime:Math.floor(process.uptime())+'s'});
+    uptime:Math.floor(process.uptime())+'s',
+    webhookSecretSet: !!process.env.WEBHOOK_SECRET,
+    webhookSecretLen: (process.env.WEBHOOK_SECRET||'').length});
 });
 app.get('/', function(req, res) {
   res.json({name:'DeFiMongo Market Data API v3.0', health:'/health'});
