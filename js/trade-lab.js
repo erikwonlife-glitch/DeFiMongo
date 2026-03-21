@@ -1518,7 +1518,7 @@ const TL = (function(){
 
   function scannerContent(){
     const tlvl = tier();
-    const disc = tlDisclaimer('Binance дээрх шилдэг 200 USDT хослолыг SMA50/SMA200 огтлолцлоор 4H, 1D, 1W хүрээнд тасралтгүй хянана. Тренд эргэлтийг автоматаар илрүүлж харуулна. Elite гишүүнчлэл шаардлагатай.', 'tradelab-ai');
+    const disc = tlDisclaimer('Binance дээрх шилдэг 200 USDT хослолыг MONEY PULSE LINE-ны тусламжтайгаар 4H, 1D, 1W хүрээнд тасралтгүй хянана. Тренд эргэлтийг автоматаар илрүүлж харуулна. Elite гишүүнчлэл шаардлагатай.', 'tradelab-ai');
     if(tlvl < 3){
       return disc + lockedCard(
         '🔍 Market Scanner',
