@@ -14,6 +14,11 @@ const TL = (function(){
 
   const JOURNAL_KEY = 'dfm_journal_v1';
   let _jDir = 'BUY';
+  const TAG_MN = { 'Scalp': 'Скалп', 'Swing': 'Свинг', 'Position': 'Позиц', 'Signal-Based': 'Дохио дагасан' };
+
+  // ── ACTIVE TAB TRACKER ────────────────────────────────────────────────────
+
+  let _activeTabId = 'signals';
 
   // ── TV ACCESS STATE ───────────────────────────────────────────────────────
 
@@ -61,6 +66,10 @@ const TL = (function(){
     </div>`;
   }
 
+  function t(mn, en){
+    return (typeof SITE_LANG !== 'undefined' && SITE_LANG === 'en') ? en : mn;
+  }
+
   // ── TAB CONTENT BUILDERS ─────────────────────────────────────────────────
 
   // ── TV ACCESS: CONTENT & LOGIC ────────────────────────────────────────────
@@ -72,7 +81,7 @@ const TL = (function(){
       <div>
         <div style="margin-bottom:20px">
           <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px">📺 MONGO PULSE ACCESS</div>
-          <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;letter-spacing:1px">Register your details to receive Mongo Pulse indicator access</div>
+          <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;letter-spacing:1px" data-mn="Mongo Pulse индикатор хандалтаа авахын тулд мэдээллээ оруулна уу" data-en="Register your details to receive Mongo Pulse indicator access">Mongo Pulse индикатор хандалтаа авахын тулд мэдээллээ оруулна уу</div>
         </div>
 
         ${tlDisclaimer('Pro эсвэл Elite гишүүнчлэл авсны дараа энд имэйл болон TradingView хэрэглэгчийн нэрээ оруулна уу. Бид 24 цагийн дотор таны TradingView дансанд Mongo Pulse индикатор руу хандах эрх олгоно.', 'tradelab-access')}
@@ -81,18 +90,18 @@ const TL = (function(){
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px">
           <div style="background:#0a1520;border:1px solid rgba(0,180,216,0.1);border-radius:8px;padding:14px">
             <div style="font-family:'Space Mono',monospace;font-size:18px;margin-bottom:8px">1️⃣</div>
-            <div style="font-family:'Space Mono',monospace;font-size:10px;color:#00b4d8;letter-spacing:1px;margin-bottom:4px">UPGRADE</div>
-            <div style="font-size:11px;color:#4a6070;line-height:1.5">Upgrade to Pro or Elite on DeFiMongo</div>
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:#00b4d8;letter-spacing:1px;margin-bottom:4px" data-mn="ШИНЭЧЛЭХ" data-en="UPGRADE">ШИНЭЧЛЭХ</div>
+            <div style="font-size:11px;color:#4a6070;line-height:1.5" data-mn="DeFiMongo дээр Pro эсвэл Elite гишүүнчлэл авна уу" data-en="Upgrade to Pro or Elite on DeFiMongo">DeFiMongo дээр Pro эсвэл Elite гишүүнчлэл авна уу</div>
           </div>
           <div style="background:#0a1520;border:1px solid rgba(0,180,216,0.1);border-radius:8px;padding:14px">
             <div style="font-family:'Space Mono',monospace;font-size:18px;margin-bottom:8px">2️⃣</div>
-            <div style="font-family:'Space Mono',monospace;font-size:10px;color:#00b4d8;letter-spacing:1px;margin-bottom:4px">REGISTER</div>
-            <div style="font-size:11px;color:#4a6070;line-height:1.5">Submit your email and TradingView username below</div>
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:#00b4d8;letter-spacing:1px;margin-bottom:4px" data-mn="БҮРТГҮҮЛЭХ" data-en="REGISTER">БҮРТГҮҮЛЭХ</div>
+            <div style="font-size:11px;color:#4a6070;line-height:1.5" data-mn="Доор имэйл болон TradingView хэрэглэгчийн нэрээ оруулна уу" data-en="Submit your email and TradingView username below">Доор имэйл болон TradingView хэрэглэгчийн нэрээ оруулна уу</div>
           </div>
           <div style="background:#0a1520;border:1px solid rgba(0,180,216,0.1);border-radius:8px;padding:14px">
             <div style="font-family:'Space Mono',monospace;font-size:18px;margin-bottom:8px">3️⃣</div>
-            <div style="font-family:'Space Mono',monospace;font-size:10px;color:#00b4d8;letter-spacing:1px;margin-bottom:4px">GET ACCESS</div>
-            <div style="font-size:11px;color:#4a6070;line-height:1.5">We'll invite your TradingView account within 24h</div>
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:#00b4d8;letter-spacing:1px;margin-bottom:4px" data-mn="ХАНДАЛТ АВАХ" data-en="GET ACCESS">ХАНДАЛТ АВАХ</div>
+            <div style="font-size:11px;color:#4a6070;line-height:1.5" data-mn="Бид 24 цагийн дотор таны TradingView дансанд урилга илгээнэ" data-en="We'll invite your TradingView account within 24h">Бид 24 цагийн дотор таны TradingView дансанд урилга илгээнэ</div>
           </div>
         </div>
 
@@ -102,12 +111,12 @@ const TL = (function(){
           <div id="tl-tv-form" style="background:#0a1520;border:1px solid rgba(0,180,216,0.12);border-radius:12px;padding:24px">
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px">
               <div>
-                <label style="${lbl}">Email Address</label>
+                <label style="${lbl}" data-mn="Имэйл хаяг" data-en="Email Address">Имэйл хаяг</label>
                 <input id="tl-tv-email" type="email" placeholder="your@email.com" style="${inp}"
                   onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
               </div>
               <div>
-                <label style="${lbl}">TradingView Username</label>
+                <label style="${lbl}" data-mn="TradingView хэрэглэгчийн нэр" data-en="TradingView Username">TradingView хэрэглэгчийн нэр</label>
                 <input id="tl-tv-user" type="text" placeholder="your_tv_username" style="${inp}"
                   onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
               </div>
@@ -116,7 +125,7 @@ const TL = (function(){
             <button onclick="TL.tvSubmit()"
               style="background:#00e87a;color:#000;border:none;border-radius:8px;padding:14px;width:100%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:opacity .15s"
               onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-              SUBMIT REQUEST
+              <span data-mn="ХҮСЭЛТ ИЛГЭЭХ" data-en="SUBMIT REQUEST">ХҮСЭЛТ ИЛГЭЭХ</span>
             </button>
           </div>
           <!-- Status card rendered by tvRenderStatus() -->
@@ -145,10 +154,10 @@ const TL = (function(){
     statusEl.style.display = 'block';
 
     const STATUS_CFG = {
-      pending:  { color: '#00b4d8', icon: '⏳', label: 'PENDING ACTIVATION',  msg: 'Your request has been received. We\'ll invite your TradingView account within 24 hours of payment confirmation.' },
-      active:   { color: '#00e87a', icon: '✅', label: 'ACCESS ACTIVE',        msg: 'You have access to the DeFiMongo TradingView indicator.' },
-      expired:  { color: '#ff4444', icon: '❌', label: 'ACCESS EXPIRED',       msg: 'Your membership has expired. Renew your subscription to restore access.' },
-      revoked:  { color: '#4a6070', icon: '🚫', label: 'ACCESS REVOKED',       msg: 'Your access has been revoked. Contact support if you believe this is an error.' },
+      pending:  { color: '#00b4d8', icon: '⏳', label: t('ИДЭВХЖҮҮЛЭХИЙГ ХҮЛЭЭЖ БУЙ','PENDING ACTIVATION'),  msg: t('Таны хүсэлт хүлээн авагдлаа. Төлбөр баталгаажсаны дараа 24 цагийн дотор TradingView дансанд урилга илгээгдэнэ.','Your request has been received. We\'ll invite your TradingView account within 24 hours of payment confirmation.') },
+      active:   { color: '#00e87a', icon: '✅', label: t('ХАНДАЛТ ИДЭВХТЭЙ','ACCESS ACTIVE'),        msg: t('Та Mongo Pulse TradingView индикаторыг ашиглах эрхтэй байна.','You have access to the DeFiMongo TradingView indicator.') },
+      expired:  { color: '#ff4444', icon: '❌', label: t('ХАНДАЛТ ДУУССАН','ACCESS EXPIRED'),       msg: t('Таны гишүүнчлэл дууссан байна. Хандалтаа сэргээхийн тулд захиалгаа сунгана уу.','Your membership has expired. Renew your subscription to restore access.') },
+      revoked:  { color: '#4a6070', icon: '🚫', label: t('ХАНДАЛТ ЦУЦЛАГДСАН','ACCESS REVOKED'),       msg: t('Таны хандалт цуцлагдсан байна. Алдаа байвал дэмжлэгтэй холбоо барина уу.','Your access has been revoked. Contact support if you believe this is an error.') },
     };
     const cfg = STATUS_CFG[data.status] || STATUS_CFG.pending;
     const color = cfg.color;
@@ -164,8 +173,8 @@ const TL = (function(){
       daysHtml = `
         <div style="margin-top:16px">
           <div style="display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;margin-bottom:6px">
-            <span>MEMBERSHIP PERIOD</span>
-            <span style="color:${barColor}">${left} days remaining</span>
+            <span>${t('ГИШҮҮНЧЛЭЛИЙН ХУГАЦАА','MEMBERSHIP PERIOD')}</span>
+            <span style="color:${barColor}">${left} ${t('өдөр үлдсэн','days remaining')}</span>
           </div>
           <div style="background:rgba(255,255,255,0.06);border-radius:3px;height:6px">
             <div style="width:${pct}%;background:${barColor};border-radius:3px;height:100%;transition:width .5s"></div>
@@ -188,7 +197,7 @@ const TL = (function(){
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
           <div style="background:#060d12;border-radius:6px;padding:10px">
-            <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;margin-bottom:4px">EMAIL</div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;margin-bottom:4px">${t('ИМЭЙЛ','EMAIL')}</div>
             <div style="font-size:11px;color:#ccd8df;word-break:break-all">${data.email || localStorage.getItem(TV_LS_EMAIL) || '—'}</div>
           </div>
           <div style="background:#060d12;border-radius:6px;padding:10px">
@@ -196,7 +205,7 @@ const TL = (function(){
             <div style="font-family:'Space Mono',monospace;font-size:12px;color:#00b4d8;font-weight:700">@${data.tvUsername || '—'}</div>
           </div>
           <div style="background:#060d12;border-radius:6px;padding:10px">
-            <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;margin-bottom:4px">TIER</div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;margin-bottom:4px">${t('ШАТ','TIER')}</div>
             <div style="font-family:'Space Mono',monospace;font-size:12px;color:${tierColor()};font-weight:700">${data.tierName || tierName()}</div>
           </div>
         </div>
@@ -204,7 +213,7 @@ const TL = (function(){
         <button onclick="TL.tvReset()"
           style="margin-top:16px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 16px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#4a6070;cursor:pointer;transition:border-color .15s"
           onmouseover="this.style.borderColor='#00b4d8'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
-          UPDATE DETAILS
+          <span data-mn="МЭДЭЭЛЭЛ ШИНЭЧЛЭХ" data-en="UPDATE DETAILS">${t('МЭДЭЭЛЭЛ ШИНЭЧЛЭХ','UPDATE DETAILS')}</span>
         </button>
       </div>`;
   }
@@ -231,12 +240,12 @@ const TL = (function(){
     const email   = (emailEl ? emailEl.value : '').trim();
     const tvUser  = (userEl  ? userEl.value  : '').trim();
     if(!email || !tvUser){
-      if(errEl){ errEl.textContent = 'Both fields are required.'; errEl.style.display = 'block'; }
+      if(errEl){ errEl.textContent = t('Хоёр талбарыг бөглөнө үү.','Both fields are required.'); errEl.style.display = 'block'; }
       return;
     }
     if(errEl) errEl.style.display = 'none';
     const btn = document.querySelector('#tl-tv-form button');
-    if(btn){ btn.textContent = 'SUBMITTING...'; btn.disabled = true; }
+    if(btn){ btn.textContent = t('ИЛГЭЭЖ БАЙНА...','SUBMITTING...'); btn.disabled = true; }
     fetch(TV_BACKEND + '/api/tv-access', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -250,8 +259,8 @@ const TL = (function(){
         tvLoadStatus();
       })
       .catch(function(){
-        if(errEl){ errEl.textContent = 'Network error. Please try again.'; errEl.style.display = 'block'; }
-        if(btn){ btn.textContent = 'SUBMIT REQUEST'; btn.disabled = false; }
+        if(errEl){ errEl.textContent = t('Сүлжээний алдаа. Дахин оролдоно уу.','Network error. Please try again.'); errEl.style.display = 'block'; }
+        if(btn){ btn.textContent = t('ХҮСЭЛТ ИЛГЭЭХ','SUBMIT REQUEST'); btn.disabled = false; }
       });
   }
 
@@ -274,20 +283,20 @@ const TL = (function(){
   // ── JOURNAL: CONTENT HTML ─────────────────────────────────────────────────
 
   function journalContent(){
-    const t      = tier();
+    const tlvl   = tier();
     const trades = jLoadTrades();
     const count  = trades.length;
     const today  = new Date().toISOString().slice(0, 10);
 
-    const tierInfo = t < 2
-      ? `<span style="color:#ff6b35;font-family:'Space Mono',monospace;font-size:10px">Free tier: ${count}/10 trades used</span>`
-      : `<span style="color:#00e87a;font-family:'Space Mono',monospace;font-size:10px">Pro · Unlimited trades</span>`;
+    const tierInfo = tlvl < 2
+      ? `<span style="color:#ff6b35;font-family:'Space Mono',monospace;font-size:10px" data-mn="Үнэгүй шат: ${count}/10 арилжаа ашигласан" data-en="Free tier: ${count}/10 trades used">Үнэгүй шат: ${count}/10 арилжаа ашигласан</span>`
+      : `<span style="color:#00e87a;font-family:'Space Mono',monospace;font-size:10px" data-mn="Pro · Хязгааргүй арилжаа" data-en="Pro · Unlimited trades">Pro · Хязгааргүй арилжаа</span>`;
 
     const inp  = `width:100%;box-sizing:border-box;background:#060d12;border:1px solid rgba(0,180,216,0.2);border-radius:6px;padding:10px 14px;color:#ccd8df;font-size:13px;font-family:'Space Mono',monospace;outline:none`;
     const lbl  = `display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px`;
     const grid = `display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:16px`;
 
-    const tagId = t => 'tl-jrn-tag-' + t.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const tagId = tag => 'tl-jrn-tag-' + tag.toLowerCase().replace(/[^a-z0-9]/g, '-');
     const TAGS  = ['Scalp', 'Swing', 'Position', 'Signal-Based'];
 
     return `
@@ -297,7 +306,7 @@ const TL = (function(){
 
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:20px">
           <div>
-            <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px">📓 TRADE JOURNAL</div>
+            <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px" data-mn="📓 АРИЛЖААНЫ ТЭМДЭГЛЭЛ" data-en="📓 TRADE JOURNAL">📓 АРИЛЖААНЫ ТЭМДЭГЛЭЛ</div>
             <div id="tl-jrn-tier">${tierInfo}</div>
           </div>
         </div>
@@ -305,19 +314,19 @@ const TL = (function(){
         <!-- Row 1: Date | Symbol | Direction -->
         <div style="${grid}">
           <div>
-            <label style="${lbl}">Date</label>
+            <label style="${lbl}" data-mn="Огноо" data-en="Date">Огноо</label>
             <input id="tl-jrn-date" type="date" value="${today}"
               style="${inp}"
               onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
           </div>
           <div>
-            <label style="${lbl}">Symbol</label>
+            <label style="${lbl}" data-mn="Тэмдэгт" data-en="Symbol">Тэмдэгт</label>
             <input id="tl-jrn-sym" type="text" placeholder="BTC, ETH, SOL..."
               oninput="TL.calcPnl()" style="${inp}"
               onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
           </div>
           <div>
-            <label style="${lbl}">Direction</label>
+            <label style="${lbl}" data-mn="Чиглэл" data-en="Direction">Чиглэл</label>
             <div style="display:flex;gap:8px">
               <button id="tl-jrn-buy" onclick="TL.setDirection('BUY')"
                 style="flex:1;padding:10px 0;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:#00e87a;color:#000;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s">BUY</button>
@@ -330,19 +339,19 @@ const TL = (function(){
         <!-- Row 2: Entry | Exit | Position Size -->
         <div style="${grid}">
           <div>
-            <label style="${lbl}">Entry Price ($)</label>
+            <label style="${lbl}" data-mn="Орох үнэ ($)" data-en="Entry Price ($)">Орох үнэ ($)</label>
             <input id="tl-jrn-entry" type="number" min="0" step="any"
               oninput="TL.calcPnl()" style="${inp}"
               onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
           </div>
           <div>
-            <label style="${lbl}">Exit Price ($)</label>
+            <label style="${lbl}" data-mn="Гарах үнэ ($)" data-en="Exit Price ($)">Гарах үнэ ($)</label>
             <input id="tl-jrn-exit" type="number" min="0" step="any"
               oninput="TL.calcPnl()" style="${inp}"
               onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
           </div>
           <div>
-            <label style="${lbl}">Position Size ($)</label>
+            <label style="${lbl}" data-mn="Позицын хэмжээ ($)" data-en="Position Size ($)">Позицын хэмжээ ($)</label>
             <input id="tl-jrn-size" type="number" min="0" step="any"
               oninput="TL.calcPnl()" style="${inp}"
               onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
@@ -352,54 +361,54 @@ const TL = (function(){
         <!-- Row 3: Fees | Tags | Notes -->
         <div style="${grid};margin-bottom:20px">
           <div>
-            <label style="${lbl}">Fees ($)</label>
+            <label style="${lbl}" data-mn="Хураамж ($)" data-en="Fees ($)">Хураамж ($)</label>
             <input id="tl-jrn-fees" type="number" value="0" min="0" step="any"
               oninput="TL.calcPnl()" style="${inp}"
               onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
           </div>
           <div>
-            <label style="${lbl}">Tags</label>
+            <label style="${lbl}" data-mn="Шошго" data-en="Tags">Шошго</label>
             <div style="display:flex;flex-wrap:wrap;gap:8px;padding-top:4px">
               ${TAGS.map(tag => `
                 <label style="display:flex;align-items:center;gap:5px;cursor:pointer">
                   <input type="checkbox" id="${tagId(tag)}" value="${tag}"
                     style="accent-color:#00b4d8;cursor:pointer;width:13px;height:13px"/>
-                  <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070">${tag}</span>
+                  <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070" data-mn="${TAG_MN[tag]||tag}" data-en="${tag}">${TAG_MN[tag]||tag}</span>
                 </label>`).join('')}
             </div>
           </div>
           <div>
-            <label style="${lbl}">Notes</label>
-            <textarea id="tl-jrn-notes" rows="2" placeholder="Optional notes..."
+            <label style="${lbl}" data-mn="Тэмдэглэл" data-en="Notes">Тэмдэглэл</label>
+            <textarea id="tl-jrn-notes" rows="2" placeholder="Нэмэлт тэмдэглэл..."
               style="${inp};resize:vertical;line-height:1.5"></textarea>
           </div>
         </div>
 
         <!-- Live P&L preview -->
         <div id="tl-jrn-pnl" style="font-family:'Space Mono',monospace;font-size:13px;color:#4a6070;margin-bottom:14px;text-align:center">
-          Estimated P&amp;L: —
+          <span data-mn="Тооцоолсон П&amp;Л: —" data-en="Estimated P&amp;L: —">Тооцоолсон П&amp;Л: —</span>
         </div>
 
         <!-- Free tier gate message -->
-        <div id="tl-jrn-limit" style="display:none;font-family:'Space Mono',monospace;font-size:11px;color:#ff6b35;text-align:center;margin-bottom:10px">
-          🔒 Free tier limit reached (10/10). Upgrade to Pro for unlimited trades.
+        <div id="tl-jrn-limit" style="display:none;font-family:'Space Mono',monospace;font-size:11px;color:#ff6b35;text-align:center;margin-bottom:10px" data-mn="🔒 Үнэгүй шатны хязгаарт хүрлээ (10/10). Хязгааргүй тэмдэглэл хөтлөхийн тулд Pro авна уу." data-en="🔒 Free tier limit reached (10/10). Upgrade to Pro for unlimited trades.">
+          🔒 Үнэгүй шатны хязгаарт хүрлээ (10/10). Хязгааргүй тэмдэглэл хөтлөхийн тулд Pro авна уу.
         </div>
 
         <!-- Save button -->
         <button id="tl-jrn-save-btn" onclick="TL.saveTrade()"
           style="background:#00e87a;color:#000;border:none;border-radius:8px;padding:14px;width:100%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:opacity .15s">
-          SAVE TRADE
+          <span data-mn="АРИЛЖАА ХАДГАЛАХ" data-en="SAVE TRADE">АРИЛЖАА ХАДГАЛАХ</span>
         </button>
       </div>
 
       <!-- ── TRADE LIST CARD ── -->
       <div style="background:#0a1520;border:1px solid rgba(0,180,216,0.12);border-radius:12px;padding:24px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <div style="font-family:'Space Mono',monospace;font-size:13px;color:#ccd8df">Trade History</div>
+          <div style="font-family:'Space Mono',monospace;font-size:13px;color:#ccd8df" data-mn="Арилжааны түүх" data-en="Trade History">Арилжааны түүх</div>
           <button onclick="TL._exportCsv()"
             style="background:transparent;border:1px solid rgba(0,180,216,0.2);border-radius:6px;padding:6px 14px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#4a6070;cursor:pointer;transition:border-color .15s"
             onmouseover="this.style.borderColor='#00b4d8'" onmouseout="this.style.borderColor='rgba(0,180,216,0.2)'">
-            📥 EXPORT CSV
+            <span data-mn="📥 CSV ТАТАХ" data-en="📥 EXPORT CSV">📥 CSV ТАТАХ</span>
           </button>
         </div>
         <div id="tl-jrn-list"></div>
@@ -435,7 +444,7 @@ const TL = (function(){
     if(!el) return;
 
     if(!entry || !exit || !size){
-      el.innerHTML = 'Estimated P&amp;L: —';
+      el.innerHTML = t('Тооцоолсон П&amp;Л: —','Estimated P&amp;L: —');
       el.style.color = '#4a6070';
       return;
     }
@@ -447,16 +456,16 @@ const TL = (function(){
     const sign   = pnl >= 0 ? '+' : '';
     const color  = pnl > 0 ? '#00e87a' : pnl < 0 ? '#ff4444' : '#4a6070';
 
-    el.innerHTML = `Estimated P&amp;L: <strong style="color:${color}">${sign}$${Math.abs(pnl).toFixed(2)} (${sign}${pct.toFixed(2)}%)</strong>`;
+    el.innerHTML = `${t('Тооцоолсон П&amp;Л','Estimated P&amp;L')}: <strong style="color:${color}">${sign}$${Math.abs(pnl).toFixed(2)} (${sign}${pct.toFixed(2)}%)</strong>`;
     el.style.color = color;
   }
 
   // ── JOURNAL: SAVE TRADE ───────────────────────────────────────────────────
 
   function jSaveTrade(){
-    const t      = tier();
+    const tlvl   = tier();
     const trades = jLoadTrades();
-    if(t < 2 && trades.length >= 10) return;
+    if(tlvl < 2 && trades.length >= 10) return;
 
     const entry  = parseFloat(document.getElementById('tl-jrn-entry')?.value) || 0;
     const exit   = parseFloat(document.getElementById('tl-jrn-exit')?.value)  || 0;
@@ -502,7 +511,7 @@ const TL = (function(){
       if(cb) cb.checked = false;
     });
     const pnlEl = document.getElementById('tl-jrn-pnl');
-    if(pnlEl){ pnlEl.innerHTML = 'Estimated P&amp;L: —'; pnlEl.style.color = '#4a6070'; }
+    if(pnlEl){ pnlEl.innerHTML = t('Тооцоолсон П&amp;Л: —','Estimated P&amp;L: —'); pnlEl.style.color = '#4a6070'; }
 
     if(typeof toast === 'function') toast('Trade saved!', '#00e87a');
     jRenderList();
@@ -521,22 +530,22 @@ const TL = (function(){
     const listEl = document.getElementById('tl-jrn-list');
     if(!listEl) return;
 
-    const t      = tier();
+    const tlvl   = tier();
     const trades = jLoadTrades();
     const count  = trades.length;
 
     // Refresh tier badge
     const tierEl = document.getElementById('tl-jrn-tier');
     if(tierEl){
-      tierEl.innerHTML = t < 2
-        ? `<span style="color:#ff6b35;font-family:'Space Mono',monospace;font-size:10px">Free tier: ${count}/10 trades used</span>`
-        : `<span style="color:#00e87a;font-family:'Space Mono',monospace;font-size:10px">Pro · Unlimited trades</span>`;
+      tierEl.innerHTML = tlvl < 2
+        ? `<span style="color:#ff6b35;font-family:'Space Mono',monospace;font-size:10px">${t('Үнэгүй шат: '+count+'/10 арилжаа ашигласан','Free tier: '+count+'/10 trades used')}</span>`
+        : `<span style="color:#00e87a;font-family:'Space Mono',monospace;font-size:10px">${t('Pro · Хязгааргүй арилжаа','Pro · Unlimited trades')}</span>`;
     }
 
     // Gate: disable save btn when free tier full
     const saveBtn  = document.getElementById('tl-jrn-save-btn');
     const limitMsg = document.getElementById('tl-jrn-limit');
-    const atLimit  = t < 2 && count >= 10;
+    const atLimit  = tlvl < 2 && count >= 10;
     if(saveBtn){
       saveBtn.disabled     = atLimit;
       saveBtn.style.opacity  = atLimit ? '0.4' : '1';
@@ -546,7 +555,7 @@ const TL = (function(){
 
     // Empty state
     if(!count){
-      listEl.innerHTML = `<div style="text-align:center;padding:32px;font-family:'Space Mono',monospace;font-size:11px;color:#4a6070">No trades yet. Add your first trade above.</div>`;
+      listEl.innerHTML = `<div style="text-align:center;padding:32px;font-family:'Space Mono',monospace;font-size:11px;color:#4a6070">${t('Одоохондоо арилжаа байхгүй байна.','No trades recorded yet.')}</div>`;
       return;
     }
 
@@ -577,7 +586,7 @@ const TL = (function(){
         <table style="width:100%;border-collapse:collapse">
           <thead>
             <tr style="border-bottom:1px solid rgba(0,180,216,0.1)">
-              ${th('Date')}${th('Symbol')}${th('Dir')}${th('Entry')}${th('Exit')}${th('P&amp;L')}${th('Tags')}<th></th>
+              ${th(t('Огноо','Date'))}${th(t('Тэмдэгт','Symbol'))}${th(t('Чиглэл','Dir'))}${th(t('Орох','Entry'))}${th(t('Гарах','Exit'))}${th(t('П&amp;Л','P&amp;L'))}${th(t('Шошго','Tags'))}<th></th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
@@ -610,8 +619,8 @@ const TL = (function(){
       <div>
         <!-- Header -->
         <div style="margin-bottom:20px">
-          <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px">🧮 RISK CALCULATOR</div>
-          <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;letter-spacing:1px">Always free · All tiers</div>
+          <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px" data-mn="🧮 ЭРСДЭЛИЙН ТООЦООЛУУР" data-en="🧮 RISK CALCULATOR">🧮 ЭРСДЭЛИЙН ТООЦООЛУУР</div>
+          <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;letter-spacing:1px" data-mn="Бүгдэд үнэгүй · Бүх шат" data-en="Always free · All tiers">Бүгдэд үнэгүй · Бүх шат</div>
         </div>
 
         ${tlDisclaimer('Арилжаа бүрт хөрөнгийнхөө 1–2%-иас ихгүй эрсдэлд орно гэсэн зарчмыг баримтла. Энэ тооцоолуур позицын хэмжээ, stop-loss болон take-profit байрлалыг тодорхойлоход тусалдаг.', 'tradelab-risk')}
@@ -620,35 +629,35 @@ const TL = (function(){
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
 
           <div>
-            <label style="display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px">Account Size ($)</label>
+            <label style="display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px" data-mn="Дансны хэмжээ ($)" data-en="Account Size ($)">Дансны хэмжээ ($)</label>
             <input id="tl-rc-account" type="number" value="10000" min="0" oninput="TL._calcRisk()"
               style="width:100%;box-sizing:border-box;background:#060d12;border:1px solid rgba(0,180,216,0.2);border-radius:6px;padding:10px 14px;color:#ccd8df;font-size:14px;font-family:'Space Mono',monospace;outline:none"
               onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
           </div>
 
           <div>
-            <label style="display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px">Risk Per Trade (%)</label>
+            <label style="display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px" data-mn="Арилжааны эрсдэл (%)" data-en="Risk Per Trade (%)">Арилжааны эрсдэл (%)</label>
             <input id="tl-rc-risk-pct" type="number" value="2" min="0.01" max="100" step="0.1" oninput="TL._calcRisk()"
               style="width:100%;box-sizing:border-box;background:#060d12;border:1px solid rgba(0,180,216,0.2);border-radius:6px;padding:10px 14px;color:#ccd8df;font-size:14px;font-family:'Space Mono',monospace;outline:none"
               onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
           </div>
 
           <div>
-            <label style="display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px">Entry Price ($)</label>
+            <label style="display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px" data-mn="Орох үнэ ($)" data-en="Entry Price ($)">Орох үнэ ($)</label>
             <input id="tl-rc-entry" type="number" min="0" step="any" placeholder="e.g. 65000" oninput="TL._calcRisk()"
               style="width:100%;box-sizing:border-box;background:#060d12;border:1px solid rgba(0,180,216,0.2);border-radius:6px;padding:10px 14px;color:#ccd8df;font-size:14px;font-family:'Space Mono',monospace;outline:none"
               onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
           </div>
 
           <div>
-            <label style="display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px">Stop Loss Price ($)</label>
+            <label style="display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px" data-mn="Stop-Loss үнэ ($)" data-en="Stop-Loss Price ($)">Stop-Loss үнэ ($)</label>
             <input id="tl-rc-sl" type="number" min="0" step="any" placeholder="e.g. 63000" oninput="TL._calcRisk()"
               style="width:100%;box-sizing:border-box;background:#060d12;border:1px solid rgba(0,180,216,0.2);border-radius:6px;padding:10px 14px;color:#ccd8df;font-size:14px;font-family:'Space Mono',monospace;outline:none"
               onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
           </div>
 
           <div>
-            <label style="display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px">Take Profit Price ($)</label>
+            <label style="display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px" data-mn="Take-Profit үнэ ($)" data-en="Take-Profit Price ($)">Take-Profit үнэ ($)</label>
             <input id="tl-rc-tp" type="number" min="0" step="any" placeholder="Optional" oninput="TL._calcRisk()"
               style="width:100%;box-sizing:border-box;background:#060d12;border:1px solid rgba(0,180,216,0.2);border-radius:6px;padding:10px 14px;color:#ccd8df;font-size:14px;font-family:'Space Mono',monospace;outline:none"
               onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
@@ -671,27 +680,27 @@ const TL = (function(){
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px">
 
             <div style="background:#060d12;border:1px solid rgba(0,232,122,0.15);border-radius:8px;padding:16px;display:flex;justify-content:space-between;align-items:center">
-              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;text-transform:uppercase;letter-spacing:1px">Dollar Risk</span>
+              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;text-transform:uppercase;letter-spacing:1px" data-mn="Хамгийн их эрсдэл $" data-en="Max Risk $">Хамгийн их эрсдэл $</span>
               <span id="tl-rc-out-risk" style="font-family:'Space Mono',monospace;font-size:16px;color:#00e87a;font-weight:700">—</span>
             </div>
 
             <div style="background:#060d12;border:1px solid rgba(0,232,122,0.15);border-radius:8px;padding:16px;display:flex;justify-content:space-between;align-items:center">
-              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;text-transform:uppercase;letter-spacing:1px">Position Size</span>
+              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;text-transform:uppercase;letter-spacing:1px" data-mn="Позицын хэмжээ" data-en="Position Size">Позицын хэмжээ</span>
               <span id="tl-rc-out-units" style="font-family:'Space Mono',monospace;font-size:16px;color:#00e87a;font-weight:700">—</span>
             </div>
 
             <div style="background:#060d12;border:1px solid rgba(0,232,122,0.15);border-radius:8px;padding:16px;display:flex;justify-content:space-between;align-items:center">
-              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;text-transform:uppercase;letter-spacing:1px">Position (USD)</span>
+              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;text-transform:uppercase;letter-spacing:1px" data-mn="Позиц (USD)" data-en="Position (USD)">Позиц (USD)</span>
               <span id="tl-rc-out-usd" style="font-family:'Space Mono',monospace;font-size:16px;color:#00e87a;font-weight:700">—</span>
             </div>
 
             <div id="tl-rc-rr-card" style="background:#060d12;border:1px solid rgba(0,232,122,0.15);border-radius:8px;padding:16px;display:flex;justify-content:space-between;align-items:center">
-              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;text-transform:uppercase;letter-spacing:1px">R:R Ratio</span>
+              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;text-transform:uppercase;letter-spacing:1px" data-mn="Эрсдэл/Ашиг" data-en="Risk/Reward">Эрсдэл/Ашиг</span>
               <span id="tl-rc-out-rr" style="font-family:'Space Mono',monospace;font-size:16px;color:#4a6070;font-weight:700">—</span>
             </div>
 
             <div id="tl-rc-profit-card" style="background:#060d12;border:1px solid rgba(0,232,122,0.15);border-radius:8px;padding:16px;display:flex;justify-content:space-between;align-items:center">
-              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;text-transform:uppercase;letter-spacing:1px">Potential Profit</span>
+              <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;text-transform:uppercase;letter-spacing:1px" data-mn="Тооцоолсон ашиг" data-en="Est. Profit">Тооцоолсон ашиг</span>
               <span id="tl-rc-out-profit" style="font-family:'Space Mono',monospace;font-size:16px;color:#4a6070;font-weight:700">—</span>
             </div>
 
@@ -867,7 +876,7 @@ const TL = (function(){
     const s      = sCalc(trades);
 
     if(!s){
-      wrap.innerHTML = `<div style="text-align:center;padding:40px;font-family:'Space Mono',monospace;font-size:11px;color:#4a6070">No trades yet — add trades in the Journal tab.</div>`;
+      wrap.innerHTML = `<div style="text-align:center;padding:40px;font-family:'Space Mono',monospace;font-size:11px;color:#4a6070">${t('Одоохондоо арилжаа байхгүй — Тэмдэглэл табд арилжаа нэмнэ үү.','No trades yet — add trades in the Journal tab.')}</div>`;
       return;
     }
 
@@ -889,28 +898,28 @@ const TL = (function(){
 
     // Streak display
     const streakIcon  = s.curType ? '🔥' : '❄️';
-    const streakLabel = s.curType ? 'Win Streak' : 'Loss Streak';
+    const streakLabel = s.curType ? t('Ялалтын цуваа','Win Streak') : t('Ялагдлын цуваа','Loss Streak');
     const streakColor = s.curType ? '#00e87a' : '#ff4444';
 
     wrap.innerHTML = `
       <!-- Summary cards grid -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
-        ${card('Total Trades',  s.total,                       '#ccd8df')}
-        ${card('Win Rate',      s.winRate.toFixed(1)+'%',      wrColor)}
-        ${card('Total P&L',     usd(s.totalPnl),               col(s.totalPnl))}
-        ${card('Profit Factor', pfVal,                          pfColor)}
-        ${card('Avg Trade P&L', usd(s.avgPnl),                 col(s.avgPnl))}
-        ${card('Best Trade',    usd(s.best),                    '#00e87a')}
-        ${card('Worst Trade',   usd(s.worst),                   '#ff4444')}
-        ${card('Avg Winner',    usd(s.avgWinner),               '#00e87a')}
-        ${card('Avg Loser',     usd(s.avgLoser),                '#ff4444')}
+        ${card(t('Нийт арилжаа','Total Trades'),   s.total,                       '#ccd8df')}
+        ${card(t('Ялалтын хувь','Win Rate'),       s.winRate.toFixed(1)+'%',      wrColor)}
+        ${card(t('Нийт П&Л','Total P&L'),          usd(s.totalPnl),               col(s.totalPnl))}
+        ${card(t('Ашгийн хүчин зүйл','Profit Factor'), pfVal,                    pfColor)}
+        ${card(t('Дундаж арилжааны П&Л','Avg Trade P&L'), usd(s.avgPnl),         col(s.avgPnl))}
+        ${card(t('Хамгийн сайн арилжаа','Best Trade'),    usd(s.best),            '#00e87a')}
+        ${card(t('Хамгийн муу арилжаа','Worst Trade'),    usd(s.worst),           '#ff4444')}
+        ${card(t('Дундаж ялалт','Avg Winner'),     usd(s.avgWinner),               '#00e87a')}
+        ${card(t('Дундаж ялагдал','Avg Loser'),    usd(s.avgLoser),                '#ff4444')}
       </div>
 
       <!-- Win/Loss bar -->
       <div style="background:#0a1520;border-radius:12px;padding:20px;margin-top:4px">
         <div style="display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;margin-bottom:8px">
-          <span style="color:#00e87a">${s.wins} wins</span>
-          <span style="color:#ff4444">${s.losses} losses</span>
+          <span style="color:#00e87a">${s.wins} ${t('ялалт','wins')}</span>
+          <span style="color:#ff4444">${s.losses} ${t('ялагдал','losses')}</span>
         </div>
         <div style="height:24px;border-radius:12px;overflow:hidden;display:flex;background:rgba(255,255,255,0.04)">
           <div style="width:${winPct}%;background:linear-gradient(90deg,#00e87a,#00b85e);transition:width .4s"></div>
@@ -924,22 +933,22 @@ const TL = (function(){
       <!-- Streaks -->
       <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap">
         <div style="background:#060d12;border-radius:8px;padding:14px 18px;flex:1;min-width:140px">
-          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px">Current Streak</div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px">${t('Одоогийн цуваа','Current Streak')}</div>
           <div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:${streakColor}">${streakIcon} ${s.curStreak} ${streakLabel}</div>
         </div>
         <div style="background:#060d12;border-radius:8px;padding:14px 18px;flex:1;min-width:140px">
-          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px">Best Win Streak</div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px">${t('Хамгийн урт ялалтын цуваа','Best Win Streak')}</div>
           <div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#00e87a">🔥 ${s.bestWin}</div>
         </div>
         <div style="background:#060d12;border-radius:8px;padding:14px 18px;flex:1;min-width:140px">
-          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px">Best Loss Streak</div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px">${t('Хамгийн урт ялагдлын цуваа','Best Loss Streak')}</div>
           <div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#4a6070">❄️ ${s.bestLoss}</div>
         </div>
       </div>
 
       <!-- P&L bar chart -->
       <div style="margin-top:16px">
-        <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:8px">P&amp;L Per Trade</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:8px">${t('Арилжаа бүрийн П&amp;Л','P&amp;L Per Trade')}</div>
         <canvas id="tl-stats-chart" height="200" style="background:#060d12;border-radius:8px;display:block;width:100%;cursor:crosshair"></canvas>
       </div>`;
 
@@ -1104,20 +1113,20 @@ const TL = (function(){
   // ── STATS: CONTENT SHELL ──────────────────────────────────────────────────
 
   function statsContent(){
-    const t = tier();
+    const tlvl = tier();
     const disc = tlDisclaimer('Арилжааны тэмдэглэлийн дагуу тооцоологдсон гүйцэтгэлийн үзүүлэлтүүд. Win rate, expectancy болон streak-ийг ойлгоснаар стратегиа сайжруулж, ашигтай арилжааны хэв маяг бүрдүүлэх боломжтой.', 'tradelab-stats');
-    if(t < 2){
+    if(tlvl < 2){
       return disc + lockedCard(
-        'Performance Stats',
-        'Upgrade to PRO to unlock advanced performance analytics — win rate, expectancy, drawdown, Sharpe ratio, and more.',
-        'UPGRADE TO PRO'
+        '<span data-mn="Гүйцэтгэлийн Статистик" data-en="Performance Stats">Гүйцэтгэлийн Статистик</span>',
+        '<span data-mn="Дэвшилтэт гүйцэтгэлийн шинжилгээг нээхийн тулд PRO руу шинэчлэнэ үү — win rate, expectancy, drawdown, Sharpe ratio болон бусад." data-en="Upgrade to PRO to unlock advanced performance analytics — win rate, expectancy, drawdown, Sharpe ratio, and more.">Дэвшилтэт гүйцэтгэлийн шинжилгээг нээхийн тулд PRO руу шинэчлэнэ үү — win rate, expectancy, drawdown, Sharpe ratio болон бусад.</span>',
+        '<span data-mn="PRO РУУ ШИНЭЧЛЭХ" data-en="UPGRADE TO PRO">PRO РУУ ШИНЭЧЛЭХ</span>'
       );
     }
     return `
       <div>
         <div style="margin-bottom:20px">
-          <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px">📊 PERFORMANCE STATS</div>
-          <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;letter-spacing:1px">Calculated from your trade journal · Updates automatically</div>
+          <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px" data-mn="📊 ГҮЙЦЭТГЭЛИЙН СТАТИСТИК" data-en="📊 PERFORMANCE STATS">📊 ГҮЙЦЭТГЭЛИЙН СТАТИСТИК</div>
+          <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;letter-spacing:1px" data-mn="Арилжааны тэмдэглэлээс тооцоологдсон · Автоматаар шинэчлэгдэнэ" data-en="Calculated from your trade journal · Updates automatically">Арилжааны тэмдэглэлээс тооцоологдсон · Автоматаар шинэчлэгдэнэ</div>
         </div>
         ${disc}
         <div id="tl-stats-body"></div>
@@ -1125,20 +1134,20 @@ const TL = (function(){
   }
 
   function calendarContent(){
-    const t = tier();
+    const tlvl = tier();
     const disc = tlDisclaimer('Өдөр бүрийн P&L-ийг харагдуулсан хуанли. Аль өдөр, аль долоо хоногт хамгийн сайн арилжаадаг болохоо ойлгож, давталтыг олж, стратегиа цаг хугацаатай уялдуулан сайжруулаарай.', 'tradelab-calendar');
-    if(t < 2){
+    if(tlvl < 2){
       return disc + lockedCard(
-        'Trade Calendar',
-        'Upgrade to PRO to unlock your trading calendar — visualize your performance by day, week, and month.',
-        'UPGRADE TO PRO'
+        '<span data-mn="Арилжааны Хуанли" data-en="Trade Calendar">Арилжааны Хуанли</span>',
+        '<span data-mn="Арилжааны хуанлиа нээхийн тулд PRO руу шинэчлэнэ үү — өдөр, долоо хоног, сараар гүйцэтгэлийг харуулна." data-en="Upgrade to PRO to unlock your trading calendar — visualize your performance by day, week, and month.">Арилжааны хуанлиа нээхийн тулд PRO руу шинэчлэнэ үү — өдөр, долоо хоног, сараар гүйцэтгэлийг харуулна.</span>',
+        '<span data-mn="PRO РУУ ШИНЭЧЛЭХ" data-en="UPGRADE TO PRO">PRO РУУ ШИНЭЧЛЭХ</span>'
       );
     }
     return `
       <div>
         <div style="margin-bottom:20px">
-          <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px">📅 TRADE CALENDAR</div>
-          <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;letter-spacing:1px">Daily P&amp;L heatmap from your trade journal</div>
+          <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px" data-mn="📅 АРИЛЖААНЫ ХУАНЛИ" data-en="📅 TRADE CALENDAR">📅 АРИЛЖААНЫ ХУАНЛИ</div>
+          <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;letter-spacing:1px" data-mn="Арилжааны тэмдэглэлийн өдөр тутмын P&amp;L хуанли" data-en="Daily P&amp;L heatmap from your trade journal">Арилжааны тэмдэглэлийн өдөр тутмын P&amp;L хуанли</div>
         </div>
         ${disc}
         <div id="tl-cal-body"></div>
@@ -1152,8 +1161,8 @@ const TL = (function(){
     if(!wrap) return;
     const trades = jLoadTrades();
 
-    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const MONTHS = [t('1-р сар','January'),t('2-р сар','February'),t('3-р сар','March'),t('4-р сар','April'),t('5-р сар','May'),t('6-р сар','June'),t('7-р сар','July'),t('8-р сар','August'),t('9-р сар','September'),t('10-р сар','October'),t('11-р сар','November'),t('12-р сар','December')];
+    const DAYS   = [t('Ня','Sun'),t('Да','Mon'),t('Мя','Tue'),t('Лх','Wed'),t('Пү','Thu'),t('Ба','Fri'),t('Бя','Sat')];
 
     // Aggregate P&L by date
     const byDate = {};
@@ -1226,7 +1235,7 @@ const TL = (function(){
           <div style="font-family:'Space Mono',monospace;font-size:10px;color:${dayColor};font-weight:${dayWeight}">${d}</div>
           ${data ? `
             <div style="font-family:'Space Mono',monospace;font-size:9px;color:${pnlColor2};margin-top:4px;word-break:break-all">${pnlTxt}</div>
-            <div style="font-family:'Space Mono',monospace;font-size:8px;color:#4a6070;margin-top:2px">${data.count} trade${data.count > 1 ? 's' : ''}</div>
+            <div style="font-family:'Space Mono',monospace;font-size:8px;color:#4a6070;margin-top:2px">${data.count} ${t('арилжаа',data.count > 1 ? 'trades' : 'trade')}</div>
           ` : ''}
         </div>`;
     }
@@ -1248,19 +1257,19 @@ const TL = (function(){
         <!-- Monthly summary -->
         <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
           <div style="flex:1;min-width:72px;background:#060d12;border-radius:6px;padding:10px;text-align:center">
-            <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;margin-bottom:4px">MONTH P&L</div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;margin-bottom:4px">${t('САРЫН П&Л','MONTH P&L')}</div>
             <div style="font-family:'Space Mono',monospace;font-size:14px;color:${pnlColor}">${pnlSign}$${Math.abs(monthPnl).toFixed(2)}</div>
           </div>
           <div style="flex:1;min-width:72px;background:#060d12;border-radius:6px;padding:10px;text-align:center">
-            <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;margin-bottom:4px">WIN DAYS</div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;margin-bottom:4px">${t('ЯЛСАН ӨДРҮҮД','WIN DAYS')}</div>
             <div style="font-family:'Space Mono',monospace;font-size:14px;color:#00e87a">${winDays}</div>
           </div>
           <div style="flex:1;min-width:72px;background:#060d12;border-radius:6px;padding:10px;text-align:center">
-            <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;margin-bottom:4px">LOSS DAYS</div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;margin-bottom:4px">${t('ЯЛАГДСАН ӨДРҮҮД','LOSS DAYS')}</div>
             <div style="font-family:'Space Mono',monospace;font-size:14px;color:#ff4444">${lossDays}</div>
           </div>
           <div style="flex:1;min-width:72px;background:#060d12;border-radius:6px;padding:10px;text-align:center">
-            <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;margin-bottom:4px">TRADE DAYS</div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;margin-bottom:4px">${t('АРИЛЖААНЫ ӨДРҮҮД','TRADE DAYS')}</div>
             <div style="font-family:'Space Mono',monospace;font-size:14px;color:#ccd8df">${winDays + lossDays}</div>
           </div>
         </div>
@@ -1321,32 +1330,33 @@ const TL = (function(){
   }
 
   function aiReviewContent(){
-    const t = tier();
+    const tlvl = tier();
     const disc = tlDisclaimer('Хиймэл оюун ухаан таны арилжааны тэмдэглэлийг шинжилж, алдаа болон давуу талыг тодорхойлно. Арилжаа бүрийн эрсдэл, орох цэг, гарах цэгийн зөв байдлыг AI-аар үнэлүүлж, хурдан хугацаанд дэвших боломжтой. Elite гишүүнчлэл шаардлагатай.', 'tradelab-ai');
-    if(t < 3){
+    if(tlvl < 3){
       return disc + lockedCard(
-        'AI Trade Review',
-        'Elite tier exclusive. Get AI-powered analysis of every trade — what went right, what went wrong, risk scoring.',
-        'UPGRADE TO ELITE'
+        '<span data-mn="AI Арилжааны Шинжилгээ" data-en="AI Trade Review">AI Арилжааны Шинжилгээ</span>',
+        '<span data-mn="Elite шат онцгой. AI-аар дэмжигдсэн арилжааны шинжилгээ авна уу — юу зөв, юу буруу байсан, эрсдэлийн оноо." data-en="Elite tier exclusive. Get AI-powered analysis of every trade — what went right, what went wrong, risk scoring.">Elite шат онцгой. AI-аар дэмжигдсэн арилжааны шинжилгээ авна уу — юу зөв, юу буруу байсан, эрсдэлийн оноо.</span>',
+        '<span data-mn="ELITE РУУ ШИНЭЧЛЭХ" data-en="UPGRADE TO ELITE">ELITE РУУ ШИНЭЧЛЭХ</span>'
       );
     }
-    return disc + placeholderCard('🤖', 'AI Trade Review', 'AI analysis coming soon.');
+    return disc + placeholderCard('🤖', '<span data-mn="AI Арилжааны Шинжилгээ" data-en="AI Trade Review">AI Арилжааны Шинжилгээ</span>', '<span data-mn="AI шинжилгээ удахгүй гарна." data-en="AI analysis coming soon.">AI шинжилгээ удахгүй гарна.</span>');
   }
 
   // ── TAB CONFIG ────────────────────────────────────────────────────────────
 
   const TABS = [
-    { id: 'signals',   label: 'PULSE ACCESS', build: tvAccessContent },
-    { id: 'journal',   label: 'JOURNAL',   build: journalContent  },
-    { id: 'risk',      label: 'RISK CALC', build: riskContent     },
-    { id: 'stats',     label: 'STATS',     build: statsContent    },
-    { id: 'calendar',  label: 'CALENDAR',  build: calendarContent },
-    { id: 'ai-review', label: 'AI REVIEW', build: aiReviewContent },
+    { id: 'signals',   labelMn: 'ПУЛЬС ХАНДАЛТ', labelEn: 'PULSE ACCESS', build: tvAccessContent },
+    { id: 'journal',   labelMn: 'ТЭМДЭГЛЭЛ',     labelEn: 'JOURNAL',      build: journalContent  },
+    { id: 'risk',      labelMn: 'ЭРСДЭЛ ТООЦ',   labelEn: 'RISK CALC',    build: riskContent     },
+    { id: 'stats',     labelMn: 'СТАТИСТИК',      labelEn: 'STATS',        build: statsContent    },
+    { id: 'calendar',  labelMn: 'ХУАНЛИ',         labelEn: 'CALENDAR',     build: calendarContent },
+    { id: 'ai-review', labelMn: 'AI ШИНЖИЛГЭЭ',   labelEn: 'AI REVIEW',    build: aiReviewContent },
   ];
 
   // ── TAB SWITCHER ─────────────────────────────────────────────────────────
 
   function switchTab(id){
+    _activeTabId = id;
     TABS.forEach(function(tab){
       const btn = document.getElementById('tl-tab-'+tab.id);
       const pane = document.getElementById('tl-pane-'+tab.id);
@@ -1375,8 +1385,9 @@ const TL = (function(){
     const tabBarItems = TABS.map(function(tab){
       return `<button id="tl-tab-${tab.id}"
         onclick="TL._switchTab('${tab.id}')"
+        data-mn="${tab.labelMn}" data-en="${tab.labelEn}"
         style="padding:12px 20px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;color:#4a6070;cursor:pointer;border:none;border-bottom:2px solid transparent;background:transparent;white-space:nowrap;transition:color .15s,border-color .15s"
-      >${tab.label}</button>`;
+      >${tab.labelMn}</button>`;
     }).join('');
 
     // Build panes HTML
@@ -1389,10 +1400,10 @@ const TL = (function(){
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:12px">
         <div>
           <div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:#fff;margin-bottom:6px">⚗️ TRADE LAB</div>
-          <div style="font-family:'Space Mono',monospace;font-size:11px;color:#4a6070;letter-spacing:.5px">Your personal trading intelligence center</div>
+          <div style="font-family:'Space Mono',monospace;font-size:11px;color:#4a6070;letter-spacing:.5px" data-mn="Таны хувийн арилжааны тагнуулын төв" data-en="Your personal trading intelligence center">Таны хувийн арилжааны тагнуулын төв</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;text-transform:uppercase">Tier</span>
+          <span style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:1px;text-transform:uppercase" data-mn="Шат" data-en="Tier">Шат</span>
           <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:${tc};background:${tc}18;border:1px solid ${tc}44;border-radius:4px;padding:4px 12px;letter-spacing:1px">${tn}</span>
         </div>
       </div>
@@ -1407,6 +1418,22 @@ const TL = (function(){
         ${panesHTML}
       </div>
     `;
+
+    // Apply current language to newly injected Trade Lab content
+    if(typeof setSiteLang === 'function') setSiteLang(typeof SITE_LANG !== 'undefined' ? SITE_LANG : 'mn');
+
+    // Re-render active tab's dynamic content when language switches
+    if(!window.setSiteLang._tlWrapped){
+      var _tlPrevSetSiteLang = window.setSiteLang;
+      window.setSiteLang = function(lang){
+        if(_tlPrevSetSiteLang) _tlPrevSetSiteLang(lang);
+        if(_activeTabId === 'journal')  jRenderList();
+        if(_activeTabId === 'stats')    sRenderStats();
+        if(_activeTabId === 'calendar') cRenderCalendar();
+        if(_activeTabId === 'signals')  tvLoadStatus();
+      };
+      window.setSiteLang._tlWrapped = true;
+    }
 
     // Activate first tab
     switchTab('signals');
