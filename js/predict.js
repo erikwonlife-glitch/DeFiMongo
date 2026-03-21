@@ -394,6 +394,95 @@ function filterPMMarkets(markets, filter) {
   return markets.filter(m => m.category === filter);
 }
 
+function pmCardClick(id) {
+  console.log('[Predict] card click:', id);
+  pmOpenWaitlist(id);
+}
+
+/* ── RENDER MARKET GRID ──────────────────────────────────── */
+function renderPMMarkets(filter) {
+  pmCurrentCat = filter || 'all';
+  var lang     = (typeof SITE_LANG !== 'undefined') ? SITE_LANG : 'mn';
+  var grid     = document.getElementById('pmGrid');
+  if (!grid) return;
+
+  var markets  = pmCurrentCat === 'all'
+    ? PM_MARKETS
+    : PM_MARKETS.filter(function(m) { return m.cat === pmCurrentCat; });
+
+  if (!markets.length) {
+    grid.innerHTML = '<div style="text-align:center;padding:40px;font-family:\'Space Mono\',monospace;font-size:11px;color:var(--muted)">No markets in this category yet.</div>';
+    return;
+  }
+
+  grid.innerHTML = markets.map(function(m) {
+    var cat     = PM_CAT[m.cat] || { mn: m.cat, en: m.cat, cls: '' };
+    var label   = lang === 'en' ? cat.en : cat.mn;
+    var question= lang === 'en' ? m.en : m.mn;
+    var yesW    = m.yes;
+    var noW     = 100 - m.yes;
+    var vol     = '$' + m.vol.toLocaleString();
+    var closes  = m.closes ? m.closes.slice(0,10) : '—';
+    var isClosed= m.status !== 'open';
+
+    return '<div onclick="pmCardClick(\'' + m.id + '\')"'
+      + ' style="background:#0c1014;border:1px solid #1c2d38;border-radius:12px;padding:18px;cursor:pointer;transition:border-color .15s;position:relative"'
+      + ' onmouseover="this.style.borderColor=\'#e84040\'" onmouseout="this.style.borderColor=\'#1c2d38\'">'
+
+      // Category + status badge
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+      +   '<span style="font-family:\'Space Mono\',monospace;font-size:9px;letter-spacing:1px;color:#e84040">' + label + '</span>'
+      +   '<span style="font-family:\'Space Mono\',monospace;font-size:8px;padding:2px 7px;border-radius:3px;background:rgba(232,64,64,.12);color:#e84040;border:1px solid rgba(232,64,64,.25)">'
+      +     (isClosed ? (lang === 'en' ? 'CLOSED' : 'ХААЛТТАЙ') : (lang === 'en' ? 'OPEN' : 'НЭЭЛТТЭЙ'))
+      +   '</span>'
+      + '</div>'
+
+      // Question
+      + '<div style="font-family:\'Space Grotesk\',sans-serif;font-size:13px;color:#ccd8df;line-height:1.5;margin-bottom:14px">' + question + '</div>'
+
+      // Probability bar
+      + '<div style="display:flex;justify-content:space-between;margin-bottom:5px">'
+      +   '<span style="font-family:\'Space Mono\',monospace;font-size:10px;color:#00e87a">'
+      +     (lang === 'en' ? 'YES ' : 'ТИЙМ ') + yesW + '%'
+      +   '</span>'
+      +   '<span style="font-family:\'Space Mono\',monospace;font-size:10px;color:#e84040">'
+      +     noW + '% ' + (lang === 'en' ? 'NO' : 'ҮГҮЙ')
+      +   '</span>'
+      + '</div>'
+      + '<div style="display:flex;gap:2px;height:6px;border-radius:3px;overflow:hidden;margin-bottom:14px">'
+      +   '<div style="width:' + yesW + '%;background:linear-gradient(90deg,#00e87a,#00b85e)"></div>'
+      +   '<div style="width:' + noW  + '%;background:linear-gradient(90deg,#e84040,#c02020)"></div>'
+      + '</div>'
+
+      // Footer: vol + closes
+      + '<div style="display:flex;justify-content:space-between;align-items:center">'
+      +   '<span style="font-family:\'Space Mono\',monospace;font-size:9px;color:var(--muted)">'
+      +     (lang === 'en' ? 'Vol: ' : 'Хэмжээ: ') + vol
+      +   '</span>'
+      +   '<span style="font-family:\'Space Mono\',monospace;font-size:9px;color:var(--muted)">'
+      +     (lang === 'en' ? 'Closes: ' : 'Хаагдах: ') + closes
+      +   '</span>'
+      + '</div>'
+
+      // CTA button
+      + '<button onclick="event.stopPropagation();pmOpenWaitlist(\'' + m.id + '\')"'
+      +   ' style="width:100%;margin-top:14px;padding:10px;background:linear-gradient(135deg,rgba(232,64,64,.15),rgba(244,197,66,.1));border:1px solid rgba(232,64,64,.3);border-radius:8px;font-family:\'Space Mono\',monospace;font-size:10px;letter-spacing:1px;color:#e84040;cursor:pointer;transition:all .15s"'
+      +   ' onmouseover="this.style.background=\'linear-gradient(135deg,rgba(232,64,64,.25),rgba(244,197,66,.15))\'"'
+      +   ' onmouseout="this.style.background=\'linear-gradient(135deg,rgba(232,64,64,.15),rgba(244,197,66,.1))\'">'
+      +   '🔔 ' + (lang === 'en' ? 'JOIN WAITLIST' : 'ЖАГСААЛТАД БҮРТГҮҮЛЭХ')
+      + '</button>'
+
+    + '</div>';
+  }).join('');
+
+  // Sync filter tab active states if they exist
+  document.querySelectorAll('.pm-filter-btn').forEach(function(btn) {
+    var isActive = btn.dataset.cat === pmCurrentCat;
+    btn.style.background = isActive ? '#e84040' : 'transparent';
+    btn.style.color      = isActive ? '#fff' : 'var(--muted)';
+  });
+}
+
 /* ── EXPORTS ─────────────────────────────────────────────── */
 window.openPredictPage   = openPredictPage;
 window.closePredictPage  = closePredictPage;

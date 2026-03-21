@@ -10,6 +10,11 @@ const TL = (function(){
   function tierName(){ return typeof getTierName === 'function' ? getTierName() : 'FREE'; }
   function tierColor(){ return typeof getTierColor === 'function' ? getTierColor() : '#4a6070'; }
 
+  // ── JOURNAL STATE ─────────────────────────────────────────────────────────
+
+  const JOURNAL_KEY = 'dfm_journal_v1';
+  let _jDir = 'BUY';
+
   // ── LOCKED CARD ──────────────────────────────────────────────────────────
 
   function lockedCard(title, desc, btnLabel){
@@ -52,19 +57,346 @@ const TL = (function(){
     );
   }
 
+  // ── JOURNAL: STORAGE ─────────────────────────────────────────────────────
+
+  function jLoadTrades(){
+    try { return JSON.parse(localStorage.getItem(JOURNAL_KEY) || '[]'); } catch(e){ return []; }
+  }
+  function jSaveTrades(trades){
+    try { localStorage.setItem(JOURNAL_KEY, JSON.stringify(trades)); } catch(e){}
+  }
+
+  // ── JOURNAL: CONTENT HTML ─────────────────────────────────────────────────
+
   function journalContent(){
-    const t = tier();
-    const extra = t < 2
-      ? `<div style="margin-top:16px">
-          <div style="display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:10px;color:#4a6070;margin-bottom:6px">
-            <span>Free tier: 0/10 trades used</span><span>0%</span>
+    const t      = tier();
+    const trades = jLoadTrades();
+    const count  = trades.length;
+    const today  = new Date().toISOString().slice(0, 10);
+
+    const tierInfo = t < 2
+      ? `<span style="color:#ff6b35;font-family:'Space Mono',monospace;font-size:10px">Free tier: ${count}/10 trades used</span>`
+      : `<span style="color:#00e87a;font-family:'Space Mono',monospace;font-size:10px">Pro · Unlimited trades</span>`;
+
+    const inp  = `width:100%;box-sizing:border-box;background:#060d12;border:1px solid rgba(0,180,216,0.2);border-radius:6px;padding:10px 14px;color:#ccd8df;font-size:13px;font-family:'Space Mono',monospace;outline:none`;
+    const lbl  = `display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px`;
+    const grid = `display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:16px`;
+
+    const tagId = t => 'tl-jrn-tag-' + t.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const TAGS  = ['Scalp', 'Swing', 'Position', 'Signal-Based'];
+
+    return `
+      <!-- ── FORM CARD ── -->
+      <div style="background:#0a1520;border:1px solid rgba(0,180,216,0.12);border-radius:12px;padding:24px;margin-bottom:20px">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:20px">
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:16px;color:#ccd8df;margin-bottom:4px">📓 TRADE JOURNAL</div>
+            <div id="tl-jrn-tier">${tierInfo}</div>
           </div>
-          <div style="background:#0a1520;border:1px solid rgba(0,180,216,0.12);border-radius:4px;height:6px;overflow:hidden">
-            <div style="width:0%;height:100%;background:#00b4d8;border-radius:4px"></div>
+        </div>
+
+        <!-- Row 1: Date | Symbol | Direction -->
+        <div style="${grid}">
+          <div>
+            <label style="${lbl}">Date</label>
+            <input id="tl-jrn-date" type="date" value="${today}"
+              style="${inp}"
+              onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
           </div>
-        </div>`
-      : `<div style="margin-top:12px;font-family:'Space Mono',monospace;font-size:11px;color:#00e87a">Unlimited trades</div>`;
-    return placeholderCard('📓', 'Trade Journal', null, extra);
+          <div>
+            <label style="${lbl}">Symbol</label>
+            <input id="tl-jrn-sym" type="text" placeholder="BTC, ETH, SOL..."
+              oninput="TL.calcPnl()" style="${inp}"
+              onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
+          </div>
+          <div>
+            <label style="${lbl}">Direction</label>
+            <div style="display:flex;gap:8px">
+              <button id="tl-jrn-buy" onclick="TL.setDirection('BUY')"
+                style="flex:1;padding:10px 0;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:#00e87a;color:#000;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s">BUY</button>
+              <button id="tl-jrn-sell" onclick="TL.setDirection('SELL')"
+                style="flex:1;padding:10px 0;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:#060d12;color:#4a6070;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s">SELL</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Entry | Exit | Position Size -->
+        <div style="${grid}">
+          <div>
+            <label style="${lbl}">Entry Price ($)</label>
+            <input id="tl-jrn-entry" type="number" min="0" step="any"
+              oninput="TL.calcPnl()" style="${inp}"
+              onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
+          </div>
+          <div>
+            <label style="${lbl}">Exit Price ($)</label>
+            <input id="tl-jrn-exit" type="number" min="0" step="any"
+              oninput="TL.calcPnl()" style="${inp}"
+              onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
+          </div>
+          <div>
+            <label style="${lbl}">Position Size ($)</label>
+            <input id="tl-jrn-size" type="number" min="0" step="any"
+              oninput="TL.calcPnl()" style="${inp}"
+              onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
+          </div>
+        </div>
+
+        <!-- Row 3: Fees | Tags | Notes -->
+        <div style="${grid};margin-bottom:20px">
+          <div>
+            <label style="${lbl}">Fees ($)</label>
+            <input id="tl-jrn-fees" type="number" value="0" min="0" step="any"
+              oninput="TL.calcPnl()" style="${inp}"
+              onfocus="this.style.borderColor='#00b4d8'" onblur="this.style.borderColor='rgba(0,180,216,0.2)'"/>
+          </div>
+          <div>
+            <label style="${lbl}">Tags</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;padding-top:4px">
+              ${TAGS.map(tag => `
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer">
+                  <input type="checkbox" id="${tagId(tag)}" value="${tag}"
+                    style="accent-color:#00b4d8;cursor:pointer;width:13px;height:13px"/>
+                  <span style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6070">${tag}</span>
+                </label>`).join('')}
+            </div>
+          </div>
+          <div>
+            <label style="${lbl}">Notes</label>
+            <textarea id="tl-jrn-notes" rows="2" placeholder="Optional notes..."
+              style="${inp};resize:vertical;line-height:1.5"></textarea>
+          </div>
+        </div>
+
+        <!-- Live P&L preview -->
+        <div id="tl-jrn-pnl" style="font-family:'Space Mono',monospace;font-size:13px;color:#4a6070;margin-bottom:14px;text-align:center">
+          Estimated P&amp;L: —
+        </div>
+
+        <!-- Free tier gate message -->
+        <div id="tl-jrn-limit" style="display:none;font-family:'Space Mono',monospace;font-size:11px;color:#ff6b35;text-align:center;margin-bottom:10px">
+          🔒 Free tier limit reached (10/10). Upgrade to Pro for unlimited trades.
+        </div>
+
+        <!-- Save button -->
+        <button id="tl-jrn-save-btn" onclick="TL.saveTrade()"
+          style="background:#00e87a;color:#000;border:none;border-radius:8px;padding:14px;width:100%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:opacity .15s">
+          SAVE TRADE
+        </button>
+      </div>
+
+      <!-- ── TRADE LIST CARD ── -->
+      <div style="background:#0a1520;border:1px solid rgba(0,180,216,0.12);border-radius:12px;padding:24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-family:'Space Mono',monospace;font-size:13px;color:#ccd8df">Trade History</div>
+          <button onclick="TL._exportCsv()"
+            style="background:transparent;border:1px solid rgba(0,180,216,0.2);border-radius:6px;padding:6px 14px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#4a6070;cursor:pointer;transition:border-color .15s"
+            onmouseover="this.style.borderColor='#00b4d8'" onmouseout="this.style.borderColor='rgba(0,180,216,0.2)'">
+            📥 EXPORT CSV
+          </button>
+        </div>
+        <div id="tl-jrn-list"></div>
+      </div>`;
+  }
+
+  // ── JOURNAL: DIRECTION TOGGLE ─────────────────────────────────────────────
+
+  function jSetDirection(dir){
+    _jDir = dir;
+    const buyBtn  = document.getElementById('tl-jrn-buy');
+    const sellBtn = document.getElementById('tl-jrn-sell');
+    if(buyBtn && sellBtn){
+      if(dir === 'BUY'){
+        buyBtn.style.background  = '#00e87a'; buyBtn.style.color  = '#000';
+        sellBtn.style.background = '#060d12'; sellBtn.style.color = '#4a6070';
+      } else {
+        sellBtn.style.background = '#ff4444'; sellBtn.style.color = '#fff';
+        buyBtn.style.background  = '#060d12'; buyBtn.style.color  = '#4a6070';
+      }
+    }
+    jCalcPnl();
+  }
+
+  // ── JOURNAL: LIVE P&L PREVIEW ─────────────────────────────────────────────
+
+  function jCalcPnl(){
+    const entry = parseFloat(document.getElementById('tl-jrn-entry')?.value) || 0;
+    const exit  = parseFloat(document.getElementById('tl-jrn-exit')?.value)  || 0;
+    const size  = parseFloat(document.getElementById('tl-jrn-size')?.value)  || 0;
+    const fees  = parseFloat(document.getElementById('tl-jrn-fees')?.value)  || 0;
+    const el    = document.getElementById('tl-jrn-pnl');
+    if(!el) return;
+
+    if(!entry || !exit || !size){
+      el.innerHTML = 'Estimated P&amp;L: —';
+      el.style.color = '#4a6070';
+      return;
+    }
+
+    const pnl    = _jDir === 'BUY'
+      ? (exit - entry) / entry * size - fees
+      : (entry - exit) / entry * size - fees;
+    const pct    = ((exit - entry) / entry * 100) * (_jDir === 'BUY' ? 1 : -1);
+    const sign   = pnl >= 0 ? '+' : '';
+    const color  = pnl > 0 ? '#00e87a' : pnl < 0 ? '#ff4444' : '#4a6070';
+
+    el.innerHTML = `Estimated P&amp;L: <strong style="color:${color}">${sign}$${Math.abs(pnl).toFixed(2)} (${sign}${pct.toFixed(2)}%)</strong>`;
+    el.style.color = color;
+  }
+
+  // ── JOURNAL: SAVE TRADE ───────────────────────────────────────────────────
+
+  function jSaveTrade(){
+    const t      = tier();
+    const trades = jLoadTrades();
+    if(t < 2 && trades.length >= 10) return;
+
+    const entry  = parseFloat(document.getElementById('tl-jrn-entry')?.value) || 0;
+    const exit   = parseFloat(document.getElementById('tl-jrn-exit')?.value)  || 0;
+    const size   = parseFloat(document.getElementById('tl-jrn-size')?.value)  || 0;
+    const fees   = parseFloat(document.getElementById('tl-jrn-fees')?.value)  || 0;
+    const date   = document.getElementById('tl-jrn-date')?.value  || new Date().toISOString().slice(0,10);
+    const sym    = (document.getElementById('tl-jrn-sym')?.value  || '').trim().toUpperCase();
+    const notes  = document.getElementById('tl-jrn-notes')?.value || '';
+
+    if(!sym || !entry || !exit || !size){
+      if(typeof toast === 'function') toast('Fill in Symbol, Entry, Exit, and Position Size', '#f4c542');
+      return;
+    }
+
+    const pnl    = _jDir === 'BUY'
+      ? (exit - entry) / entry * size - fees
+      : (entry - exit) / entry * size - fees;
+    const pnlPct = ((exit - entry) / entry * 100) * (_jDir === 'BUY' ? 1 : -1);
+
+    const TAGS = ['Scalp', 'Swing', 'Position', 'Signal-Based'];
+    const tags = TAGS.filter(tag =>
+      document.getElementById('tl-jrn-tag-' + tag.toLowerCase().replace(/[^a-z0-9]/g, '-'))?.checked
+    );
+
+    trades.push({
+      id: 'trd_' + Date.now(),
+      date, symbol: sym, direction: _jDir,
+      entryPrice: entry, exitPrice: exit,
+      positionSize: size, fees, tags, notes,
+      pnl: parseFloat(pnl.toFixed(2)),
+      pnlPct: parseFloat(pnlPct.toFixed(2)),
+      savedAt: Date.now()
+    });
+    jSaveTrades(trades);
+
+    // Reset form
+    ['tl-jrn-sym','tl-jrn-entry','tl-jrn-exit','tl-jrn-size','tl-jrn-notes'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.value = '';
+    });
+    const feesEl = document.getElementById('tl-jrn-fees'); if(feesEl) feesEl.value = '0';
+    TAGS.forEach(tag => {
+      const cb = document.getElementById('tl-jrn-tag-' + tag.toLowerCase().replace(/[^a-z0-9]/g, '-'));
+      if(cb) cb.checked = false;
+    });
+    const pnlEl = document.getElementById('tl-jrn-pnl');
+    if(pnlEl){ pnlEl.innerHTML = 'Estimated P&amp;L: —'; pnlEl.style.color = '#4a6070'; }
+
+    if(typeof toast === 'function') toast('Trade saved!', '#00e87a');
+    jRenderList();
+  }
+
+  // ── JOURNAL: DELETE TRADE ─────────────────────────────────────────────────
+
+  function jDeleteTrade(id){
+    jSaveTrades(jLoadTrades().filter(tr => tr.id !== id));
+    jRenderList();
+  }
+
+  // ── JOURNAL: RENDER LIST ──────────────────────────────────────────────────
+
+  function jRenderList(){
+    const listEl = document.getElementById('tl-jrn-list');
+    if(!listEl) return;
+
+    const t      = tier();
+    const trades = jLoadTrades();
+    const count  = trades.length;
+
+    // Refresh tier badge
+    const tierEl = document.getElementById('tl-jrn-tier');
+    if(tierEl){
+      tierEl.innerHTML = t < 2
+        ? `<span style="color:#ff6b35;font-family:'Space Mono',monospace;font-size:10px">Free tier: ${count}/10 trades used</span>`
+        : `<span style="color:#00e87a;font-family:'Space Mono',monospace;font-size:10px">Pro · Unlimited trades</span>`;
+    }
+
+    // Gate: disable save btn when free tier full
+    const saveBtn  = document.getElementById('tl-jrn-save-btn');
+    const limitMsg = document.getElementById('tl-jrn-limit');
+    const atLimit  = t < 2 && count >= 10;
+    if(saveBtn){
+      saveBtn.disabled     = atLimit;
+      saveBtn.style.opacity  = atLimit ? '0.4' : '1';
+      saveBtn.style.cursor   = atLimit ? 'not-allowed' : 'pointer';
+    }
+    if(limitMsg) limitMsg.style.display = atLimit ? 'block' : 'none';
+
+    // Empty state
+    if(!count){
+      listEl.innerHTML = `<div style="text-align:center;padding:32px;font-family:'Space Mono',monospace;font-size:11px;color:#4a6070">No trades yet. Add your first trade above.</div>`;
+      return;
+    }
+
+    const th = s => `<th style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#4a6070;text-align:left;text-transform:uppercase;white-space:nowrap">${s}</th>`;
+
+    const rows = [...trades].reverse().map((tr, i) => {
+      const rowBg    = i % 2 === 1 ? 'rgba(0,180,216,0.02)' : 'transparent';
+      const pnlColor = tr.pnl > 0 ? '#00e87a' : tr.pnl < 0 ? '#ff4444' : '#4a6070';
+      const sign     = tr.pnl >= 0 ? '+' : '';
+      const dirColor = tr.direction === 'BUY' ? '#00e87a' : '#ff4444';
+      const dirBg    = tr.direction === 'BUY' ? 'rgba(0,232,122,0.1)' : 'rgba(255,68,68,0.1)';
+      const td       = (content, extra='') => `<td style="padding:10px 12px;${extra}">${content}</td>`;
+
+      return `<tr style="background:${rowBg};border-bottom:1px solid rgba(255,255,255,0.03)">
+        ${td(`<span style="font-family:'Space Mono',monospace;font-size:11px;color:#ccd8df">${tr.date}</span>`)}
+        ${td(`<span style="font-family:'Space Mono',monospace;font-size:13px;color:#ccd8df;font-weight:700">${tr.symbol||'—'}</span>`)}
+        ${td(`<span style="background:${dirBg};color:${dirColor};border-radius:4px;padding:2px 8px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700">${tr.direction}</span>`)}
+        ${td(`<span style="font-family:'Space Mono',monospace;font-size:12px;color:#ccd8df">$${(+tr.entryPrice).toLocaleString()}</span>`)}
+        ${td(`<span style="font-family:'Space Mono',monospace;font-size:12px;color:#ccd8df">$${(+tr.exitPrice).toLocaleString()}</span>`)}
+        ${td(`<span style="font-family:'Space Mono',monospace;font-size:13px;color:${pnlColor};font-weight:700">${sign}$${Math.abs(tr.pnl||0).toFixed(2)}</span>`)}
+        ${td(`<span style="font-size:11px;color:#4a6070">${(tr.tags||[]).join(', ')||'—'}</span>`)}
+        ${td(`<button onclick="TL.deleteTrade('${tr.id}')" style="background:transparent;border:none;color:#ff4444;cursor:pointer;font-size:16px;line-height:1;padding:2px 6px">×</button>`)}
+      </tr>`;
+    }).join('');
+
+    listEl.innerHTML = `
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr style="border-bottom:1px solid rgba(0,180,216,0.1)">
+              ${th('Date')}${th('Symbol')}${th('Dir')}${th('Entry')}${th('Exit')}${th('P&amp;L')}${th('Tags')}<th></th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  // ── JOURNAL: EXPORT CSV ───────────────────────────────────────────────────
+
+  function jExportCsv(){
+    const trades = jLoadTrades();
+    if(!trades.length){ if(typeof toast==='function') toast('No trades to export','#f4c542'); return; }
+    const headers = ['Date','Symbol','Direction','Entry Price','Exit Price','Position Size','Fees','P&L','P&L %','Tags','Notes'];
+    const rows    = trades.map(tr => [
+      tr.date, tr.symbol, tr.direction,
+      tr.entryPrice, tr.exitPrice, tr.positionSize, tr.fees,
+      tr.pnl, tr.pnlPct,
+      (tr.tags||[]).join(';'),
+      '"' + (tr.notes||'').replace(/"/g,'""') + '"'
+    ].join(','));
+    const csv  = [headers.join(','), ...rows].join('\n');
+    const url  = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'dfm_trades.csv'; a.click();
+    URL.revokeObjectURL(url);
   }
 
   function riskContent(){
@@ -335,6 +667,7 @@ const TL = (function(){
       btn.style.borderBottom = active ? '2px solid #00e87a' : '2px solid transparent';
       pane.style.display = active ? 'block' : 'none';
     });
+    if(id === 'journal') jRenderList();
   }
 
   // ── INIT ─────────────────────────────────────────────────────────────────
@@ -387,7 +720,16 @@ const TL = (function(){
     switchTab('signals');
   }
 
-  // Expose switchTab and calcRisk for inline event handlers
-  return { init, _switchTab: switchTab, _calcRisk: calcRisk };
+  // Expose all functions called from inline event handlers
+  return {
+    init,
+    _switchTab:  switchTab,
+    _calcRisk:   calcRisk,
+    setDirection: jSetDirection,
+    calcPnl:      jCalcPnl,
+    saveTrade:    jSaveTrade,
+    deleteTrade:  jDeleteTrade,
+    _exportCsv:   jExportCsv,
+  };
 
 })();
