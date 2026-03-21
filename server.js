@@ -264,14 +264,31 @@ app.get('/api/scanner/status', function(req, res) {
 });
 
 app.get('/api/scanner/test', async function(req, res) {
+  var results = {};
+  // Check server IP
   try {
-    var url = 'https://api.bybit.com/v5/market/kline?category=spot&symbol=BTCUSDT&interval=D&limit=10';
-    var r = await fetchT(url, {}, 10000);
-    var text = await r.text();
-    res.json({ status: r.status, body: text.slice(0, 500) });
-  } catch(e) {
-    res.json({ error: e.message });
-  }
+    var ipR = await fetchT('https://api.ipify.org?format=json', {}, 5000);
+    results.serverIp = await ipR.json();
+  } catch(e) { results.serverIpError = e.message; }
+  // Test Bybit
+  try {
+    var r1 = await fetchT('https://api.bybit.com/v5/market/kline?category=spot&symbol=BTCUSDT&interval=D&limit=3', {}, 10000);
+    var t1 = await r1.text();
+    results.bybit = { status: r1.status, body: t1.slice(0, 200) };
+  } catch(e) { results.bybit = { error: e.message }; }
+  // Test OKX
+  try {
+    var r2 = await fetchT('https://www.okx.com/api/v5/market/candles?instId=BTC-USDT&bar=1D&limit=3', {}, 10000);
+    var t2 = await r2.text();
+    results.okx = { status: r2.status, body: t2.slice(0, 200) };
+  } catch(e) { results.okx = { error: e.message }; }
+  // Test Kraken
+  try {
+    var r3 = await fetchT('https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=1440', {}, 10000);
+    var t3 = await r3.text();
+    results.kraken = { status: r3.status, body: t3.slice(0, 200) };
+  } catch(e) { results.kraken = { error: e.message }; }
+  res.json(results);
 });
 
 app.get('/api/scanner/run-now', async function(req, res) {
