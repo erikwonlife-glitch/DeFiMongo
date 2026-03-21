@@ -263,6 +263,17 @@ app.get('/api/scanner/status', function(req, res) {
   res.json(SCANNER_META);
 });
 
+app.get('/api/scanner/test', async function(req, res) {
+  try {
+    var url = 'https://api.bybit.com/v5/market/kline?category=spot&symbol=BTCUSDT&interval=D&limit=10';
+    var r = await fetchT(url, {}, 10000);
+    var text = await r.text();
+    res.json({ status: r.status, body: text.slice(0, 500) });
+  } catch(e) {
+    res.json({ error: e.message });
+  }
+});
+
 app.get('/api/scanner/run-now', async function(req, res) {
   // Test Bybit directly before triggering scanner
   var testUrl = 'https://api.bybit.com/v5/market/kline?category=spot&symbol=BTCUSDT&interval=D&limit=5';
@@ -1615,17 +1626,6 @@ load();
 </script>
 </body>
 </html>`);
-});
-
-app.get('/api/scanner/test', async function(req, res) {
-  try {
-    var url = 'https://api.bybit.com/v5/market/kline?category=spot&symbol=BTCUSDT&interval=D&limit=10';
-    var r = await fetchT(url, {}, 10000);
-    var text = await r.text();
-    res.json({ status: r.status, body: text.slice(0, 500) });
-  } catch(e) {
-    res.json({ error: e.message });
-  }
 });
 
 // ── HEALTH & ROOT ─────────────────────────────────────────────────────────────
