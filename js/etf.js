@@ -1,193 +1,307 @@
-// ── BITCOIN ETF DAILY FLOWS TABLE ────────────────────────────────────────────
-(function(){
-  // Columns: date, total, IBIT, FBTC, BITB, ARKB, BTCO, EZBC, BRRR, HODL, BTCW, GBTC, BTC(mini)
-  // null = no data / fund not reporting that day (shown as 0)
-  // Data source: Bloomberg / Farside Investors ETF flow tracker
-  // Format: [date, total, ibit, fbtc, bitb, arkb, btco, ezbc, brrr, hodl, btcw, gbtc, btcmini]
+// ── BITCOIN ETF TRACKER — Fear & Greed + AUM + TradingView comparison ─────────
+(function () {
 
-  var FLOWS = [
-    // ── DECEMBER 2024 ──
-    ['2024-12-02', 353.2, 338.2, 65.0,  0,    20.5,  0,    0,    0,    0,    0,  -70.5,   0],
-    ['2024-12-03', 369.8, 291.0, 15.5, 11.0,  22.0,  0,    0,    0,  11.6,  0,   18.7,   0],
-    ['2024-12-04', 254.4, 275.8,-51.5, 69.0, -44.9,  0,    3.3,  1.9,  0,    0,    0,    0],
-    ['2024-12-05', -27.5, -32.7,  0,    0,    0,    0,    3.3,  1.9,  0,    0,    0,    0],
-    ['2024-12-06', 186.4, 130.7, 32.4,  0,   29.0,  0,    0,    0,   -5.7,  0,    0,    0],
-    ['2024-12-09', 274.3, 196.5, 34.6,  8.2,  13.0,  4.5,  0,    7.2,  0,   10.3,   0,    0],
-    ['2024-12-10', 149.7,  55.5, 63.5,  8.9,  14.5,  0,    0,   -8.0,  0,    0,   15.3,   0],
-    ['2024-12-11', 428.8, 317.0, 96.0, 20.4,  10.0,  0,    0,    0,   -8.5,  0,   -5.9,  -0.2],
-    ['2024-12-12', 203.9, 102.1, 76.5, 14.3,  22.0,  0,    8.8,  0,    0,    0,  -19.8,   0],
-    ['2024-12-13', 309.5, 173.0, 50.9,  9.5,  14.0,  0,    0,   19.5,  0,   12.5,  30.1,   0],
-    ['2024-12-16', 490.2, 418.2, 85.4, 14.0,  15.0,  0,    0,    0,    0,    0,  -42.4,   0],
-    ['2024-12-17',-116.5, -37.7,-72.4,  0,    0,    0,    0,    0,   -6.4,   0,    0,    0],
-    ['2024-12-18',-671.9,-364.9,-191.5,-26.4, -24.0,  0,    0,   -4.0, -8.0,  -5.8, -47.3,   0],
-    ['2024-12-19',-438.8,-188.7,-188.2,-31.5,  0,    0,    0,    0,    0,    0,  -30.4,   0],
-    ['2024-12-20', 375.2, 314.9,  0,    0,    0,    0,    0,    0,   19.8,  0,   40.5,   0],
-    ['2024-12-23', 475.1, 350.6, 52.8, 38.5,  22.0,  0,    0,    0,    0,    0,   11.2,   0],
-    ['2024-12-24', 323.5, 263.5, 55.0,  5.0,   0,    0,    0,    0,    0,    0,    0,    0],
-    ['2024-12-26', 475.0, 295.0, 100.5, 19.8,  25.0,  0,    0,    0,   34.7,   0,    0,    0],
-    ['2024-12-27',-388.1,-149.4,-170.5,-43.6,  0,    0,    0,   -9.0, -15.6,   0,    0,    0],
-    ['2024-12-30',-225.5,-183.7, -24.0,  0,   -5.0,  0,   -7.0,  0,    0,   -5.8,   0,    0],
-    ['2024-12-31', 244.7, 184.1,  0,    0,    0,   24.8,  0,    0,    0,    0,   35.8,   0],
-    // ── JANUARY 2025 ──
-    ['2025-01-02', 978.6, 596.1, 234.7, 56.5,  42.0, 12.0,  0,    0,    0,    0,   37.3,   0],
-    ['2025-01-03', 477.6, 323.0, 142.8,  6.5,  22.0,  0,    0,    0,   -3.4,   0,  -13.3,   0],
-    ['2025-01-06', 978.2, 596.0, 200.5, 86.8,  55.0, 16.0,  0,    0,    0,    0,   23.9,   0],
-    ['2025-01-07', 316.0, 150.0, 136.6,  4.0,  22.0,  0,    0,    0,    0,    0,    3.4,   0],
-    ['2025-01-08', 757.0, 520.5, 108.3, 62.5,  15.0,  0,   13.0,  0,   38.0,   0,   -0.3,   0],
-    ['2025-01-09', 413.1, 249.5, 116.0, 24.5,  22.0,  0,    0,    0,    0,    0,    1.1,   0],
-    ['2025-01-10',-251.8,-126.0, -56.1,-29.6,  0,    0,   -5.0,  0,    0,    0,  -35.1,   0],
-    ['2025-01-13', 217.5,  77.5,  55.0, 30.6,  24.0,  0,    0,   30.4,  0,    0,    0,    0],
-    ['2025-01-14', 755.0, 523.0, 118.5, 52.5,  29.0,  0,    0,    0,   32.0,   0,    0,    0],
-    ['2025-01-15', 703.8, 578.5, 121.5, 18.0,  18.0,  0,    0,    0,    0,    0,  -32.2,   0],
-    ['2025-01-16', 399.0, 284.4,  64.5, 20.5,  18.0,  0,    0,    0,   11.6,   0,    0,    0],
-    ['2025-01-17', 517.0, 342.9, 103.5, 31.0,  22.0,  7.3,  0,    0,    0,    0,   10.3,   0],
-    ['2025-01-21', 607.5, 422.0, 105.5, 23.5,  25.0,  0,    0,    0,   31.5,   0,    0,    0],
-    ['2025-01-22', 452.0, 310.0,  73.5, 22.5,  22.0,  0,   13.5,  0,   10.5,   0,    0,    0],
-    ['2025-01-23', 492.5, 290.8,  97.5, 38.0,  35.0,  0,    0,   31.2,  0,    0,    0,    0],
-    ['2025-01-24', 661.0, 489.0,  90.5, 25.5,  28.0,  7.0,  0,    0,    0,    0,   21.0,   0],
-    ['2025-01-27',-182.4,-176.0,  0,    0,    0,    0,    0,    0,    0,    0,   -6.4,   0],
-    ['2025-01-28', 588.5, 343.5, 112.0, 45.0,  38.0,  0,    0,    0,   50.0,   0,    0,    0],
-    ['2025-01-29', 203.5, 133.5,  35.5, 15.0,  22.0,  0,    0,    0,    0,    0,   -2.5,   0],
-    ['2025-01-30', 357.5, 285.0,  45.5, 12.5,  22.0,  0,    0,    0,    0,    0,   -7.5,   0],
-    ['2025-01-31', 247.0, 155.5,  55.0, 22.0,  22.0,  0,    0,    0,    0,    0,   -7.5,   0],
-    // ── FEBRUARY 2025 ──
-    ['2025-02-03',-341.9,-249.0, -65.4,-22.5,  0,    0,    0,    0,   -5.0,   0,    0,    0],
-    ['2025-02-04',-186.5,-122.5, -30.0,-21.0,  0,    0,    0,   -5.0,  0,    -8.0,   0,    0],
-    ['2025-02-05', 203.4, 158.5,  18.5,  8.0,  22.0,  0,    0,    0,    0,    0,   -3.6,   0],
-    ['2025-02-06', 447.2, 268.0, 104.5, 33.5,  22.0,  0,    0,   19.2,  0,    0,    0,    0],
-    ['2025-02-07', 186.5, 120.5,  40.0, 15.0,  18.0,  0,    0,    0,    0,    0,   -7.0,   0],
-    ['2025-02-10', 131.5,  75.0,  35.5, 12.5,  22.0,  0,    0,    0,    0,    0,  -13.5,   0],
-    ['2025-02-11', 378.5, 240.5,  75.5, 28.5,  22.0,  0,    0,    0,   11.9,   0,    0,    0],
-    ['2025-02-12', 492.0, 297.5, 108.5, 30.0,  22.0,  0,    0,   34.0,  0,    0,    0,    0],
-    ['2025-02-13', 420.4, 280.5,  81.5, 23.5,  22.0,  0,    0,    0,    0,    0,   12.9,   0],
-    ['2025-02-14', 295.5, 175.5,  75.0, 22.0,  22.0,  0,    0,    0,    0,    0,    1.0,   0],
-    ['2025-02-18',-517.0,-285.5,-198.0,-33.5,  0,    0,    0,    0,    0,    0,    0,    0],
-    ['2025-02-19',-571.4,-356.8,-177.5,-37.1,  0,    0,    0,    0,    0,    0,    0,    0],
-    ['2025-02-20',-186.5,-112.5, -63.0, -5.0,  0,    0,    0,    0,    0,    0,   -6.0,   0],
-    ['2025-02-21', -78.5, -65.0,  0,    0,    0,    0,    0,    0,   -6.5,   0,   -7.0,   0],
-    ['2025-02-24',-106.5, -77.5, -21.0,  0,    0,    0,    0,    0,    0,    0,   -8.0,   0],
-    ['2025-02-25', 254.4, 275.8,-51.5, 69.0, -44.9,  0,    3.3,  1.9,  0,    0,    0,    6.0],
-    ['2025-02-26', -27.5, -32.7,  0,    0,    0,    0,    3.3,  1.9,  0,    0,    0,    0],
-    // ── MARCH 2025 ──
-    ['2025-03-03', 458.2, 263.2,  94.8, 36.4,   5.7,  6.2, 14.0,  0,   19.5,  0,    0,   18.4],
-    ['2025-03-04',-227.9, -88.7, -48.0,-46.4, -22.7,  0,    5.4, -8.6,  0,    0,  -18.9,   0],
-    ['2025-03-05',-348.9,-143.5,-158.5,-22.2,  -4.5,  0,    0,    0,   -5.8,  0,   -9.6,  -4.8],
-    ['2025-03-06', 461.9, 306.6,  48.0,  8.0,  14.6,  9.1,  8.5,  0,    5.2,  7.8,  21.7,  32.4],
-    ['2025-03-07', 225.2, 322.4, -89.3,  0,    0,    0,    0,   11.6,  0,    8.7, -28.2,   0],
-    ['2025-03-08', 167.1, 109.3,  60.1, -4.5,  -2.7,  0,    0,    0,    4.9,  0,    0,    0],
-    ['2025-03-09', 246.9, 185.8,  33.5, 16.4,   4.1,  0,    0,   -4.1,  5.9,  0,    0,    5.3],
-    ['2025-03-10', 115.2, 115.3,  15.4,  0,    0,    0,    0,    0,   -4.5,  0,  -16.0,   5.0],
-    ['2025-03-11',  53.8,  46.1,  15.3, -5.7,   3.0,  0,    0,    0,    0,    0,   -9.9,   5.0],
-    ['2025-03-12', 180.4, 143.6,  23.2,  3.1,   2.4,  0,    0,    0,    8.1,  0,    0,    0],
+  // ── Static ETF fund data (updated manually, reflects issuer disclosures) ──────
+  var ETF_FUNDS = [
+    { ticker: 'IBIT', name: 'BlackRock',    aum: 55650000000, btcHeld: 781700, fee: 0.25 },
+    { ticker: 'FBTC', name: 'Fidelity',     aum: 13350000000, btcHeld: 187600, fee: 0.25 },
+    { ticker: 'GBTC', name: 'Grayscale',    aum: 11110000000, btcHeld: 156100, fee: 1.50 },
+    { ticker: 'ARKB', name: 'ARK 21Shares', aum:  4100000000, btcHeld:  57600, fee: 0.21 },
+    { ticker: 'BITB', name: 'Bitwise',      aum:  3200000000, btcHeld:  44900, fee: 0.20 }
   ];
 
-  // Build monthly summary rows
-  function monthSummary(rows) {
-    var months = {};
-    rows.forEach(function(r) {
-      var ym = r[0].slice(0,7);
-      if (!months[ym]) months[ym] = new Array(13).fill(0);
-      for (var i=1; i<=12; i++) months[ym][i] = +(months[ym][i] + (r[i]||0)).toFixed(1);
-    });
-    return months;
+  // ── Fear & Greed helpers ───────────────────────────────────────────────────────
+  function fgColor(v) {
+    if (v <= 25) return '#ef4444';
+    if (v <= 45) return '#f97316';
+    if (v <= 55) return '#fbbf24';
+    if (v <= 75) return '#22c55e';
+    return '#00e87a';
   }
 
-  function fmtCell(v) {
-    if (v === null || v === undefined) return '<td style="padding:9px 12px;text-align:right;font-family:Space Mono,monospace;font-size:10px;color:#4d6475">0</td>';
-    if (v === 0) return '<td style="padding:9px 12px;text-align:right;font-family:Space Mono,monospace;font-size:10px;color:#4d6475">0</td>';
-    var col = v > 0 ? '#00e87a' : '#ff4560';
-    var str = (v > 0 ? '+' : '') + v.toFixed(1);
-    return '<td style="padding:9px 12px;text-align:right;font-family:Space Mono,monospace;font-size:11px;font-weight:600;color:'+col+'">'+str+'</td>';
+  function fgLabel(v) {
+    if (v <= 25) return 'Extreme Fear';
+    if (v <= 45) return 'Fear';
+    if (v <= 55) return 'Neutral';
+    if (v <= 75) return 'Greed';
+    return 'Extreme Greed';
   }
 
-  function fmtTotalCell(v) {
-    if (!v && v !== 0) return '<td style="padding:9px 12px;text-align:right;font-family:Space Mono,monospace;font-size:11px;font-weight:700;color:#4d6475">0</td>';
-    var col = v > 0 ? '#00e87a' : '#ff4560';
-    var str = (v > 0 ? '+' : '') + v.toFixed(1);
-    return '<td style="padding:9px 12px;text-align:right;font-family:Space Mono,monospace;font-size:12px;font-weight:800;color:'+col+'">'+str+'</td>';
+  function fgInterpret(v) {
+    if (v <= 25) return 'Extreme Fear — historically a contrarian buying signal. Long-term holders accumulate while retail panic sells. Potential bottom formation zone.';
+    if (v <= 45) return 'Fear is dominating. Investors are cautious and risk-off. Historically associated with short-term price weakness but long-term entry opportunities.';
+    if (v <= 55) return 'Neutral sentiment. No strong directional bias from crowd psychology. Market is balanced between buyers and sellers.';
+    if (v <= 75) return 'Greed is building. Momentum is strong but caution advised on new entries — market becoming increasingly overextended.';
+    return 'Extreme Greed — peak euphoria. Historically precedes significant corrections. High probability of short-term local top.';
   }
 
-  function fmtDate(ds) {
-    var d = new Date(ds + 'T00:00:00');
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  // ── SVG gauge (half-circle) ────────────────────────────────────────────────────
+  function polarToXY(cx, cy, r, angleDeg) {
+    var rad = angleDeg * Math.PI / 180;
+    return [cx + r * Math.cos(rad), cy - r * Math.sin(rad)];
   }
 
-  function fmtMonthLabel(ym) {
-    var parts = ym.split('-');
-    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    return months[parseInt(parts[1])-1] + ' ' + parts[0] + ' Summary';
+  function arcD(cx, cy, r, startDeg, endDeg) {
+    var s = polarToXY(cx, cy, r, startDeg);
+    var e = polarToXY(cx, cy, r, endDeg);
+    var large = Math.abs(endDeg - startDeg) > 180 ? 1 : 0;
+    var sweep = startDeg > endDeg ? 1 : 0;
+    return 'M ' + s[0].toFixed(1) + ' ' + s[1].toFixed(1) +
+           ' A ' + r + ' ' + r + ' 0 ' + large + ' ' + sweep +
+           ' ' + e[0].toFixed(1) + ' ' + e[1].toFixed(1);
   }
 
-  function buildTable() {
-    var tbody = document.getElementById('etfFlowBody');
-    if (!tbody) return;
+  function buildGaugeSVG(value) {
+    var col = fgColor(value);
+    var lbl = fgLabel(value);
+    // Map value 0-100 to angle 180-0 degrees (left to right)
+    var needleAngle = 180 - (value / 100 * 180);
+    var cx = 100, cy = 105, r = 78;
 
-    // Sort newest first
-    var sorted = FLOWS.slice().sort(function(a,b){ return b[0] > a[0] ? 1 : -1; });
-    var summaries = monthSummary(FLOWS);
+    // Colored zone arcs (dim background)
+    var zones = [
+      [180, 135, '#ef4444'], // 0-25 extreme fear
+      [135, 99,  '#f97316'], // 25-45 fear
+      [99,  81,  '#fbbf24'], // 45-55 neutral
+      [81,  45,  '#22c55e'], // 55-75 greed
+      [45,  0,   '#00e87a']  // 75-100 extreme greed
+    ];
 
-    // Track which months we've inserted a summary row for
-    var insertedMonths = {};
-    var rows = [];
+    var zonePaths = zones.map(function(z) {
+      return '<path d="' + arcD(cx, cy, r, z[0], z[1]) + '" stroke="' + z[2] +
+             '" stroke-width="13" fill="none" stroke-linecap="butt" opacity="0.25"/>';
+    }).join('');
 
-    // Get unique months in descending order
-    var seenMonths = [];
-    sorted.forEach(function(r) {
-      var ym = r[0].slice(0,7);
-      if (!insertedMonths[ym]) { seenMonths.push(ym); insertedMonths[ym] = true; }
-    });
-    insertedMonths = {};
+    // Active arc from 180° to current needle angle
+    var activeArc = '<path d="' + arcD(cx, cy, r, 180, needleAngle) +
+                    '" stroke="' + col + '" stroke-width="13" fill="none" stroke-linecap="round" opacity="0.9"/>';
 
-    sorted.forEach(function(r) {
-      var ym = r[0].slice(0,7);
-      // Insert month summary before first row of that month
-      if (!insertedMonths[ym] && summaries[ym]) {
-        insertedMonths[ym] = true;
-        var s = summaries[ym];
-        var total = s[1];
-        var tcol  = total >= 0 ? '#00e87a' : '#ff4560';
-        var tstr  = (total >= 0 ? '+' : '') + total.toFixed(1);
-        rows.push(
-          '<tr style="background:rgba(0,232,122,.06);border-top:2px solid rgba(0,232,122,.2)">' +
-          '<td style="padding:10px 16px;font-family:Space Grotesk,sans-serif;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap">' +
-          '<span style="margin-right:8px">📅</span>' + fmtMonthLabel(ym) + '</td>' +
-          '<td style="padding:10px 12px;text-align:right;font-family:Space Mono,monospace;font-size:12px;font-weight:800;color:'+tcol+'">'+tstr+'</td>' +
-          fmtCell(s[2])+fmtCell(s[3])+fmtCell(s[4])+fmtCell(s[5])+fmtCell(s[6])+
-          fmtCell(s[7])+fmtCell(s[8])+fmtCell(s[9])+fmtCell(s[10])+fmtCell(s[11])+fmtCell(s[12]) +
-          '</tr>'
-        );
+    // Needle
+    var tip = polarToXY(cx, cy, r * 0.72, needleAngle);
+    var needle = '<line x1="' + cx + '" y1="' + cy + '" x2="' + tip[0].toFixed(1) + '" y2="' + tip[1].toFixed(1) +
+                 '" stroke="' + col + '" stroke-width="2.5" stroke-linecap="round"/>';
+    var dot = '<circle cx="' + cx + '" cy="' + cy + '" r="5" fill="' + col + '"/>';
+
+    // Zone labels
+    var labels =
+      '<text x="12" y="115" font-family="Space Mono,monospace" font-size="7" fill="#ef4444" opacity="0.7">FEAR</text>' +
+      '<text x="88" y="40" font-family="Space Mono,monospace" font-size="7" fill="#fbbf24" opacity="0.7" text-anchor="middle">NEUTRAL</text>' +
+      '<text x="175" y="115" font-family="Space Mono,monospace" font-size="7" fill="#00e87a" opacity="0.7" text-anchor="end">GREED</text>';
+
+    // Score text
+    var score =
+      '<text x="' + cx + '" y="' + (cy - 10) + '" text-anchor="middle" font-family="Space Mono,monospace" font-size="32" font-weight="800" fill="' + col + '">' + value + '</text>' +
+      '<text x="' + cx + '" y="' + (cy + 8) + '" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="10" fill="' + col + '">' + lbl.toUpperCase() + '</text>';
+
+    return '<svg viewBox="0 0 200 130" style="width:100%;max-width:260px;display:block;margin:0 auto">' +
+      zonePaths + activeArc + needle + dot + labels + score + '</svg>';
+  }
+
+  // ── 30-day Fear & Greed chart (Chart.js bar) ───────────────────────────────────
+  function buildFGChart(series) {
+    var el = document.getElementById('fgChart');
+    if (!el || typeof Chart === 'undefined') return;
+    var labels = series.map(function(p) { return p.date; });
+    var values = series.map(function(p) { return p.value; });
+    var colors = values.map(function(v) { return fgColor(v); });
+    new Chart(el, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{ data: values, backgroundColor: colors, borderRadius: 2, borderSkipped: false }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) { return ctx.raw + ' — ' + fgLabel(ctx.raw); }
+            }
+          }
+        },
+        scales: {
+          y: {
+            min: 0, max: 100,
+            grid: { color: '#1c2d38' },
+            ticks: {
+              color: '#4d6475',
+              callback: function(v) {
+                if (v === 0) return '0';
+                if (v === 25) return '25';
+                if (v === 50) return '50';
+                if (v === 75) return '75';
+                if (v === 100) return '100';
+                return '';
+              }
+            }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#4d6475', maxTicksLimit: 8, maxRotation: 0, font: { size: 8 } }
+          }
+        }
       }
-      // Daily row
-      var isEven = rows.length % 2 === 0;
-      var bg = isEven ? '' : 'background:rgba(14,26,32,.4);';
-      rows.push(
-        '<tr style="'+bg+'border-bottom:1px solid rgba(28,45,56,.4);transition:background .12s" onmouseover="this.style.background=\'rgba(0,232,122,.03)\'" onmouseout="this.style.background=\''+(isEven?'transparent':'rgba(14,26,32,.4)')+'\'">'+
-        '<td style="padding:10px 16px;font-family:Space Grotesk,sans-serif;font-size:12px;color:var(--text);white-space:nowrap">'+fmtDate(r[0])+'</td>' +
-        fmtTotalCell(r[1]) +
-        fmtCell(r[2])+fmtCell(r[3])+fmtCell(r[4])+fmtCell(r[5])+fmtCell(r[6])+
-        fmtCell(r[7])+fmtCell(r[8])+fmtCell(r[9])+fmtCell(r[10])+fmtCell(r[11])+fmtCell(r[12]) +
-        '</tr>'
-      );
     });
+  }
 
+  // ── ETF Holdings table ─────────────────────────────────────────────────────────
+  function buildHoldingsTable(funds, btcPrice) {
+    var tbody = document.getElementById('etfHoldingsBody');
+    if (!tbody) return;
+    var maxAum = funds[0].aum;
+    var rows = funds.map(function(f, i) {
+      var barPct = Math.round(f.aum / maxAum * 100);
+      var aumStr = '$' + (f.aum / 1e9).toFixed(1) + 'B';
+      var btcStr = (f.btcHeld / 1000).toFixed(1) + 'K';
+      var bg = i % 2 === 1 ? 'background:rgba(14,26,32,.4);' : '';
+      return '<tr style="' + bg + 'border-bottom:1px solid #1c2d38">' +
+        '<td style="padding:12px 20px">' +
+          '<span style="font-family:Space Mono,monospace;font-size:13px;font-weight:700;color:#00e87a">' + f.ticker + '</span>' +
+          '<span style="font-family:Space Grotesk,sans-serif;font-size:11px;color:#4d6475;margin-left:8px">' + f.name + '</span>' +
+        '</td>' +
+        '<td style="padding:12px 16px;min-width:160px">' +
+          '<div style="font-family:Space Mono,monospace;font-size:12px;font-weight:700;color:#fff">' + aumStr + '</div>' +
+          '<div style="margin-top:5px;height:3px;background:#1c2d38;border-radius:2px">' +
+            '<div style="height:3px;background:#00e87a;border-radius:2px;width:' + barPct + '%"></div>' +
+          '</div>' +
+        '</td>' +
+        '<td style="padding:12px 16px;text-align:right;font-family:Space Mono,monospace;font-size:12px;color:#fff">' + btcStr + ' BTC</td>' +
+        '<td style="padding:12px 16px;text-align:right;font-family:Space Mono,monospace;font-size:11px;color:#4d6475">' + f.fee.toFixed(2) + '%</td>' +
+        '</tr>';
+    });
     tbody.innerHTML = rows.join('');
   }
 
-  buildTable();
+  // ── TradingView ETF comparison widget ─────────────────────────────────────────
+  function buildTVChart() {
+    var container = document.getElementById('etfTVChart');
+    if (!container) return;
+    container.innerHTML = '';
 
-  // Update header stats from most recent day
-  var latest = FLOWS[FLOWS.length-1];
-  var net7d = FLOWS.slice(-5).reduce(function(s,r){ return s + (r[1]||0); }, 0);
-  var netEl = document.getElementById('etfNetToday');
-  var n7El  = document.getElementById('etfNet7d');
-  var aumEl = document.getElementById('etfAUM');
-  var updEl = document.getElementById('etfUpdated');
-  if (netEl) { var v=latest[1]; netEl.textContent=(v>=0?'+$':'−$')+Math.abs(v).toFixed(1)+'M'; netEl.className='phsv '+(v>=0?'up':'dn'); }
-  if (n7El)  { n7El.textContent=(net7d>=0?'+$':'−$')+Math.abs(net7d).toFixed(0)+'M'; n7El.className='phsv '+(net7d>=0?'up':'dn'); }
-  if (aumEl) aumEl.textContent = '~$122B est.';
-  // Show clearly that data is delayed — live ETF flows require a paid CoinGlass API key
-  if (updEl) updEl.textContent = '⚠ Data as of ' + fmtDate(latest[0]) + ' · Live feed unavailable';
+    var outer = document.createElement('div');
+    outer.className = 'tradingview-widget-container';
+    outer.style.cssText = 'width:100%;height:100%';
+
+    var inner = document.createElement('div');
+    inner.className = 'tradingview-widget-container__widget';
+    inner.style.cssText = 'width:100%;height:calc(100% - 22px)';
+
+    var copy = document.createElement('div');
+    copy.className = 'tradingview-widget-copyright';
+    copy.style.cssText = 'font-family:Space Mono,monospace;font-size:9px;color:#4d6475;padding:4px 8px';
+    copy.innerHTML = '<a href="https://www.tradingview.com" target="_blank" rel="noopener" style="color:#4d6475;text-decoration:none">Data by TradingView</a>';
+
+    outer.appendChild(inner);
+    outer.appendChild(copy);
+    container.appendChild(outer);
+
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js';
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      symbols: [
+        ['IBIT BlackRock',  'NASDAQ:IBIT|12M'],
+        ['FBTC Fidelity',   'NASDAQ:FBTC|12M'],
+        ['GBTC Grayscale',  'NYSE:GBTC|12M'],
+        ['ARKB ARK',        'NASDAQ:ARKB|12M']
+      ],
+      chartOnly: false,
+      width: '100%',
+      height: '100%',
+      locale: 'en',
+      colorTheme: 'dark',
+      autosize: true,
+      showVolume: false,
+      hideDateRanges: false,
+      hideMarketStatus: false,
+      hideSymbolLogo: false,
+      scalePosition: 'right',
+      scaleMode: 'Percentage',
+      backgroundColor: 'rgba(14,26,32,0)',
+      lineWidth: 2,
+      fontFamily: 'Space Mono, monospace',
+      isTransparent: true,
+      chartType: 'area',
+      noTimeScale: false
+    });
+    outer.appendChild(script);
+  }
+
+  // ── Update header stat cards ───────────────────────────────────────────────────
+  function updateHeader(fg, btcPrice) {
+    var fgEl = document.getElementById('etfFGScore');
+    var btcEl = document.getElementById('etfBTCPrice');
+    if (fgEl) {
+      fgEl.textContent = fg.value + ' · ' + fgLabel(fg.value);
+      fgEl.style.color = fgColor(fg.value);
+    }
+    if (btcEl && btcPrice) {
+      btcEl.textContent = '$' + Math.round(btcPrice).toLocaleString();
+    }
+  }
+
+  // ── Render with data ───────────────────────────────────────────────────────────
+  function render(d) {
+    var fg = d.fearGreed;
+    var btcPrice = d.btcPrice;
+
+    // Update global BTC_CURRENT if we have a fresher price
+    if (btcPrice && btcPrice > 1000) window.BTC_CURRENT = btcPrice;
+
+    updateHeader(fg, btcPrice);
+
+    // Gauge
+    var gaugeEl = document.getElementById('fgGauge');
+    if (gaugeEl) gaugeEl.innerHTML = buildGaugeSVG(fg.value);
+
+    // Interpretation
+    var interpEl = document.getElementById('fgInterpret');
+    if (interpEl) interpEl.textContent = fgInterpret(fg.value);
+
+    // 30-day chart
+    buildFGChart(fg.series);
+
+    // Holdings table
+    buildHoldingsTable(d.etfAUM.funds, btcPrice);
+
+    // Updated label
+    var updEl = document.getElementById('etfUpdated');
+    if (updEl) updEl.textContent = '↻ F&G live · ' + new Date(d.updated).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Render fallback if API fails ──────────────────────────────────────────────
+  function renderFallback() {
+    var gaugeEl = document.getElementById('fgGauge');
+    if (gaugeEl) gaugeEl.innerHTML = buildGaugeSVG(50);
+    var interpEl = document.getElementById('fgInterpret');
+    if (interpEl) interpEl.textContent = fgInterpret(50);
+    buildHoldingsTable(ETF_FUNDS, window.BTC_CURRENT || null);
+    var updEl = document.getElementById('etfUpdated');
+    if (updEl) updEl.textContent = '↻ Fallback data · ' + new Date().toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
+    // Update header with current BTC price at least
+    var btcEl = document.getElementById('etfBTCPrice');
+    if (btcEl && window.BTC_CURRENT) btcEl.textContent = '$' + Math.round(window.BTC_CURRENT).toLocaleString();
+  }
+
+  // ── Main: fetch API then render ────────────────────────────────────────────────
+  var API = (typeof CR_API !== 'undefined' ? CR_API : '');
+
+  (async function () {
+    try {
+      var r = await fetch(API + '/api/macro/etf', { signal: AbortSignal.timeout(15000) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      var d = await r.json();
+      if (!d || !d.fearGreed) throw new Error('Invalid response');
+      render(d);
+    } catch (e) {
+      console.warn('[ETF] /api/macro/etf failed:', e.message);
+      renderFallback();
+    }
+  })();
+
+  // TradingView chart (runs independently)
+  buildTVChart();
 
 })();
-

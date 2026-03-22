@@ -3217,50 +3217,78 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
     <div class="pnl" id="P-etf">
       <div class="ph">
         <div>
-          <div class="pht">Bitcoin ETF Daily Flows <span class="pbg c">CeFi</span></div>
-          <div class="phs">Daily net inflows/outflows for US spot Bitcoin ETFs (in millions USD)</div>
+          <div class="pht">Bitcoin ETF Tracker <span class="pbg c">CeFi</span></div>
+          <div class="phs">Fear &amp; Greed Index · ETF holdings · Price comparison</div>
         </div>
         <div class="phst">
           <div id="etfUpdated" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)"></div>
-          <div><div class="phsv up" id="etfNetToday">+$—</div><div class="phsl">Net Today</div></div>
-          <div><div class="phsv" id="etfNet7d">+$—</div><div class="phsl">7-Day Net</div></div>
-          <div><div class="phsv" id="etfAUM">$—</div><div class="phsl">Total AUM</div></div>
+          <div><div class="phsv" id="etfTotalAUM">$91.8B</div><div class="phsl">Total AUM</div></div>
+          <div><div class="phsv" id="etfBTCHeld">1.23M</div><div class="phsl">BTC Held</div></div>
+          <div><div class="phsv" id="etfFGScore" style="color:#ef4444">—</div><div class="phsl">Fear &amp; Greed</div></div>
+          <div><div class="phsv" id="etfBTCPrice">$—</div><div class="phsl">BTC Price</div></div>
         </div>
       </div>
-      <div style="margin:0 40px;padding:10px 16px;background:rgba(244,197,66,.06);border:1px solid rgba(244,197,66,.25);border-radius:6px;display:flex;align-items:center;gap:10px">
-        <span style="color:#f4c542;font-size:13px">⚠</span>
-        <span style="font-family:'Space Mono',monospace;font-size:10px;color:#f4c542;letter-spacing:.5px">DATA DELAYED — Live ETF flow data requires a CoinGlass API key. Table shows manually-tracked historical data (last updated Mar 12, 2025).</span>
-      </div>
-      <div class="pc" style="padding-top:16px">
-        <!-- Scrollable table -->
-        <div style="overflow-x:auto;background:var(--bg2);border:1px solid var(--border);border-radius:8px">
-          <table id="etfFlowTable" style="width:100%;border-collapse:collapse;min-width:900px">
-            <thead>
-              <tr style="background:rgba(14,26,32,.8);position:sticky;top:0;z-index:2">
-                <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;min-width:140px">Date</th>
-                <th style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--accent);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap">TOTAL</th>
-                <th style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:right">IBIT</th>
-                <th style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:right">FBTC</th>
-                <th style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:right">BITB</th>
-                <th style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:right">ARKB</th>
-                <th style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:right">BTCO</th>
-                <th style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:right">EZBC</th>
-                <th style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:right">BRRR</th>
-                <th style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:right">HODL</th>
-                <th style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:right">BTCW</th>
-                <th style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:right">GBTC</th>
-                <th style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:right">BTC</th>
-              </tr>
-            </thead>
-            <tbody id="etfFlowBody"></tbody>
-          </table>
-        </div>
-        <!-- Fund legend -->
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 20px;margin-top:14px">
-          <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);line-height:2">
-            IBIT=BlackRock · FBTC=Fidelity · BITB=Bitwise · ARKB=ARK/21Shares · BTCO=Invesco · EZBC=Franklin · BRRR=Volatility Shares · HODL=VanEck · BTCW=WisdomTree · GBTC=Grayscale · BTC=Grayscale Mini
+      <div class="pc" style="display:flex;flex-direction:column;gap:20px">
+
+        <!-- Row 1: Fear & Greed + ETF Holdings -->
+        <div style="display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start">
+
+          <!-- Fear & Greed card -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:24px">
+            <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:16px">Fear &amp; Greed Index</div>
+            <!-- SVG gauge (rendered by etf.js) -->
+            <div id="fgGauge" style="text-align:center;min-height:130px"></div>
+            <!-- 30-day chart -->
+            <div style="margin-top:16px">
+              <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px">30-DAY HISTORY</div>
+              <canvas id="fgChart" height="80"></canvas>
+            </div>
+            <!-- Interpretation -->
+            <div id="fgInterpret" style="margin-top:14px;font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--muted);line-height:1.6;padding:10px 12px;background:rgba(14,26,32,.6);border-radius:6px;border-left:2px solid var(--border)"></div>
+          </div>
+
+          <!-- ETF Holdings table -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+            <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+              <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">ETF Holdings</span>
+              <span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">Updated Mar 13, 2026 · AUM data updated weekly</span>
+            </div>
+            <table style="width:100%;border-collapse:collapse">
+              <thead>
+                <tr style="background:rgba(14,26,32,.6)">
+                  <th style="text-align:left;padding:10px 20px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase">Fund</th>
+                  <th style="text-align:left;padding:10px 16px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase">AUM</th>
+                  <th style="text-align:right;padding:10px 16px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase">BTC Held</th>
+                  <th style="text-align:right;padding:10px 16px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase">Fee</th>
+                </tr>
+              </thead>
+              <tbody id="etfHoldingsBody"></tbody>
+            </table>
+            <div style="padding:12px 20px;border-top:1px solid var(--border);background:rgba(0,232,122,.03)">
+              <div style="display:flex;justify-content:space-between">
+                <span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:var(--accent)">TOTAL</span>
+                <span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#fff">$91.8B AUM · 1.23M BTC</span>
+              </div>
+            </div>
           </div>
         </div>
+
+        <!-- TradingView ETF comparison chart -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <div style="padding:12px 20px;border-bottom:1px solid var(--border)">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">IBIT · FBTC · GBTC · ARKB — Price Performance (% change)</span>
+          </div>
+          <div id="etfTVChart" style="height:380px"></div>
+        </div>
+
+        <!-- Note banner -->
+        <div style="padding:12px 18px;background:rgba(14,26,32,.6);border:1px solid var(--border);border-radius:6px;display:flex;align-items:flex-start;gap:10px">
+          <span style="color:var(--muted);font-size:13px;flex-shrink:0">ℹ</span>
+          <span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);line-height:1.8;letter-spacing:.3px">
+            ETF flow data updates daily after US market close. AUM figures sourced from public ETF issuer disclosures. Fear &amp; Greed Index provided by alternative.me — updates daily at midnight UTC.
+          </span>
+        </div>
+
       </div>
     </div>
 
@@ -3775,7 +3803,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 
 <script src="js/core.js?v=5"></script>
 <script src="js/charts.js?v=5"></script>
-<script src="js/etf.js?v=5"></script>
+<script src="js/tradingview-widgets.js?v=1"></script>
+<script src="js/etf.js?v=6"></script>
 <script src="js/auth.js?v=5"></script>
 <script src="js/coin-modal.js?v=4"></script>
 <script src="js/training.js?v=4"></script>

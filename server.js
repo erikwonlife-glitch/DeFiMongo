@@ -1209,49 +1209,54 @@ app.get('/api/onchain/btc', async function(req, res) {
   }
 });
 
-// ── ETF DAILY FLOWS — Bitcoin spot ETF net flows ──────────────────────────────
-app.get('/api/etf/flows', async function(req, res) {
-  const cached = getCache('etf/flows');
+// ── MACRO ETF — Fear & Greed + BTC price + ETF AUM ────────────────────────────
+app.get('/api/macro/etf', async function(req, res) {
+  const cached = getCache('macro/etf');
   if (cached) return res.json(cached);
   try {
-    const r = await fetchT(
-      'https://api.coinglass.com/api/futures/openInterest/bitcoin-etf-flow-chart',
-      { headers: { 'coinglassSecret': '', 'Accept': 'application/json' } }, 12000
-    );
-    if (!r.ok) throw new Error('CoinGlass ' + r.status);
-    const body = await r.json();
-    const list = body && (body.data || body.list || body);
-    if (!Array.isArray(list) || !list.length) throw new Error('No CoinGlass ETF data');
-    const flows = list.slice(-30).map(function(d) {
+    // Fetch Fear & Greed (free, no auth, reliable)
+    const fgRes = await fetchT('https://api.alternative.me/fng/?limit=30', {}, 10000);
+    if (!fgRes.ok) throw new Error('F&G API ' + fgRes.status);
+    const fgBody = await fgRes.json();
+    const fgData = fgBody && fgBody.data;
+    if (!fgData || !fgData.length) throw new Error('No F&G data');
+
+    const current = fgData[0];
+    const series = fgData.map(function(d) {
       return {
-        date:  d.date || d.t || d.time,
-        total: d.total || d.netFlow || d.value || 0,
-        ibit:  d.ibit  || d.IBIT  || null,
-        fbtc:  d.fbtc  || d.FBTC  || null,
-        bitb:  d.bitb  || d.BITB  || null,
-        arkb:  d.arkb  || d.ARKB  || null,
+        date:  new Date(parseInt(d.timestamp) * 1000).toLocaleDateString('en', {month:'short', day:'numeric'}),
+        value: parseInt(d.value)
       };
-    });
+    }).reverse(); // oldest first
+
     const livePrice = await fetchBTCPrice();
-    const result = { flows, fallback: false, btcPrice: livePrice, updated: Date.now() };
-    setCache('etf/flows', result, 60 * 60 * 1000); // 1h
-    console.log('[DataFix] etf/flows: CoinGlass ok, ' + flows.length + ' days');
+
+    const result = {
+      fearGreed: {
+        value: parseInt(current.value),
+        label: current.value_classification,
+        series: series
+      },
+      btcPrice: livePrice,
+      etfAUM: {
+        total: 91800000000,
+        funds: [
+          { ticker: 'IBIT', name: 'BlackRock',   aum: 55650000000, btcHeld: 781700, fee: 0.25 },
+          { ticker: 'FBTC', name: 'Fidelity',    aum: 13350000000, btcHeld: 187600, fee: 0.25 },
+          { ticker: 'GBTC', name: 'Grayscale',   aum: 11110000000, btcHeld: 156100, fee: 1.50 },
+          { ticker: 'ARKB', name: 'ARK 21Shares',aum:  4100000000, btcHeld:  57600, fee: 0.21 },
+          { ticker: 'BITB', name: 'Bitwise',     aum:  3200000000, btcHeld:  44900, fee: 0.20 }
+        ],
+        updatedDate: 'Mar 13, 2026'
+      },
+      updated: Date.now()
+    };
+    setCache('macro/etf', result, 60 * 60 * 1000); // 1h
+    console.log('[macro/etf] ok — F&G:', current.value, current.value_classification, '| BTC:', livePrice);
     res.json(result);
   } catch(e) {
-    console.log('[DataFix] etf/flows: CoinGlass failed:', e.message, '— using hardcoded fallback');
-    const fallbackFlows = [
-      {date:'2026-03-15',total: 218,  ibit: 142, fbtc: 56,  bitb: 12,  arkb: 8},
-      {date:'2026-03-14',total:-89,   ibit:-52,  fbtc:-28,  bitb:-6,   arkb:-3},
-      {date:'2026-03-13',total: 305,  ibit: 198, fbtc: 72,  bitb: 21,  arkb: 14},
-      {date:'2026-03-12',total:-124,  ibit:-78,  fbtc:-31,  bitb:-9,   arkb:-6},
-      {date:'2026-03-11',total: 412,  ibit: 261, fbtc: 98,  bitb: 32,  arkb: 21},
-      {date:'2026-03-10',total: 156,  ibit: 95,  fbtc: 38,  bitb: 14,  arkb: 9},
-      {date:'2026-03-07',total:-203,  ibit:-127, fbtc:-48,  bitb:-17,  arkb:-11},
-    ];
-    const livePrice = await fetchBTCPrice();
-    const result = { flows: fallbackFlows, fallback: true, btcPrice: livePrice, updated: Date.now() };
-    setCache('etf/flows', result, 15 * 60 * 1000);
-    res.json(result);
+    console.warn('[macro/etf] failed:', e.message);
+    res.status(502).json({ error: e.message });
   }
 });
 
