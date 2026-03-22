@@ -388,10 +388,13 @@ var WALLETS = {
 var _currentToken = 'usdt';
 var _currentPlan  = 'monthly';
 var PRICES = {
-  monthly:  {usdt: '40 USDT',  sol: '0.57 SOL',  label: 'Сарын захиалга · $40/сар'},
-  biannual: {usdt: '150 USDT', sol: '2.13 SOL',   label: '6 Сарын захиалга · $150'},
-  annual:   {usdt: '250 USDT', sol: '3.54 SOL',   label: 'Жилийн захиалга · $250/жил'}
+  monthly:  {usdt: '40 USDT',  sol: '0.57 SOL',  label: 'Сарын захиалга · $40/сар',   savings: ''},
+  biannual: {usdt: '150 USDT', sol: '2.13 SOL',   label: '6 Сарын захиалга · $150',    savings: '💜 $90 хэмнэлт · Сард $25'},
+  annual:   {usdt: '250 USDT', sol: '3.54 SOL',   label: 'Жилийн захиалга · $250/жил', savings: '⭐ $230 хэмнэлт · Сард $20.8'}
 };
+
+var PLAN_COLORS = { monthly: '#00b4d8', biannual: '#9945FF', annual: '#f4c542' };
+var PLAN_BG     = { monthly: 'rgba(0,180,216,.12)', biannual: 'rgba(153,69,255,.12)', annual: 'rgba(244,197,66,.12)' };
 
 function openCryptoPayment(plan) {
   _currentPlan = plan || 'monthly';
@@ -401,6 +404,10 @@ function openCryptoPayment(plan) {
 }
 function closeCryptoPayment() {
   document.getElementById('cryptoPayModal').style.display = 'none';
+}
+function selectPlan(plan) {
+  _currentPlan = plan;
+  updateCryptoPayModal();
 }
 function selectToken(token) {
   _currentToken = token;
@@ -414,10 +421,28 @@ function selectToken(token) {
 }
 function updateCryptoPayModal() {
   var plan = PRICES[_currentPlan];
-  document.getElementById('cryptoPayTitle').textContent = plan.label;
+  if (!plan) return;
+
+  // Amount + token
   document.getElementById('cryptoPayAmount').textContent = plan[_currentToken].split(' ')[0];
-  document.getElementById('cryptoPayToken').textContent = plan[_currentToken].split(' ')[1] + (_currentToken==='usdt' ? ' (TRC20)' : ' (Solana)');
-  document.getElementById('cryptoPayAddr').textContent = WALLETS[_currentToken];
+  document.getElementById('cryptoPayToken').textContent  = plan[_currentToken].split(' ')[1] + (_currentToken==='usdt' ? ' (TRC20)' : ' (Solana)');
+  document.getElementById('cryptoPayAddr').textContent   = WALLETS[_currentToken];
+
+  // Savings badge
+  var savEl = document.getElementById('cryptoPaySavings');
+  if (savEl) savEl.textContent = plan.savings || '';
+
+  // Plan selector card highlights
+  ['monthly','biannual','annual'].forEach(function(p) {
+    var btn = document.getElementById('planBtn-' + p);
+    if (!btn) return;
+    var active = p === _currentPlan;
+    var col = PLAN_COLORS[p];
+    var bg  = PLAN_BG[p];
+    btn.style.background  = active ? bg  : 'transparent';
+    btn.style.border      = active ? '2px solid ' + col : '1px solid #1c2d38';
+    btn.style.boxShadow   = active ? '0 0 12px ' + col + '33' : 'none';
+  });
 }
 function copyCryptoAddr() {
   var addr = WALLETS[_currentToken];
@@ -435,6 +460,7 @@ document.addEventListener('click', function(e) {
 window.openCryptoPayment  = openCryptoPayment;
 window.closeCryptoPayment = closeCryptoPayment;
 window.selectToken        = selectToken;
+window.selectPlan         = selectPlan;
 window.copyCryptoAddr     = copyCryptoAddr;
 
 // ── MISSING FUNCTIONS ─────────────────────────────────────────────────────────
