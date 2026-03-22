@@ -604,12 +604,28 @@ function closeMobileSidebar(){
 })();
 
 // ── ADMIN PANEL — owner only ──────────────────────────────────────────────────
-function openAdminPanel() {
+let ADM_AUTH = null; // { wallet, sig, msg } — set once per panel open via Phantom sign
+
+async function openAdminPanel() {
   if (CR_USER?.walletAddress !== 'GskmXrB1ESZqx8p76fi154UNi2sZgFUU26N2QtuMXnmZ') return;
 
   // Remove any existing panel
   const existing = document.getElementById('adminPanelOverlay');
-  if (existing) { existing.remove(); return; }
+  if (existing) { existing.remove(); ADM_AUTH = null; return; }
+
+  // Request a fresh Phantom signature before showing the panel
+  try {
+    if (!window.solana?.isPhantom) throw new Error('Phantom not connected');
+    const msg = 'defimongo-admin:' + Date.now();
+    const encoded = new TextEncoder().encode(msg);
+    const { signature } = await window.solana.signMessage(encoded, 'utf8');
+    // Convert Uint8Array signature to base64
+    const sig = btoa(String.fromCharCode(...signature));
+    ADM_AUTH = { wallet: CR_USER.walletAddress, sig, msg };
+  } catch(e) {
+    alert('Phantom signature required to open admin panel.\n\n' + e.message);
+    return;
+  }
 
   const ov = document.createElement('div');
   ov.id = 'adminPanelOverlay';
@@ -764,9 +780,10 @@ function admFilter() {
 }
 
 async function admLoad() {
+  if (!ADM_AUTH) { admToast('Not authenticated — re-open panel', true); return; }
   try {
-    const wallet = CR_USER?.walletAddress || '';
-    const r = await fetch(RAILWAY + '/api/admin-data?wallet=' + encodeURIComponent(wallet));
+    const { wallet, sig, msg } = ADM_AUTH;
+    const r = await fetch(RAILWAY + '/api/admin-data?wallet=' + encodeURIComponent(wallet) + '&sig=' + encodeURIComponent(sig) + '&msg=' + encodeURIComponent(msg));
     const d = await r.json();
     document.getElementById('adm-total').textContent    = d.summary.total;
     document.getElementById('adm-active').textContent   = d.summary.active;
@@ -782,12 +799,13 @@ async function admLoad() {
 }
 
 async function admAction(endpoint, email) {
+  if (!ADM_AUTH) { admToast('Not authenticated — re-open panel', true); return; }
   if (endpoint === 'revoke' && !confirm('Revoke access for ' + email + '?')) return;
   try {
     const r = await fetch(RAILWAY + '/api/admin-action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ wallet: CR_USER?.walletAddress, action: endpoint, email }),
+      body: JSON.stringify({ ...ADM_AUTH, action: endpoint, email }),
     });
     const d = await r.json();
     if (d.ok) { admToast('✓ Done — ' + email); admLoad(); }
@@ -807,11 +825,12 @@ async function admAddMember() {
     annual:   { tier:3, tierName:'ANNUAL',   days:365 },
   };
   const t = tierMap[tierVal] || tierMap.monthly;
+  if (!ADM_AUTH) { admToast('Not authenticated — re-open panel', true); return; }
   try {
     const r2 = await fetch(RAILWAY + '/api/admin-action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ wallet: CR_USER?.walletAddress, action: 'add', email, tvUsername: tv || '—', tier: t.tier, tierName: t.tierName, days: t.days }),
+      body: JSON.stringify({ ...ADM_AUTH, action: 'add', email, tvUsername: tv || '—', tier: t.tier, tierName: t.tierName, days: t.days }),
     });
     const d2 = await r2.json();
     if (d2.ok) {

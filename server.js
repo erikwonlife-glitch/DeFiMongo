@@ -1,8 +1,10 @@
 'use strict';
 require('dotenv').config();
-const express = require('express');
-const fetch   = require('node-fetch');
-const cors    = require('cors');
+const express  = require('express');
+const fetch    = require('node-fetch');
+const cors     = require('cors');
+const nacl     = require('tweetnacl');
+const bs58     = require('bs58');
 
 const app    = express();
 const PORT   = process.env.PORT || 8080;
@@ -1807,17 +1809,50 @@ app.get('/api/tv-access/admin/data', async function(req, res) {
 // The WEBHOOK_SECRET never leaves the server. The browser only sends the owner
 // wallet address; the server validates it and performs the action internally.
 const OWNER_WALLET = 'GskmXrB1ESZqx8p76fi154UNi2sZgFUU26N2QtuMXnmZ';
+const SIG_WINDOW_MS = 60000; // signature valid for 60 seconds
 
 function ownerAuth(req, res) {
   const wallet = (req.query.wallet || req.body?.wallet || '').trim();
+  const sig    = (req.query.sig    || req.body?.sig    || '').trim();
+  const msg    = (req.query.msg    || req.body?.msg    || '').trim();
+
+  // 1. Wallet must match owner
   if (wallet !== OWNER_WALLET) {
     res.status(403).json({ error: 'Forbidden' });
     return false;
   }
+
+  // 2. Signature and message are required
+  if (!sig || !msg) {
+    res.status(403).json({ error: 'Signature required' });
+    return false;
+  }
+
+  // 3. Check timestamp freshness — message format: "defimongo-admin:{timestamp}"
+  const ts = parseInt(msg.split(':')[1]);
+  if (isNaN(ts) || Date.now() - ts > SIG_WINDOW_MS) {
+    res.status(403).json({ error: 'Signature expired — re-open admin panel' });
+    return false;
+  }
+
+  // 4. Verify Ed25519 signature cryptographically
+  try {
+    const msgBytes = Buffer.from(msg);
+    const sigBytes = Buffer.from(sig, 'base64');
+    const pubBytes = bs58.decode(wallet);
+    if (!nacl.sign.detached.verify(msgBytes, sigBytes, pubBytes)) {
+      res.status(403).json({ error: 'Invalid signature' });
+      return false;
+    }
+  } catch(e) {
+    res.status(403).json({ error: 'Signature verification failed' });
+    return false;
+  }
+
   return true;
 }
 
-// GET /api/admin-data?wallet=
+// GET /api/admin-data?wallet=&sig=&msg=
 app.get('/api/admin-data', async function(req, res) {
   res.set('Access-Control-Allow-Origin', '*');
   if (!ownerAuth(req, res)) return;
