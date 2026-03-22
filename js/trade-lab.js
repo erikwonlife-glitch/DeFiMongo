@@ -35,13 +35,18 @@ const TL = (function(){
 
   // ── LOCKED CARD ──────────────────────────────────────────────────────────
 
-  function lockedCard(title, desc, btnLabel){
+  function lockedCard(title, desc, btnLabel, plan, col){
+    const c = col || '#9945FF';
     return `
-      <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:40px;text-align:center">
-        <div style="font-size:32px;margin-bottom:16px">🔒</div>
-        <div style="font-family:'Space Mono',monospace;font-size:16px;color:#fff;margin-bottom:12px">${title}</div>
-        <div style="font-size:13px;color:#4a6070;line-height:1.6;max-width:360px;margin:0 auto 24px">${desc}</div>
-        <button style="background:#9945FF;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;cursor:pointer">${btnLabel}</button>
+      <div style="background:rgba(0,0,0,0.35);border:1px solid ${c}44;border-radius:12px;padding:48px 40px;text-align:center;position:relative;overflow:hidden">
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,${c}12 0%,transparent 70%);pointer-events:none"></div>
+        <div style="font-size:40px;margin-bottom:16px">🔒</div>
+        <div style="font-family:'Space Mono',monospace;font-size:15px;color:#fff;margin-bottom:10px">${title}</div>
+        <div style="font-size:12px;color:#4d6475;line-height:1.7;max-width:380px;margin:0 auto 24px">${desc}</div>
+        <button onclick="openCryptoPayment('${plan}')"
+          style="background:${c};color:#fff;border:none;border-radius:8px;padding:12px 32px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .15s;box-shadow:0 4px 20px ${c}55"
+          onmouseover="this.style.filter='brightness(1.15)';this.style.transform='translateY(-1px)'"
+          onmouseout="this.style.filter='';this.style.transform=''">${btnLabel}</button>
       </div>`;
   }
 
@@ -75,6 +80,16 @@ const TL = (function(){
   // ── TV ACCESS: CONTENT & LOGIC ────────────────────────────────────────────
 
   function tvAccessContent(){
+    const tlvl = tier();
+    const disc = tlDisclaimer(t('Pro эсвэл Elite гишүүнчлэл авсны дараа энд имэйл болон TradingView хэрэглэгчийн нэрээ оруулна уу. Бид 24 цагийн дотор таны TradingView дансанд Money Pulse Line индикатор руу хандах эрх олгоно.','After upgrading to Pro or Elite, submit your email and TradingView username below. We will grant access to the Money Pulse Line indicator within 24 hours.'), 'tradelab-access');
+    if(tlvl < 2){
+      return disc + lockedCard(
+        t('📺 Money Pulse Line Индикатор','📺 Money Pulse Line Indicator'),
+        t('TradingView дээрх Money Pulse Line индикаторт хандахын тулд PRO эсвэл ELITE руу шинэчлэнэ үү. 24 цагийн дотор TradingView дансанд хандах эрх нэмнэ.','Upgrade to PRO or ELITE to access the Money Pulse Line indicator on TradingView. Access will be added to your TradingView account within 24 hours.'),
+        t('⚡ PRO РУУ ШИНЭЧЛЭХ','⚡ UPGRADE TO PRO'),
+        'biannual', '#9945FF'
+      );
+    }
     const inp = `width:100%;box-sizing:border-box;background:#060d12;border:1px solid rgba(0,180,216,0.2);border-radius:6px;padding:10px 14px;color:#ccd8df;font-size:13px;font-family:'Space Mono',monospace;outline:none`;
     const lbl = `display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#4a6070;text-transform:uppercase;margin-bottom:6px`;
     return `
@@ -1117,9 +1132,10 @@ const TL = (function(){
     const disc = tlDisclaimer('Арилжааны тэмдэглэлийн дагуу тооцоологдсон гүйцэтгэлийн үзүүлэлтүүд. Win rate, expectancy болон streak-ийг ойлгоснаар стратегиа сайжруулж, ашигтай арилжааны хэв маяг бүрдүүлэх боломжтой.', 'tradelab-stats');
     if(tlvl < 2){
       return disc + lockedCard(
-        '<span data-mn="Гүйцэтгэлийн Статистик" data-en="Performance Stats">Гүйцэтгэлийн Статистик</span>',
-        '<span data-mn="Дэвшилтэт гүйцэтгэлийн шинжилгээг нээхийн тулд PRO руу шинэчлэнэ үү — win rate, expectancy, drawdown, Sharpe ratio болон бусад." data-en="Upgrade to PRO to unlock advanced performance analytics — win rate, expectancy, drawdown, Sharpe ratio, and more.">Дэвшилтэт гүйцэтгэлийн шинжилгээг нээхийн тулд PRO руу шинэчлэнэ үү — win rate, expectancy, drawdown, Sharpe ratio болон бусад.</span>',
-        '<span data-mn="PRO РУУ ШИНЭЧЛЭХ" data-en="UPGRADE TO PRO">PRO РУУ ШИНЭЧЛЭХ</span>'
+        t('Гүйцэтгэлийн Статистик','Performance Stats'),
+        t('Дэвшилтэт гүйцэтгэлийн шинжилгээг нээхийн тулд PRO руу шинэчлэнэ үү — win rate, expectancy, drawdown, Sharpe ratio болон бусад.','Upgrade to PRO to unlock advanced performance analytics — win rate, expectancy, drawdown, Sharpe ratio, and more.'),
+        t('⚡ PRO РУУ ШИНЭЧЛЭХ','⚡ UPGRADE TO PRO'),
+        'biannual', '#9945FF'
       );
     }
     return `
@@ -1138,9 +1154,10 @@ const TL = (function(){
     const disc = tlDisclaimer('Өдөр бүрийн P&L-ийг харагдуулсан хуанли. Аль өдөр, аль долоо хоногт хамгийн сайн арилжаадаг болохоо ойлгож, давталтыг олж, стратегиа цаг хугацаатай уялдуулан сайжруулаарай.', 'tradelab-calendar');
     if(tlvl < 2){
       return disc + lockedCard(
-        '<span data-mn="Арилжааны Хуанли" data-en="Trade Calendar">Арилжааны Хуанли</span>',
-        '<span data-mn="Арилжааны хуанлиа нээхийн тулд PRO руу шинэчлэнэ үү — өдөр, долоо хоног, сараар гүйцэтгэлийг харуулна." data-en="Upgrade to PRO to unlock your trading calendar — visualize your performance by day, week, and month.">Арилжааны хуанлиа нээхийн тулд PRO руу шинэчлэнэ үү — өдөр, долоо хоног, сараар гүйцэтгэлийг харуулна.</span>',
-        '<span data-mn="PRO РУУ ШИНЭЧЛЭХ" data-en="UPGRADE TO PRO">PRO РУУ ШИНЭЧЛЭХ</span>'
+        t('Арилжааны Хуанли','Trade Calendar'),
+        t('Арилжааны хуанлиа нээхийн тулд PRO руу шинэчлэнэ үү — өдөр, долоо хоног, сараар гүйцэтгэлийг харуулна.','Upgrade to PRO to unlock your trading calendar — visualize your performance by day, week, and month.'),
+        t('⚡ PRO РУУ ШИНЭЧЛЭХ','⚡ UPGRADE TO PRO'),
+        'biannual', '#9945FF'
       );
     }
     return `
@@ -1521,9 +1538,10 @@ const TL = (function(){
     const disc = tlDisclaimer('Binance дээрх шилдэг 200 USDT хослолыг MONEY PULSE LINE-ны тусламжтайгаар 4H, 1D, 1W хүрээнд тасралтгүй хянана. Тренд эргэлтийг автоматаар илрүүлж харуулна. Elite гишүүнчлэл шаардлагатай.', 'tradelab-ai');
     if(tlvl < 3){
       return disc + lockedCard(
-        '🔍 Market Scanner',
-        'Autonomous SMA50/SMA200 crossover scanner across top 200 Binance pairs on 4H, 1D and 1W. Elite only.',
-        'UPGRADE TO ELITE'
+        t('🔍 Зах Зээлийн Сканнер','🔍 Market Scanner'),
+        t('Шилдэг 200 Binance хослолыг 4H, 1D, 1W хүрээнд SMA50/SMA200 гатлалтаар автоматаар хянана. Зөвхөн ELITE гишүүдэд.','Autonomous SMA50/SMA200 crossover scanner across top 200 Binance pairs on 4H, 1D and 1W. Elite members only.'),
+        t('⭐ ELITE РУУ ШИНЭЧЛЭХ','⭐ UPGRADE TO ELITE'),
+        'annual', '#f4c542'
       );
     }
 
