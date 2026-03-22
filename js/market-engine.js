@@ -502,7 +502,7 @@ function renderOverview(cardsId,rsiId,maId,sigId,group,color){
     const pre=PRECOMP[inst.id];
     const data=HIST[inst.id]||[],q=QUOTE[inst.id];
     if(!pre&&!data.length){
-      cH+=`<div class="mkt-card"><div class="mkt-card-sym" style="color:${color}">${inst.sym}</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:${C_MUT};margin-top:8px">No data</div></div>`;return;
+      cH+=`<div class="mkt-card"><div class="mkt-card-sym" style="color:${color}">${inst.sym}</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:${C_MUT};margin-top:8px">${t('Мэдээлэл байхгүй','No data')}</div></div>`;return;
     }
     // Use pre-computed from API or calculate locally
     const price = pre?pre.price:(q?.c||data[data.length-1]?.close||0);
@@ -524,7 +524,7 @@ function renderOverview(cardsId,rsiId,maId,sigId,group,color){
     </div>`;
     mH+=`<tr><td>${inst.sym}</td><td style="color:${chgCol(price-(ma20||price))}">${ma20?fmtP(ma20,dec):'—'}</td><td style="color:${chgCol(price-(ma50||price))}">${ma50?fmtP(ma50,dec):'—'}</td><td style="color:${chgCol(price-(ma200||price))}">${ma200?fmtP(ma200,dec):'—'}</td><td>${maBadge(sig)}</td></tr>`;
   });
-  cEl.innerHTML=cH||`<div style="color:${C_RED};font-family:'Space Mono',monospace;font-size:11px;padding:20px">No data — check connection</div>`;
+  cEl.innerHTML=cH||`<div style="color:${C_RED};font-family:'Space Mono',monospace;font-size:11px;padding:20px">${t('Мэдээлэл байхгүй — холболт шалгана уу','No data — check connection')}</div>`;
   rEl.innerHTML=rH; mEl.innerHTML=mH; sEl.innerHTML=sH;
 }
 
@@ -534,7 +534,7 @@ async function mktRefresh(id){
   delete LOADED[id];delete HIST[id];delete QUOTE[id];delete PRECOMP[id];
   const g=FX_PAIRS.find(p=>p.id===id)?'fx':CMD_ASSETS.find(p=>p.id===id)?'cmd':'eq';
   const bId=`${g}-${id}-body`,el=document.getElementById(bId);
-  if(el)el.innerHTML=`<div class="mkt-loading"><div class="mkt-spinner"></div>Refreshing ${inst.sym}…</div>`;
+  if(el)el.innerHTML=`<div class="mkt-loading"><div class="mkt-spinner"></div>${t('Шинэчилж байна','Refreshing')} ${inst.sym}…</div>`;
   await loadInst(inst,true);
   renderDetail(bId,inst,g==='fx'?C_FX:g==='cmd'?C_CMD:C_EQ);
 }
@@ -550,7 +550,7 @@ async function openMkt(type,id){
   if(id==='overview'){
     const cEl=document.getElementById(`${type}-ov-cards`);
     if(cEl&&!group.some(i=>PRECOMP[i.id]||HIST[i.id]?.length))
-      cEl.innerHTML=`<div class="mkt-loading"><div class="mkt-spinner"></div>Fetching from DeFiMongo API…</div>`;
+      cEl.innerHTML=`<div class="mkt-loading"><div class="mkt-spinner"></div>${t('DeFiMongo API-аас татаж байна…','Fetching from DeFiMongo API…')}</div>`;
     await loadGroup(group);
     renderOverview(`${type}-ov-cards`,`${type}-ov-rsi`,`${type}-ov-ma`,`${type}-ov-sigs`,group,color);
   } else {
@@ -566,7 +566,7 @@ async function openMkt(type,id){
     // ── First time loading this instrument ──
     if(el) el.innerHTML=`<div class="mkt-loading"><div class="mkt-spinner"></div>
       <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-top:12px;letter-spacing:1.5px">
-        Fetching ${inst.sym} from DeFiMongo API…
+        ${t('DeFiMongo API-аас татаж байна…',`Fetching ${inst.sym} from DeFiMongo API…`)}
       </div>
     </div>`;
     await loadInst(inst);

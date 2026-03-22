@@ -7,6 +7,9 @@
 ═══════════════════════════════════════════════════════════ */
 let SITE_LANG = 'mn'; // Mongolian default
 
+// Quick translation helper — use anywhere: t('Монгол текст', 'English text')
+function t(mn, en) { return SITE_LANG === 'mn' ? mn : en; }
+
 function setSiteLang(lang) {
   SITE_LANG = lang;
 

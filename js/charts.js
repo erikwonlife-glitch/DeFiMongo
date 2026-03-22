@@ -105,12 +105,12 @@ async function drawAllCharts(){
     const results = await Promise.all(ASSETS.map(a=>getRSIHistory(a.id)));
 
     function rsiLabel(v){
-      if(!v) return {txt:'Loading',col:MUTED};
-      if(v>=70) return {txt:'Overbought',col:RED};
-      if(v>=55) return {txt:'Bullish',col:ACCENT};
-      if(v>=45) return {txt:'Neutral',col:GOLD};
-      if(v>=30) return {txt:'Weak',col:ORANGE};
-      return {txt:'Oversold',col:BLUE};
+      if(!v) return {txt:t('Ачаалж байна','Loading'),col:MUTED};
+      if(v>=70) return {txt:t('Хэт өндөр','Overbought'),col:RED};
+      if(v>=55) return {txt:t('Буллиш','Bullish'),col:ACCENT};
+      if(v>=45) return {txt:t('Тэнцвэртэй','Neutral'),col:GOLD};
+      if(v>=30) return {txt:t('Сул','Weak'),col:ORANGE};
+      return {txt:t('Хэт доор','Oversold'),col:BLUE};
     }
     function rsiColor(v){
       if(!v) return MUTED;
@@ -381,7 +381,7 @@ async function drawAllCharts(){
     if (fedBtcEl && window.BTC_CURRENT) fedBtcEl.textContent = '$' + Math.round(window.BTC_CURRENT).toLocaleString();
 
     var upd = document.getElementById('fedUpdated');
-    if (upd) upd.textContent = '↻ Loading FRED data…';
+    if (upd) upd.textContent = t('↻ FRED өгөгдөл ачаалж байна…','↻ Loading FRED data…');
 
     // Refresh — update live BTC point
     window._fedRefresh = function() {
@@ -411,11 +411,11 @@ async function drawAllCharts(){
         var balEl = document.getElementById('fedBalVal');
         if (balEl) balEl.textContent = '$' + d.latest.value.toFixed(2) + 'T';
         var updEl = document.getElementById('fedUpdated');
-        if (updEl) updEl.textContent = '↻ FRED live · ' + new Date(d.updated).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+        if (updEl) updEl.textContent = t('↻ FRED шууд · ','↻ FRED live · ') + new Date(d.updated).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
       } catch(e) {
         console.warn('[DeFiMongo] WALCL fetch failed, using fallback data:', e.message);
         var updEl2 = document.getElementById('fedUpdated');
-        if (updEl2) updEl2.textContent = '↻ Fallback data · ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+        if (updEl2) updEl2.textContent = t('↻ Нөөц өгөгдөл · ','↻ Fallback data · ') + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
       }
     })();
   })();
@@ -519,7 +519,7 @@ async function drawAllCharts(){
     if (dxyBtcEl && window.BTC_CURRENT) dxyBtcEl.textContent = '$' + Math.round(window.BTC_CURRENT).toLocaleString();
 
     var upd = document.getElementById('dxyUpdated');
-    if (upd) upd.textContent = '↻ Loading Stooq data…';
+    if (upd) upd.textContent = t('↻ Stooq өгөгдөл ачаалж байна…','↻ Loading Stooq data…');
 
     // Daily refresh — update live BTC endpoint
     window._dxyRefresh = function() {
@@ -556,11 +556,11 @@ async function drawAllCharts(){
         var valEl = document.getElementById('dxyValNew');
         if (valEl) valEl.textContent = lastDaily.toFixed(2);
         var updEl = document.getElementById('dxyUpdated');
-        if (updEl) updEl.textContent = '↻ Stooq live · ' + new Date(d.updated).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+        if (updEl) updEl.textContent = t('↻ Stooq шууд · ','↻ Stooq live · ') + new Date(d.updated).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
       } catch(e) {
         console.warn('[DeFiMongo] DXY fetch failed, using fallback data:', e.message);
         var updEl2 = document.getElementById('dxyUpdated');
-        if (updEl2) updEl2.textContent = '↻ Fallback data · ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+        if (updEl2) updEl2.textContent = t('↻ Нөөц өгөгдөл · ','↻ Fallback data · ') + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
       }
     })();
   })();
@@ -713,7 +713,7 @@ async function drawAllCharts(){
     var el4= document.getElementById('liqBoj');   if(el4) el4.textContent = '$'+bojLatest.toFixed(1)+'T';
 
     var upd = document.getElementById('liqUpdated');
-    if (upd) upd.textContent = '↻ Loading FRED data…';
+    if (upd) upd.textContent = t('↻ FRED өгөгдөл ачаалж байна…','↻ Loading FRED data…');
 
     // Refresh — update live BTC endpoint
     window._liqRefresh = function() {
@@ -769,11 +769,11 @@ async function drawAllCharts(){
         }
 
         var updEl = document.getElementById('liqUpdated');
-        if (updEl) updEl.textContent = '↻ FRED live · ' + new Date(d.updated).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+        if (updEl) updEl.textContent = t('↻ FRED шууд · ','↻ FRED live · ') + new Date(d.updated).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
       } catch(e) {
         console.warn('[DeFiMongo] Liquidity FRED fetch failed, using fallback data:', e.message);
         var updEl2 = document.getElementById('liqUpdated');
-        if (updEl2) updEl2.textContent = '↻ Fallback data · ' + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+        if (updEl2) updEl2.textContent = t('↻ Нөөц өгөгдөл · ','↻ Fallback data · ') + new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
       }
     })();
   })();
@@ -1868,7 +1868,7 @@ async function drawAllCharts(){
       chart.timeScale().setVisibleRange({from:1,to:365});
       new ResizeObserver(function(){chart.applyOptions({width:wrap.offsetWidth});}).observe(wrap);
       const upd=document.getElementById(cfg.updatedId);
-      if(upd) upd.textContent='↻ Updated '+new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+      if(upd) upd.textContent=t('↻ Шинэчлэгдсэн ','↻ Updated ')+new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
     }
 
     // Build toggle pills

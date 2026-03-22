@@ -252,22 +252,22 @@ async function connectWallet(type){
   if(btn){btn.classList.add('connecting');btn.querySelector('.w3-name').textContent='Connecting…';}
 
   if(type==='metamask'||type==='coinbase'){
-    if(!window.ethereum){ showW3Error(type,'Not installed. <a href="https://metamask.io" target="_blank" style="color:var(--accent)">Install MetaMask →</a>'); return; }
+    if(!window.ethereum){ showW3Error(type,t('Суулгаагүй байна. <a href="https://metamask.io" target="_blank" style="color:var(--accent)">MetaMask суулгах →</a>','Not installed. <a href="https://metamask.io" target="_blank" style="color:var(--accent)">Install MetaMask →</a>')); return; }
     try{
       const accounts = await window.ethereum.request({method:'eth_requestAccounts'});
       finishWalletAuth(type, accounts[0], btn);
     } catch(e){
-      showW3Error(type, e.code===4001?'Connection rejected':'Connection failed');
+      showW3Error(type, e.code===4001?t('Холболт татгалзлаа','Connection rejected'):t('Холболт амжилтгүй','Connection failed'));
     }
     return;
   }
   if(type==='phantom'){
-    if(!window.solana?.isPhantom){ showW3Error(type,'Not installed. <a href="https://phantom.app" target="_blank" style="color:var(--accent)">Install Phantom →</a>'); return; }
+    if(!window.solana?.isPhantom){ showW3Error(type,t('Суулгаагүй байна. <a href="https://phantom.app" target="_blank" style="color:var(--accent)">Phantom суулгах →</a>','Not installed. <a href="https://phantom.app" target="_blank" style="color:var(--accent)">Install Phantom →</a>')); return; }
     try{
       const resp = await window.solana.connect();
       finishWalletAuth(type, resp.publicKey.toString(), btn);
     } catch(e){
-      showW3Error(type,'Connection rejected');
+      showW3Error(type,t('Холболт татгалзлаа','Connection rejected'));
     }
     return;
   }
@@ -639,7 +639,7 @@ async function openAdminPanel() {
       <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0">
         <div>
           <div style="font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#f4c542">⚡ DEFIMONGO ADMIN</div>
-          <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:2px;margin-top:2px">MEMBER ACCESS MANAGEMENT</div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;color:#4a6070;letter-spacing:2px;margin-top:2px">${t('ГИШҮҮН ЭРХИЙН УДИРДЛАГА','MEMBER ACCESS MANAGEMENT')}</div>
         </div>
         <button onclick="document.getElementById('adminPanelOverlay').remove()" style="background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#4a6070;font-size:16px;cursor:pointer;padding:4px 10px;font-family:'Space Mono',monospace">✕</button>
       </div>
@@ -648,15 +648,15 @@ async function openAdminPanel() {
       <div id="adm-cards" style="display:flex;gap:10px;padding:16px 24px;flex-shrink:0;flex-wrap:wrap">
         <div style="background:#0a1520;border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:12px 16px;flex:1;min-width:70px;text-align:center">
           <div id="adm-total" style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:#fff">—</div>
-          <div style="font-family:'Space Mono',monospace;font-size:8px;color:#4a6070;letter-spacing:1px;margin-top:2px">TOTAL</div>
+          <div style="font-family:'Space Mono',monospace;font-size:8px;color:#4a6070;letter-spacing:1px;margin-top:2px">${t('НИЙТ','TOTAL')}</div>
         </div>
         <div style="background:#0a1520;border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:12px 16px;flex:1;min-width:70px;text-align:center">
           <div id="adm-active" style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:#00e87a">—</div>
-          <div style="font-family:'Space Mono',monospace;font-size:8px;color:#4a6070;letter-spacing:1px;margin-top:2px">ACTIVE</div>
+          <div style="font-family:'Space Mono',monospace;font-size:8px;color:#4a6070;letter-spacing:1px;margin-top:2px">${t('ИДЭВХТЭЙ','ACTIVE')}</div>
         </div>
         <div style="background:#0a1520;border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:12px 16px;flex:1;min-width:70px;text-align:center">
           <div id="adm-pending" style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:#00b4d8">—</div>
-          <div style="font-family:'Space Mono',monospace;font-size:8px;color:#4a6070;letter-spacing:1px;margin-top:2px">PENDING</div>
+          <div style="font-family:'Space Mono',monospace;font-size:8px;color:#4a6070;letter-spacing:1px;margin-top:2px">${t('ХҮЛЭЭГДЭЖ БУЙ','PENDING')}</div>
         </div>
         <div style="background:#0a1520;border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:12px 16px;flex:1;min-width:70px;text-align:center">
           <div id="adm-expiring" style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:#f4c542">—</div>
@@ -705,7 +705,7 @@ async function openAdminPanel() {
             </tr>
           </thead>
           <tbody id="adm-body">
-            <tr><td colspan="6" style="text-align:center;padding:32px;color:#4a6070;font-family:'Space Mono',monospace;font-size:11px">Loading...</td></tr>
+            <tr><td colspan="6" style="text-align:center;padding:32px;color:#4a6070;font-family:'Space Mono',monospace;font-size:11px">${t('Ачаалж байна...','Loading...')}</td></tr>
           </tbody>
         </table>
       </div>
@@ -727,14 +727,14 @@ function admFmt(d) {
 
 function admBadge(row) {
   if (row.status === 'active' && row.daysLeft !== null && row.daysLeft <= 7)
-    return '<span style="background:rgba(244,197,66,0.15);color:#f4c542;border-radius:3px;padding:2px 7px;font-size:8px;font-weight:700;letter-spacing:1px">⚠ EXPIRING</span>';
+    return '<span style="background:rgba(244,197,66,0.15);color:#f4c542;border-radius:3px;padding:2px 7px;font-size:8px;font-weight:700;letter-spacing:1px">⚠ '+t('ДУУСАХ ГЭСНЭ','EXPIRING')+'</span>';
   const styles = {
     active:  'background:rgba(0,232,122,0.15);color:#00e87a',
     pending: 'background:rgba(0,180,216,0.12);color:#00b4d8',
     expired: 'background:rgba(255,68,68,0.12);color:#ff4444',
     revoked: 'background:rgba(100,100,100,0.15);color:#4a6070',
   };
-  const labels = { active:'✓ ACTIVE', pending:'⏳ PENDING', expired:'✗ EXPIRED', revoked:'— REVOKED' };
+  const labels = { active:'✓ '+t('ИДЭВХТЭЙ','ACTIVE'), pending:'⏳ '+t('ХҮЛЭЭГДЭЖ БУЙ','PENDING'), expired:'✗ '+t('ДУУССАН','EXPIRED'), revoked:'— '+t('ЦУЦЛАГДСАН','REVOKED') };
   const s = styles[row.status] || styles.pending;
   const l = labels[row.status] || row.status.toUpperCase();
   return '<span style="'+s+';border-radius:3px;padding:2px 7px;font-size:8px;font-weight:700;letter-spacing:1px">'+l+'</span>';
