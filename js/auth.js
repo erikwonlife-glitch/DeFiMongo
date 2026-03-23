@@ -864,6 +864,13 @@ function admToast(msg, err) {
 // ── BACKEND TIER SYNC — fetch real tier from Railway on login ─────────────────
 async function fetchBackendTier(email) {
   if (!email) return;
+  // Owner wallet always gets ELITE — no server lookup needed
+  if (email === 'GskmXrB1ESZqx8p76fi154UNi2sZgFUU26N2QtuMXnmZ') {
+    _jwtTier = 3;
+    if (CR_USER) { CR_USER.tier = 3; DB.save(CR_USER); }
+    if (typeof applyTierGating === 'function') applyTierGating();
+    return;
+  }
   try {
     const res = await fetch(RAILWAY + '/api/user/tier?email=' + encodeURIComponent(email));
     const data = await res.json();
