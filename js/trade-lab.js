@@ -1719,3 +1719,11 @@ const TL = (function(){
   };
 
 })();
+
+// Re-render Trade Lab immediately when tier changes (called from auth.js after wallet/login tier sync)
+window.applyTierGating = function() {
+  const panel = document.getElementById('P-trade-lab');
+  if (panel && panel.classList.contains('on')) {
+    if (typeof TL !== 'undefined' && typeof TL.init === 'function') TL.init();
+  }
+};
