@@ -2156,6 +2156,353 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 .mob-menu-btn:hover { border-color: #243844; }
 .mob-menu-btn svg { color: #ccd8df; }
 
+/* ══════════════════════════════════════════════════════════
+   AI AUTOMATION BUTTON + PAGE OVERLAY
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Button in topbar ── */
+.ai-auto-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #0055cc, #00b4d8);
+  border: none;
+  border-radius: 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+  cursor: pointer;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all .2s;
+  box-shadow: 0 0 14px rgba(0,180,216,.22), 0 2px 8px rgba(0,0,0,.4);
+  animation: aiPulseGlow 3.2s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+.ai-auto-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 26px rgba(0,180,216,.5), 0 4px 16px rgba(0,0,0,.5);
+}
+.ai-auto-btn span { position: relative; z-index: 1; }
+.ai-auto-btn .aab-icon { font-size: 13px; }
+.ai-auto-btn .aab-badge {
+  background: rgba(255,255,255,.15);
+  font-size: 8px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: .5px;
+}
+@keyframes aiPulseGlow {
+  0%, 100% { box-shadow: 0 0 14px rgba(0,180,216,.22), 0 2px 8px rgba(0,0,0,.4); }
+  50%       { box-shadow: 0 0 26px rgba(0,180,216,.5), 0 2px 8px rgba(0,0,0,.4); }
+}
+@media (max-width: 900px) {
+  .ai-auto-btn .aab-text { display: none; }
+  .ai-auto-btn { padding: 8px 11px; }
+}
+@media (max-width: 480px) {
+  .ai-auto-btn .aab-badge { display: none; }
+}
+
+/* ── Full-screen overlay ── */
+.ai-auto-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #07090b;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.ai-auto-overlay.on { display: flex; }
+
+.ai-topbar {
+  position: sticky;
+  top: 0; z-index: 10;
+  background: rgba(7,9,11,.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #1c2d38;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 56px;
+  flex-shrink: 0;
+}
+.ai-nav-logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px; font-weight: 700; color: #fff;
+  display: flex; align-items: center; gap: 10px;
+}
+.ai-nav-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: linear-gradient(135deg, #0055cc, #00b4d8);
+  animation: aiPulseGlow 2s infinite;
+  box-shadow: 0 0 8px rgba(0,180,216,.6);
+}
+.ai-pg-close-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid #1c2d38;
+  border-radius: 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; color: #4d6475;
+  cursor: pointer; transition: all .2s;
+}
+.ai-pg-close-btn:hover { border-color: #243844; color: #ccd8df; }
+
+.ai-body {
+  flex: 1;
+  padding: 52px 5% 88px;
+  max-width: 1120px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Hero */
+.ai-hero { text-align: center; margin-bottom: 64px; }
+.ai-hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(0,180,216,.07);
+  border: 1px solid rgba(0,180,216,.2);
+  padding: 5px 14px; border-radius: 3px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 2px;
+  color: #00b4d8; text-transform: uppercase;
+  margin-bottom: 22px;
+}
+.ai-badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #00b4d8; animation: aiPulseGlow 2s infinite;
+}
+.ai-hero-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(28px, 5vw, 54px);
+  font-weight: 800; color: #fff;
+  line-height: 1.1; letter-spacing: -.02em;
+  margin-bottom: 18px;
+}
+.ai-hero-title .ai-blue { color: #00b4d8; }
+.ai-hero-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px; color: #4d6475;
+  max-width: 580px; margin: 0 auto 32px;
+  line-height: 1.72;
+}
+.ai-hero-sub strong { color: #ccd8df; }
+.ai-hero-stats { display: flex; gap: 36px; justify-content: center; flex-wrap: wrap; }
+.ai-hero-stat { text-align: center; }
+.ai-stat-val {
+  font-family: 'Space Mono', monospace;
+  font-size: 26px; font-weight: 700; color: #00b4d8;
+}
+.ai-stat-lbl {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; color: #4d6475;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  margin-top: 3px;
+}
+
+/* Section header */
+.ai-sec-hd { text-align: center; margin-bottom: 32px; }
+.ai-sec-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px; font-weight: 700; color: #fff;
+  margin-bottom: 6px;
+}
+.ai-sec-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px; color: #4d6475;
+}
+.ai-sec-divider {
+  border: none; border-top: 1px solid #1c2d38;
+  margin: 56px 0;
+}
+
+/* Services grid */
+.ai-services {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px; margin-bottom: 56px;
+}
+.ai-svc-card {
+  background: #0c1014;
+  border: 1px solid #1c2d38;
+  border-radius: 12px;
+  padding: 28px 22px 26px;
+  position: relative; overflow: hidden;
+  transition: all .22s;
+}
+.ai-svc-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #0055cc, #00b4d8);
+}
+.ai-svc-card.ai-featured {
+  border-color: rgba(0,180,216,.28);
+  background: linear-gradient(160deg, rgba(0,55,153,.06), rgba(0,180,216,.03), #0c1014);
+}
+.ai-svc-card.ai-featured::before {
+  background: linear-gradient(90deg, #00b4d8, #00e87a);
+}
+.ai-svc-card:hover {
+  border-color: rgba(0,180,216,.32);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 44px rgba(0,80,204,.09);
+}
+.ai-svc-lbl {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px; letter-spacing: 2px; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 3px;
+  display: inline-block; margin-bottom: 14px;
+  border: 1px solid rgba(0,180,216,.22);
+  color: #00b4d8; background: rgba(0,180,216,.07);
+}
+.ai-svc-lbl.ai-pop {
+  border-color: rgba(0,232,122,.28);
+  color: #00e87a; background: rgba(0,232,122,.07);
+}
+.ai-svc-icon { font-size: 30px; margin-bottom: 12px; display: block; }
+.ai-svc-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px; font-weight: 700; color: #fff;
+  margin-bottom: 8px;
+}
+.ai-svc-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; color: #5c7585;
+  line-height: 1.65; margin-bottom: 16px;
+}
+.ai-svc-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 7px; }
+.ai-svc-list li {
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px; color: #5c7585;
+  display: flex; align-items: flex-start; gap: 8px;
+  line-height: 1.45;
+}
+.ai-svc-list li::before {
+  content: '→'; color: #00b4d8;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; flex-shrink: 0; margin-top: 1px;
+}
+
+/* Benefits */
+.ai-benefits {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px; margin-bottom: 56px;
+}
+.ai-benefit {
+  background: #0c1014; border: 1px solid #1c2d38;
+  border-radius: 8px; padding: 22px 18px;
+  transition: border-color .2s;
+}
+.ai-benefit:hover { border-color: rgba(0,180,216,.2); }
+.ai-benefit-icon { font-size: 22px; margin-bottom: 10px; }
+.ai-benefit-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13.5px; font-weight: 600; color: #ccd8df;
+  margin-bottom: 5px;
+}
+.ai-benefit-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; color: #4d6475; line-height: 1.55;
+}
+
+/* How it works */
+.ai-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px; margin-bottom: 56px;
+}
+.ai-step {
+  background: #0c1014; border: 1px solid #1c2d38;
+  border-radius: 8px; padding: 26px 16px; text-align: center;
+}
+.ai-step-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 34px; font-weight: 700;
+  color: rgba(0,180,216,.14); line-height: 1;
+  margin-bottom: 8px;
+}
+.ai-step-icon { font-size: 22px; margin-bottom: 10px; display: block; }
+.ai-step-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13.5px; font-weight: 600; color: #ccd8df;
+  margin-bottom: 6px;
+}
+.ai-step-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; color: #4d6475; line-height: 1.5;
+}
+
+/* CTA box */
+.ai-cta-box {
+  background: linear-gradient(135deg, rgba(0,55,153,.1), rgba(0,180,216,.05));
+  border: 1px solid rgba(0,180,216,.22);
+  border-radius: 16px;
+  padding: 56px 40px; text-align: center;
+}
+.ai-cta-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 28px; font-weight: 700; color: #fff;
+  margin-bottom: 12px;
+}
+.ai-cta-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px; color: #5c7585;
+  margin: 0 auto 28px; line-height: 1.65;
+  max-width: 480px;
+}
+.ai-cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.ai-cta-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #0055cc, #00b4d8);
+  border: none; border-radius: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 1px; color: #fff;
+  cursor: pointer; text-decoration: none;
+  text-transform: uppercase; transition: all .2s;
+}
+.ai-cta-primary:hover { transform: translateY(-1px); opacity: .9; box-shadow: 0 8px 24px rgba(0,85,204,.25); }
+.ai-cta-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  background: transparent;
+  border: 1px solid #1c2d38; border-radius: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 1px; color: #5c7585;
+  cursor: pointer; text-decoration: none;
+  text-transform: uppercase; transition: all .2s;
+}
+.ai-cta-secondary:hover { border-color: #243844; color: #ccd8df; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .ai-services { grid-template-columns: 1fr; }
+  .ai-steps { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 700px) {
+  .ai-benefits { grid-template-columns: 1fr 1fr; }
+  .ai-body { padding: 28px 16px 64px; }
+  .ai-cta-box { padding: 36px 20px; }
+}
+@media (max-width: 480px) {
+  .ai-benefits { grid-template-columns: 1fr; }
+  .ai-steps { grid-template-columns: 1fr; }
+  .ai-cta-title { font-size: 22px; }
+}
+
 </style>
 </head>
 <body>
@@ -2189,6 +2536,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
       <span class="pb-text" data-mn="Таамаглал" data-en="Predict">Таамаглал</span>
       <span class="pb-badge">MN</span>
     </button> -->
+    <!-- ★ AI AUTOMATION BUTTON ★ -->
+    <button class="ai-auto-btn" onclick="openAIAutoPage()">
+      <span class="aab-icon">⚡</span>
+      <span class="aab-text" data-mn="AI Автоматжуулалт" data-en="AI Automation">AI Automation</span>
+      <span class="aab-badge">B2B</span>
+    </button>
     <!-- ★ FREE TRAINING BUTTON ★ -->
     <button class="free-training-btn" onclick="openTrainingPage()">
       <span class="ftr-icon">▶</span>
@@ -2319,6 +2672,19 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
     <div class="ng">
       <div class="nl" onclick="go('trade-lab',this)" style="background:rgba(153,69,255,.06);border-radius:4px;margin:2px 8px;padding:10px 12px;border:1px solid rgba(153,69,255,.2);cursor:pointer;border-left:none">
         <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#9945FF">⚗️ TRADE LAB</span>
+      </div>
+    </div>
+
+    <!-- AI AUTOMATION nav item -->
+    <div class="mkt-sep" style="margin-top:8px">
+      <span class="mkt-sep-dot" style="background:linear-gradient(135deg,#0055cc,#00b4d8)"></span>
+      <span class="mkt-sep-lbl" style="background:linear-gradient(135deg,#0055cc,#00b4d8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700">AI</span>
+      <span class="mkt-sep-line" style="background:rgba(0,180,216,.18)"></span>
+    </div>
+    <div class="ng" id="gAIAuto">
+      <div class="ngh" onclick="openAIAutoPage()" style="background:linear-gradient(135deg,rgba(0,85,204,.07),rgba(0,180,216,.04));border-radius:4px;margin:2px 8px;padding:10px 12px;border:1px solid rgba(0,180,216,.2);cursor:pointer">
+        <span style="background:linear-gradient(135deg,#0055cc,#00b4d8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700" data-mn="⚡ AI Автоматжуулалт" data-en="⚡ AI Automation">⚡ AI Automation</span>
+        <span style="font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:3px;background:rgba(0,180,216,.1);color:#00b4d8;border:1px solid rgba(0,180,216,.25);letter-spacing:.5px">B2B</span>
       </div>
     </div>
 
@@ -5754,6 +6120,233 @@ console.log(<span style="color:#f4c542">"Vault address:"</span>, vault.address.t
     </div>
   </div>
 </div>
+
+<!-- ══════════════════════════════════════════════════════
+     AI AUTOMATION PAGE OVERLAY
+     ══════════════════════════════════════════════════════ -->
+<div class="ai-auto-overlay" id="aiAutoOverlay">
+
+  <!-- Top bar -->
+  <div class="ai-topbar">
+    <div class="ai-nav-logo">
+      <div class="ai-nav-dot"></div>
+      <span>DeFiMongo — <span style="color:#00b4d8">AI Automation Services</span></span>
+    </div>
+    <button class="ai-pg-close-btn" onclick="closeAIAutoPage()">✕ &nbsp;Close</button>
+  </div>
+
+  <!-- Body -->
+  <div class="ai-body">
+
+    <!-- ── HERO ── -->
+    <div class="ai-hero">
+      <div class="ai-hero-badge">
+        <div class="ai-badge-dot"></div>
+        <span>Custom AI Automation · Private Companies</span>
+      </div>
+      <h1 class="ai-hero-title">
+        Let AI work<br>while your business <span class="ai-blue">scales</span>.
+      </h1>
+      <p class="ai-hero-sub">
+        I build <strong>custom AI automation systems</strong> for private companies — from full social media pipelines to complex repetitive workflows. You focus on growth; the machines handle the rest.
+      </p>
+      <div class="ai-hero-stats">
+        <div class="ai-hero-stat">
+          <div class="ai-stat-val">40h+</div>
+          <div class="ai-stat-lbl">Saved per week</div>
+        </div>
+        <div class="ai-hero-stat">
+          <div class="ai-stat-val">24/7</div>
+          <div class="ai-stat-lbl">Operations</div>
+        </div>
+        <div class="ai-hero-stat">
+          <div class="ai-stat-val">0%</div>
+          <div class="ai-stat-lbl">Error rate</div>
+        </div>
+        <div class="ai-hero-stat">
+          <div class="ai-stat-val">100%</div>
+          <div class="ai-stat-lbl">Custom built</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SERVICES ── -->
+    <div class="ai-sec-hd">
+      <div class="ai-sec-title">What I Build For You</div>
+      <div class="ai-sec-sub">Every system is designed from scratch around your specific business needs</div>
+    </div>
+
+    <div class="ai-services">
+
+      <!-- Card 1: Social Media -->
+      <div class="ai-svc-card">
+        <span class="ai-svc-lbl">Social Media</span>
+        <span class="ai-svc-icon">📱</span>
+        <div class="ai-svc-name">Full Social Media Automation</div>
+        <p class="ai-svc-desc">End-to-end automation of your company's social presence — content creation, scheduling, engagement, and performance reporting across all platforms.</p>
+        <ul class="ai-svc-list">
+          <li>AI-generated posts, captions & visuals</li>
+          <li>Auto-scheduling across Instagram, X, LinkedIn, Facebook</li>
+          <li>Automated replies & comment moderation</li>
+          <li>Competitor monitoring & trend alerts</li>
+          <li>Weekly performance dashboards</li>
+        </ul>
+      </div>
+
+      <!-- Card 2: Repetitive Tasks (featured) -->
+      <div class="ai-svc-card ai-featured">
+        <span class="ai-svc-lbl ai-pop">Most Popular</span>
+        <span class="ai-svc-icon">🔄</span>
+        <div class="ai-svc-name">Repetitive Task Automation</div>
+        <p class="ai-svc-desc">Eliminate manual, time-consuming processes that drain your team. If your staff does it more than twice, it can be automated.</p>
+        <ul class="ai-svc-list">
+          <li>Data entry, extraction & transformation</li>
+          <li>Email & inbox management workflows</li>
+          <li>Report generation & distribution</li>
+          <li>Document processing & filing</li>
+          <li>CRM updates & lead routing</li>
+        </ul>
+      </div>
+
+      <!-- Card 3: Full Product Line -->
+      <div class="ai-svc-card">
+        <span class="ai-svc-lbl">Enterprise</span>
+        <span class="ai-svc-icon">🏭</span>
+        <div class="ai-svc-name">Full Product Line Automation</div>
+        <p class="ai-svc-desc">Large-scale AI integration across your entire operation — from customer-facing tools to internal pipelines and everything in between.</p>
+        <ul class="ai-svc-list">
+          <li>End-to-end workflow design & build</li>
+          <li>AI agents for customer support</li>
+          <li>Inventory, ordering & supply chain bots</li>
+          <li>Internal knowledge base & HR assistants</li>
+          <li>API integrations with your existing tools</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <hr class="ai-sec-divider">
+
+    <!-- ── BENEFITS ── -->
+    <div class="ai-sec-hd">
+      <div class="ai-sec-title">Why Private Companies Choose AI Automation</div>
+      <div class="ai-sec-sub">Real advantages that compound over time — not just a one-time fix</div>
+    </div>
+
+    <div class="ai-benefits">
+
+      <div class="ai-benefit">
+        <div class="ai-benefit-icon">⏱️</div>
+        <div class="ai-benefit-title">Save 20–40 Hours Per Week</div>
+        <div class="ai-benefit-desc">Free your team from repetitive tasks. Every automated workflow directly returns productive hours to your staff.</div>
+      </div>
+
+      <div class="ai-benefit">
+        <div class="ai-benefit-icon">🌐</div>
+        <div class="ai-benefit-title">24/7 Operations at Zero Extra Cost</div>
+        <div class="ai-benefit-desc">Your systems run while you sleep. No overtime, no sick days, no downtime — automation never stops.</div>
+      </div>
+
+      <div class="ai-benefit">
+        <div class="ai-benefit-icon">✅</div>
+        <div class="ai-benefit-title">Near-Zero Error Rate</div>
+        <div class="ai-benefit-desc">Eliminate human errors in data entry, reporting, and communications. Consistent, accurate output every time.</div>
+      </div>
+
+      <div class="ai-benefit">
+        <div class="ai-benefit-icon">📣</div>
+        <div class="ai-benefit-title">Consistent Brand Voice</div>
+        <div class="ai-benefit-desc">AI maintains your exact tone and messaging across every platform, every day — no gaps, no inconsistencies.</div>
+      </div>
+
+      <div class="ai-benefit">
+        <div class="ai-benefit-icon">📊</div>
+        <div class="ai-benefit-title">Automatic Insights & Reports</div>
+        <div class="ai-benefit-desc">Receive structured performance reports without lifting a finger. Data becomes decisions, automatically.</div>
+      </div>
+
+      <div class="ai-benefit">
+        <div class="ai-benefit-icon">📈</div>
+        <div class="ai-benefit-title">Scale Without Hiring</div>
+        <div class="ai-benefit-desc">Double your output without doubling headcount. Automation scales with your business at a fraction of the cost.</div>
+      </div>
+
+      <div class="ai-benefit">
+        <div class="ai-benefit-icon">💰</div>
+        <div class="ai-benefit-title">Dramatic Cost Reduction</div>
+        <div class="ai-benefit-desc">Replace hours of manual labor with automated pipelines. Most clients see ROI within the first 60 days.</div>
+      </div>
+
+      <div class="ai-benefit">
+        <div class="ai-benefit-icon">🔒</div>
+        <div class="ai-benefit-title">Fully Private & Custom Built</div>
+        <div class="ai-benefit-desc">No off-the-shelf tools or shared infrastructure. Your system is built exclusively for your company, on your terms.</div>
+      </div>
+
+      <div class="ai-benefit">
+        <div class="ai-benefit-icon">🔧</div>
+        <div class="ai-benefit-title">Maintained & Supported</div>
+        <div class="ai-benefit-desc">Ongoing support, updates, and improvements as your business evolves. You're never left managing it alone.</div>
+      </div>
+
+    </div>
+
+    <hr class="ai-sec-divider">
+
+    <!-- ── HOW IT WORKS ── -->
+    <div class="ai-sec-hd">
+      <div class="ai-sec-title">How It Works</div>
+      <div class="ai-sec-sub">From first call to live system — a clear, proven process</div>
+    </div>
+
+    <div class="ai-steps">
+      <div class="ai-step">
+        <div class="ai-step-num">01</div>
+        <span class="ai-step-icon">🔍</span>
+        <div class="ai-step-title">Discovery Call</div>
+        <div class="ai-step-desc">We map your current workflows, identify automation opportunities, and define the scope together.</div>
+      </div>
+      <div class="ai-step">
+        <div class="ai-step-num">02</div>
+        <span class="ai-step-icon">📐</span>
+        <div class="ai-step-title">Blueprint Design</div>
+        <div class="ai-step-desc">I design a custom automation architecture tailored to your exact tools, team, and business goals.</div>
+      </div>
+      <div class="ai-step">
+        <div class="ai-step-num">03</div>
+        <span class="ai-step-icon">⚙️</span>
+        <div class="ai-step-title">Build & Test</div>
+        <div class="ai-step-desc">Full development and rigorous testing of every automation flow before anything goes live.</div>
+      </div>
+      <div class="ai-step">
+        <div class="ai-step-num">04</div>
+        <span class="ai-step-icon">🚀</span>
+        <div class="ai-step-title">Deploy & Support</div>
+        <div class="ai-step-desc">We launch your system and I provide ongoing support, monitoring, and optimization as needed.</div>
+      </div>
+    </div>
+
+    <!-- ── CTA ── -->
+    <div class="ai-cta-box">
+      <div class="ai-cta-title">Ready to automate your business?</div>
+      <p class="ai-cta-sub">Book a free discovery call and I'll show you exactly where AI can save your team the most time and money — no commitment required.</p>
+      <div class="ai-cta-btns">
+        <a href="https://x.com/DeFiMongo" target="_blank" class="ai-cta-primary">
+          ⚡ Book a Discovery Call
+        </a>
+        <a href="https://x.com/DeFiMongo" target="_blank" class="ai-cta-secondary">
+          💬 Message on X / Twitter
+        </a>
+      </div>
+      <div style="margin-top:20px;font-family:'Space Mono',monospace;font-size:9px;color:#4d6475;letter-spacing:1px">
+        RESPONSE WITHIN 24 HOURS · ALL INDUSTRIES WELCOME · ANY SCALE
+      </div>
+    </div>
+
+  </div><!-- /ai-body -->
+</div><!-- /ai-auto-overlay -->
+
+<script src="js/ai-automation.js?v=1"></script>
 
 </body>
 </html>
