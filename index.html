@@ -2543,6 +2543,40 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
   text-transform: uppercase;
 }
 
+/* ── COPY-LINK BUTTON (injected into every page header) ── */
+.dl-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  padding: 5px 11px;
+  background: transparent;
+  border: 1px solid #1c2d38;
+  border-radius: 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  color: #4d6475;
+  cursor: pointer;
+  transition: all .18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+.dl-copy-btn:hover {
+  border-color: rgba(0,180,216,.35);
+  color: #00b4d8;
+  background: rgba(0,180,216,.05);
+}
+.dl-copy-btn.dl-copied {
+  border-color: rgba(0,232,122,.35);
+  color: #00e87a;
+  background: rgba(0,232,122,.05);
+}
+.dl-icon { font-size: 11px; }
+@media (max-width: 600px) { .dl-txt { display: none; } }
+
 /* Responsive */
 @media (max-width: 900px) {
   .ai-services { grid-template-columns: 1fr; }
@@ -6417,6 +6451,7 @@ console.log(<span style="color:#f4c542">"Vault address:"</span>, vault.address.t
 </div><!-- /ai-auto-overlay -->
 
 <script src="js/ai-automation.js?v=1"></script>
+<script src="js/deeplinks.js?v=1"></script>
 
 </body>
 </html>
