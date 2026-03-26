@@ -2487,6 +2487,62 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 }
 .ai-cta-secondary:hover { border-color: #243844; color: #ccd8df; }
 
+/* Phone popup */
+.ai-phone-popup {
+  display: none;
+  position: relative;
+  margin-top: 16px;
+  animation: aiPhoneSlideIn .22s ease;
+}
+.ai-phone-popup.on { display: block; }
+@keyframes aiPhoneSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ai-phone-popup-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  background: #0c1014;
+  border: 1px solid rgba(0,180,216,.35);
+  border-radius: 10px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px rgba(0,85,204,.18), 0 0 0 1px rgba(0,180,216,.1);
+}
+.ai-phone-flag { font-size: 28px; line-height: 1; flex-shrink: 0; }
+.ai-phone-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; letter-spacing: 1.5px;
+  color: #4d6475; text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.ai-phone-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 26px; font-weight: 700;
+  color: #00b4d8; text-decoration: none;
+  letter-spacing: .02em;
+  transition: color .15s;
+  display: block;
+}
+.ai-phone-number:hover { color: #fff; }
+.ai-phone-copy {
+  background: rgba(0,180,216,.08);
+  border: 1px solid rgba(0,180,216,.2);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 14px; color: #00b4d8;
+  cursor: pointer; transition: all .15s;
+  flex-shrink: 0;
+}
+.ai-phone-copy:hover { background: rgba(0,180,216,.18); color: #fff; }
+.ai-phone-copy.copied { color: #00e87a; border-color: rgba(0,232,122,.3); }
+.ai-phone-hint {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; color: #4d6475;
+  letter-spacing: 1px; margin-top: 8px;
+  text-transform: uppercase;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .ai-services { grid-template-columns: 1fr; }
@@ -2496,6 +2552,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
   .ai-benefits { grid-template-columns: 1fr 1fr; }
   .ai-body { padding: 28px 16px 64px; }
   .ai-cta-box { padding: 36px 20px; }
+  .ai-phone-number { font-size: 20px; }
 }
 @media (max-width: 480px) {
   .ai-benefits { grid-template-columns: 1fr; }
@@ -6331,12 +6388,25 @@ console.log(<span style="color:#f4c542">"Vault address:"</span>, vault.address.t
       <div class="ai-cta-title">Ready to automate your business?</div>
       <p class="ai-cta-sub">Book a free discovery call and I'll show you exactly where AI can save your team the most time and money — no commitment required.</p>
       <div class="ai-cta-btns">
-        <a href="https://x.com/DeFiMongo" target="_blank" class="ai-cta-primary">
-          ⚡ Book a Discovery Call
-        </a>
+        <button class="ai-cta-primary" onclick="togglePhonePopup(event)">
+          ⚡ Book a Discovery Call &nbsp;🇲🇳
+        </button>
         <a href="https://x.com/DeFiMongo" target="_blank" class="ai-cta-secondary">
           💬 Message on X / Twitter
         </a>
+      </div>
+
+      <!-- Phone number popup -->
+      <div class="ai-phone-popup" id="aiPhonePopup">
+        <div class="ai-phone-popup-inner">
+          <div class="ai-phone-flag">🇲🇳</div>
+          <div>
+            <div class="ai-phone-label">Mongolia · Монгол</div>
+            <a class="ai-phone-number" href="tel:+97672208456">+976 7220 8456</a>
+          </div>
+          <button class="ai-phone-copy" onclick="copyAIPhone(this)" title="Copy number">⧉</button>
+        </div>
+        <div class="ai-phone-hint">Tap the number to call · or copy it</div>
       </div>
       <div style="margin-top:20px;font-family:'Space Mono',monospace;font-size:9px;color:#4d6475;letter-spacing:1px">
         RESPONSE WITHIN 24 HOURS · ALL INDUSTRIES WELCOME · ANY SCALE
