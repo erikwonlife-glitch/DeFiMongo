@@ -2598,6 +2598,75 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
 </head>
 <body>
 
+<!-- ══════════════════════════════════════════════════════
+     MEMBER GATE — runs before page paint
+     Checks localStorage for dm_session token passed from
+     invest-mongo after OAuth login (hash-encoded, cross-origin)
+══════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  const KEY = 'dm_session';
+  const TTL = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+  // Pick up token passed in URL hash from invest-mongo auth redirect
+  if (location.hash.startsWith('#dm=')) {
+    try {
+      const info = JSON.parse(atob(location.hash.slice(4)));
+      info.ts = Date.now();
+      localStorage.setItem(KEY, JSON.stringify(info));
+    } catch(_) {}
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+
+  function getSession() {
+    try {
+      const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (!s || !s.ts || Date.now() - s.ts > TTL) { localStorage.removeItem(KEY); return null; }
+      return s;
+    } catch(_) { return null; }
+  }
+
+  window._dmSession = getSession();
+
+  window.dmSignOut = function() {
+    localStorage.removeItem(KEY);
+    location.href = 'https://doljmaad-web.github.io/investmongo/';
+  };
+})();
+</script>
+
+<!-- ── LOCK OVERLAY — shown when not signed in ── -->
+<div id="dm-lock" style="
+  display:none;position:fixed;inset:0;z-index:99999;
+  background:#05080c;
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:0;font-family:'Space Mono',monospace;
+">
+  <div style="text-align:center;max-width:460px;padding:40px 24px;">
+    <div style="font-size:36px;margin-bottom:20px;">🔒</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#00e87a;margin-bottom:12px;">Members Only</div>
+    <div style="font-size:22px;font-weight:700;color:#e0e4ec;margin-bottom:10px;line-height:1.3;">DeFiMongo Market Intelligence</div>
+    <div style="font-size:12px;color:#6b7280;margin-bottom:32px;line-height:1.7;">
+      Real-time crypto data, funding rates, signals and market screener — exclusive to DeFiMongo members.
+    </div>
+    <a href="https://invest-mongo-bot-production.up.railway.app/auth?next=scanner"
+       style="
+         display:inline-flex;align-items:center;gap:8px;
+         font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+         color:#000;background:#00e87a;text-decoration:none;
+         border-radius:6px;padding:12px 28px;
+         transition:all .2s;
+       "
+       onmouseover="this.style.background='#00ff88';this.style.transform='translateY(-1px)'"
+       onmouseout="this.style.background='#00e87a';this.style.transform='none'">
+      Join Free — Sign In
+    </a>
+    <div style="margin-top:20px;font-size:10px;color:#4b5563;">
+      Already a member? The same button will sign you in.
+    </div>
+  </div>
+</div>
+
 <header class="tb">
   <!-- Hamburger for mobile sidebar toggle -->
   <button class="mob-menu-btn" id="mobMenuBtn" onclick="toggleMobileSidebar()" aria-label="Menu">
@@ -2639,20 +2708,39 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--B
       <span class="ftr-text" data-mn="Үнэгүй Сургалт" data-en="Free Training">Үнэгүй Сургалт</span>
       <span class="ftr-badge">FREE</span>
     </button> -->
-    <!-- ★ WALLET PORTFOLIO BUTTON ★ -->
-    <a href="https://invest-mongo-bot-production.up.railway.app/portfolio" style="
-      display:inline-flex;align-items:center;gap:5px;
+    <!-- ★ AUTH BUTTONS — swapped by JS based on session ★ -->
+    <!-- Signed-in buttons (hidden until auth confirmed) -->
+    <a id="btn-portfolio" href="https://invest-mongo-bot-production.up.railway.app/portfolio" style="
+      display:none;align-items:center;gap:5px;
       font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
       color:#00e87a;text-decoration:none;
       border:1px solid #00e87a;border-radius:5px;padding:5px 10px;
-      background:rgba(0,232,122,0.07);flex-shrink:0;
-      transition:all .15s;
+      background:rgba(0,232,122,0.07);flex-shrink:0;transition:all .15s;
     " onmouseover="this.style.background='rgba(0,232,122,0.18)'"
        onmouseout="this.style.background='rgba(0,232,122,0.07)'">
       💼 Wallet Portfolio
     </a>
-    <button class="abtn al" onclick="openAuth('login')" data-mn="Нэвтрэх" data-en="Sign In">Нэвтрэх</button>
-    <button class="abtn aj" onclick="openAuth('register')" data-mn="Бүртгүүлэх" data-en="Join Free">Бүртгүүлэх</button>
+    <button id="btn-signout" onclick="dmSignOut()" style="
+      display:none;align-items:center;gap:5px;
+      font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+      color:#f87171;background:rgba(248,113,113,0.07);
+      border:1px solid rgba(248,113,113,0.4);border-radius:5px;padding:5px 10px;
+      flex-shrink:0;cursor:pointer;transition:all .15s;
+    " onmouseover="this.style.background='rgba(248,113,113,0.18)'"
+       onmouseout="this.style.background='rgba(248,113,113,0.07)'">
+      Sign Out
+    </button>
+    <!-- Not-signed-in button -->
+    <a id="btn-join" href="https://invest-mongo-bot-production.up.railway.app/auth?next=scanner" style="
+      display:inline-flex;align-items:center;gap:5px;
+      font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+      color:#000;background:#00e87a;text-decoration:none;
+      border:1px solid #00e87a;border-radius:5px;padding:5px 12px;
+      flex-shrink:0;transition:all .15s;
+    " onmouseover="this.style.background='#00ff88'"
+       onmouseout="this.style.background='#00e87a'">
+      Join Free
+    </a>
   </div>
 </header>
 
@@ -6456,6 +6544,27 @@ console.log(<span style="color:#f4c542">"Vault address:"</span>, vault.address.t
 
 <script src="js/ai-automation.js?v=1"></script>
 <script src="js/deeplinks.js?v=1"></script>
+
+<script>
+// ── Member gate: activate lock or show signed-in state ──────
+(function() {
+  const session = window._dmSession;
+
+  if (!session) {
+    // Not a member — show lock overlay, block scroll
+    const lock = document.getElementById('dm-lock');
+    if (lock) { lock.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  } else {
+    // Signed in — swap header buttons
+    const joinBtn      = document.getElementById('btn-join');
+    const portfolioBtn = document.getElementById('btn-portfolio');
+    const signoutBtn   = document.getElementById('btn-signout');
+    if (joinBtn)      joinBtn.style.display      = 'none';
+    if (portfolioBtn) portfolioBtn.style.display = 'inline-flex';
+    if (signoutBtn)   signoutBtn.style.display   = 'inline-flex';
+  }
+})();
+</script>
 
 </body>
 </html>
